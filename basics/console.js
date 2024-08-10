@@ -181,3 +181,7 @@ function baz() {
 }
 
 baz();
+
+
+
+console.log(Object.keys(console))
