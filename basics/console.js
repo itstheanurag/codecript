@@ -128,3 +128,56 @@ console.group('Formatters');
 console.log(formaters);
 console.groupEnd();
 
+
+console.group("Group 1");
+console.log("Message in group 1");
+console.group("Nested Group");
+console.log("Message in nested group");
+console.groupEnd();
+console.groupEnd();
+
+
+
+console.dir(console)
+
+
+// console.trace("Trace example");
+
+/**
+ * Trace: Trace example
+    at Object.<anonymous> (d:\codecript\basics\console.js:144:9)
+    at Module._compile (node:internal/modules/cjs/loader:1376:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1435:10)
+    at Module.load (node:internal/modules/cjs/loader:1207:32)
+    at Module._load (node:internal/modules/cjs/loader:1023:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:135:12)
+    at node:internal/main/run_main_module:28:49
+ */
+
+
+const person = {
+    name: 'Alice',
+    age: 30,
+    address: {
+        city: 'Wonderland',
+        country: 'Fantasy'
+    }
+};
+      
+console.dir(person);
+      
+
+
+function foo() {
+    console.trace('Trace in foo function');
+}
+
+function bar() {
+    foo();
+}
+
+function baz() {
+    bar();
+}
+
+baz();
