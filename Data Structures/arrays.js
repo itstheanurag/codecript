@@ -18,7 +18,12 @@ class MyArray {
 
     // implement pop method
     pop() {
-        const lastElement = this.data[this.length-1];
+        // Return undefined when the array is empty
+        if (this.length === 0) {
+            return undefined;  
+        }
+
+        const lastElement = this.data[this.length-1] ?? null;
         delete this.data[this.length-1];
         this.length--
         return lastElement;
@@ -39,17 +44,17 @@ class MyArray {
 
     // add at the start of the element
     unshift(...elements) {
-        // Shift existing elements to the right
+      // Shift existing elements to the right
         for (let i = this.length - 1; i >= 0; i--) {
             this.data[i + elements.length] = this.data[i];
         }
 
-        // Insert the new elements at the beginning
+        // Insert the new elements at the beginning in correct order
         for (let i = 0; i < elements.length; i++) {
             this.data[i] = elements[i];
         }
 
-        // Update the length
+        // Update the length of the array
         this.length += elements.length;
 
         return this.length; // Return the new length of the array
@@ -105,15 +110,15 @@ class MyArray {
     
 }
 
-const array = new MyArray();
-array.push(1)
-array.push(2)
-array.push(3)
-array.push(4)
-array.push(5)
+// const array = new MyArray();
+// array.push(1)
+// array.push(2)
+// array.push(3)
+// array.push(4)
+// array.push(5)
 // // array.pop()
 // array.shift()
-console.log(array)
+// console.log(array)
 // array.deleteByIndex(2)
 // console.log(array)
 
@@ -127,8 +132,20 @@ console.log(array)
 // console.log(mappedArray.filter(el=> el % 2 != 0))
 
 
-array.unshift(2,3,5,5)
+// array.unshift(2,3,5,5)
 
-array.push("apple", "mango", "orange")
+// array.push("apple", "mango", "orange")
 
-console.log(array)
+// console.log(array)
+
+const arr = new MyArray();
+arr.push(10, 20, 30);
+console.log(arr.at(0));  // 10
+console.log(arr.at(-1)); // 30
+
+arr.unshift(1,2,3,4,5)
+// console.log(arr)
+// arr.shift(1)
+console.log(arr)
+arr.deleteByIndex(3)
+console.log(arr)
