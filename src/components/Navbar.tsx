@@ -1,4 +1,4 @@
-import { Github, Code2 } from "lucide-react";
+import { Github } from "lucide-react";
 
 const navItems = [
   { label: "Languages", href: "/languages" },
@@ -18,10 +18,9 @@ const Navbar = () => {
             href="/"
             className="flex items-center gap-2 text-white text-2xl tracking-tight lobster-two-bold"
           >
-            <Code2 className="text-white" size={28} />
             CodeCript
           </a>
-          <ul className="hidden md:flex items-center gap-4 text-sm text-zinc-300 font-bold tracking-wider">
+          <ul className="hidden md:flex items-center gap-4 text-sm text-zinc-300 font-semibold tracking-wider">
             {navItems.map((item) => (
               <li key={item.href}>
                 <a
