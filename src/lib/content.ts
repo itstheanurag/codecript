@@ -49,15 +49,21 @@ export interface DocItem {
   content: string;
 }
 
+export interface DocGroup {
+  title: string;
+  items: DocItem[];
+}
+
 export interface DocSection {
   title: string;
   description: string;
   basePath: string;
   items: DocItem[];
+  groups?: DocGroup[];
 }
 
 const docModules = import.meta.glob<string>(
-  "/content/{languages,ds,algo,sys-design,building}/*.md",
+  "/content/{languages,ds,algo,sys-design,building}/**/*.md",
   {
     query: "?raw",
     import: "default",
@@ -69,11 +75,36 @@ function loadDocSection(section: string): DocItem[] {
   return Object.entries(docModules)
     .filter(([path]) => path.startsWith(`/content/${section}/`))
     .map(([path, raw]) => {
-      const slug = path.split("/").pop()!.replace(".md", "");
+      // Robust slug extraction: get everything after /content/[section]/
+      const parts = path.split(`/content/${section}/`);
+      const slug = parts[parts.length - 1].replace(".md", "");
       const { data, content } = parseFrontmatter<DocMeta>(raw);
       return { slug, meta: data, content };
     })
     .sort((a, b) => (a.meta.order ?? 0) - (b.meta.order ?? 0));
+}
+
+function loadGroupedDocSection(section: string): DocGroup[] {
+  const items = loadDocSection(section);
+  const groups: Record<string, DocItem[]> = {};
+
+  items.forEach((item) => {
+    const parts = item.slug.split("/");
+    if (parts.length > 1) {
+      const groupName = parts[0];
+      // Capitalize first letter of groupName
+      const groupTitle = groupName.charAt(0).toUpperCase() + groupName.slice(1);
+      if (!groups[groupTitle]) {
+        groups[groupTitle] = [];
+      }
+      groups[groupTitle].push(item);
+    }
+  });
+
+  return Object.entries(groups).map(([title, items]) => ({
+    title,
+    items,
+  }));
 }
 
 export function getDocSections(): Record<string, DocSection> {
@@ -83,6 +114,7 @@ export function getDocSections(): Record<string, DocSection> {
       description: "Learn programming languages from the ground up.",
       basePath: "/languages",
       items: loadDocSection("languages"),
+      groups: loadGroupedDocSection("languages"),
     },
     "/ds": {
       title: "Data Structures",

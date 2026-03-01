@@ -12,9 +12,13 @@ export const DocLayout = () => {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <Navbar />
-      <div className="flex flex-1 min-h-0">
+      <div className="flex flex-1 min-h-0 ">
         {section && (
-          <Sidebar basePath={section.basePath} items={section.items} />
+          <Sidebar
+            basePath={section.basePath}
+            items={section.items}
+            groups={section.groups}
+          />
         )}
         <main className="flex-1 overflow-y-auto">
           <Outlet />

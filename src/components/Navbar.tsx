@@ -1,5 +1,6 @@
+import React from "react";
 import { Github } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const navItems = [
   { label: "Languages", href: "/languages" },
@@ -10,10 +11,12 @@ const navItems = [
   { label: "Blog", href: "/blog" },
 ];
 
-const Navbar = () => {
+const Navbar = React.memo(() => {
+  const location = useLocation();
+
   return (
-    <nav className="sticky top-0 z-50 bg-zinc-950 border-b border-white/10">
-      <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+    <nav className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-white/10">
+      <div className="flex items-center justify-between px-6 py-2 max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
           <Link
             to="/"
@@ -22,16 +25,21 @@ const Navbar = () => {
             CodeCript
           </Link>
           <ul className="hidden md:flex items-center gap-4 text-sm text-zinc-300 font-semibold tracking-wider">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  to={item.href}
-                  className="hover:text-white transition-colors duration-200 hover:underline decoration-2 underline-offset-4"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
+            {navItems.map((item) => {
+              const isActive = location.pathname.startsWith(item.href);
+              return (
+                <li key={item.href}>
+                  <Link
+                    to={item.href}
+                    className={`hover:text-white transition-colors duration-200 decoration-2 underline-offset-4 ${
+                      isActive ? "text-white underline" : ""
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
 
@@ -42,6 +50,6 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
+});
 
 export default Navbar;

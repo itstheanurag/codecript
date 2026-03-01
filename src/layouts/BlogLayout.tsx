@@ -5,7 +5,7 @@ export const BlogLayout = () => {
   return (
     <>
       <Navbar />
-      <main>
+      <main className="max-w-7xl mx-auto px-6 py-4">
         <Outlet />
       </main>
     </>

@@ -3,7 +3,8 @@ import { getDocSections } from "../lib/content";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 
 const DocContentPage = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const params = useParams();
+  const slug = params["*"];
   const location = useLocation();
   const sections = getDocSections();
 
