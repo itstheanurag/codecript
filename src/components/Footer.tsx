@@ -37,7 +37,7 @@ const Footer = () => {
 
         <div className="w-full h-px bg-white/10 mb-8"></div>
 
-        <div className="flex flex-col md:flex-row items-center justify-between w-full text-sm text-zinc-500 font-bold uppercase tracking-widest gap-4">
+        <div className="flex flex-col md:flex-row items-center justify-between w-full text-sm text-zinc-500 tracking-widest gap-4">
           <p>© {new Date().getFullYear()} CodeCript Open Source.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-zinc-300 transition-colors">
