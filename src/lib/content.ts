@@ -50,13 +50,14 @@ export interface DocItem {
 }
 
 export interface DocSection {
+  title: string;
   description: string;
   basePath: string;
   items: DocItem[];
 }
 
 const docModules = import.meta.glob<string>(
-  "/content/{ds,algo,sys-design,building}/*.md",
+  "/content/{languages,ds,algo,sys-design,building}/*.md",
   {
     query: "?raw",
     import: "default",
@@ -77,22 +78,32 @@ function loadDocSection(section: string): DocItem[] {
 
 export function getDocSections(): Record<string, DocSection> {
   return {
+    "/languages": {
+      title: "Languages",
+      description: "Learn programming languages from the ground up.",
+      basePath: "/languages",
+      items: loadDocSection("languages"),
+    },
     "/ds": {
+      title: "Data Structures",
       description: "Core data structures every developer should know.",
       basePath: "/ds",
       items: loadDocSection("ds"),
     },
     "/algo": {
+      title: "Algorithms",
       description: "Essential algorithms for problem solving and interviews.",
       basePath: "/algo",
       items: loadDocSection("algo"),
     },
     "/sys-design": {
+      title: "System Design",
       description: "Concepts and patterns for designing scalable systems.",
       basePath: "/sys-design",
       items: loadDocSection("sys-design"),
     },
     "/building": {
+      title: "Building Projects",
       description: "Step-by-step guides to building real-world applications.",
       basePath: "/building",
       items: loadDocSection("building"),

@@ -24,6 +24,8 @@ function App() {
 
         {/* Doc sections — sidebar + content, no footer */}
         <Route element={<DocLayout />}>
+          <Route path="/languages" element={<DocContentPage />} />
+          <Route path="/languages/:slug" element={<DocContentPage />} />
           <Route path="/ds" element={<DocContentPage />} />
           <Route path="/ds/:slug" element={<DocContentPage />} />
           <Route path="/algo" element={<DocContentPage />} />
