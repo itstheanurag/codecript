@@ -12,20 +12,22 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
       remarkPlugins={[remarkGfm]}
       components={{
         h1: ({ children }) => (
-          <h1 className="text-3xl md:text-4xl font-bold text-white mt-8 mb-5">
+          <h1 className="text-3xl md:text-4xl font-bold text-neutral-50 mt-8 mb-5">
             {children}
           </h1>
         ),
         h2: ({ children }) => (
-          <h2 className="text-2xl font-bold text-white mt-10 mb-4">
+          <h2 className="text-2xl font-bold text-neutral-50 mt-10 mb-4">
             {children}
           </h2>
         ),
         h3: ({ children }) => (
-          <h3 className="text-lg font-bold text-white mt-8 mb-3">{children}</h3>
+          <h3 className="text-lg font-bold text-neutral-50 mt-8 mb-3">
+            {children}
+          </h3>
         ),
         p: ({ children }) => (
-          <p className="text-zinc-300 leading-relaxed mb-4 text-[17px]">
+          <p className="text-neutral-400 leading-relaxed mb-4 text-[17px]">
             {children}
           </p>
         ),
@@ -36,10 +38,10 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
           <ol className="list-decimal ml-6 mb-4 space-y-1">{children}</ol>
         ),
         li: ({ children }) => (
-          <li className="text-zinc-300 leading-relaxed">{children}</li>
+          <li className="text-neutral-400 leading-relaxed">{children}</li>
         ),
         strong: ({ children }) => (
-          <strong className="text-white font-semibold">{children}</strong>
+          <strong className="text-neutral-50 font-semibold">{children}</strong>
         ),
         code: ({ children, className }) => {
           const match = className?.match(/language-(\w+)/);
@@ -48,7 +50,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             return <CodeBlock code={code} language={match[1]} />;
           }
           return (
-            <code className="bg-zinc-800 text-zinc-200 px-1.5 py-0.5 rounded text-sm font-mono">
+            <code className="bg-neutral-900 text-neutral-200 px-1.5 py-0.5 rounded text-sm font-mono border border-neutral-800">
               {children}
             </code>
           );
@@ -60,15 +62,15 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
           </div>
         ),
         thead: ({ children }) => (
-          <thead className="border-b border-white/20">{children}</thead>
+          <thead className="border-b border-neutral-800">{children}</thead>
         ),
         th: ({ children }) => (
-          <th className="text-left text-white font-semibold py-2 px-3">
+          <th className="text-left text-neutral-50 font-semibold py-2 px-3">
             {children}
           </th>
         ),
         td: ({ children }) => (
-          <td className="text-zinc-300 py-2 px-3 border-b border-white/5">
+          <td className="text-neutral-400 py-2 px-3 border-b border-neutral-900">
             {children}
           </td>
         ),
@@ -83,11 +85,11 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
           </a>
         ),
         blockquote: ({ children }) => (
-          <blockquote className="border-l-2 border-white/20 pl-4 italic text-zinc-400 mb-4">
+          <blockquote className="border-l-2 border-neutral-800 pl-4 italic text-neutral-500 mb-4">
             {children}
           </blockquote>
         ),
-        hr: () => <hr className="border-white/10 my-8" />,
+        hr: () => <hr className="border-neutral-900 my-8" />,
       }}
     >
       {content}

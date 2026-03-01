@@ -10,13 +10,15 @@ const BlogReadPage = () => {
   if (!post) {
     return (
       <div className="py-32 text-center">
-        <h1 className="text-4xl font-bold text-white mb-4">Post not found</h1>
-        <p className="text-zinc-400 mb-8">
+        <h1 className="text-4xl font-bold text-neutral-50 mb-4">
+          Post not found
+        </h1>
+        <p className="text-neutral-400 mb-8">
           The blog post you're looking for doesn't exist.
         </p>
         <Link
           to="/blog"
-          className="inline-flex items-center gap-2 text-zinc-300 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-neutral-300 hover:text-neutral-50 transition-colors"
         >
           <ArrowLeft size={18} />
           Back to all posts
@@ -30,23 +32,23 @@ const BlogReadPage = () => {
       <article className="max-w-3xl mx-auto px-6">
         <Link
           to="/blog"
-          className="inline-flex items-center gap-2 text-zinc-500 hover:text-white transition-colors mb-10 text-sm font-medium"
+          className="inline-flex items-center gap-2 text-neutral-500 hover:text-neutral-50 transition-colors mb-10 text-sm font-medium"
         >
           <ArrowLeft size={16} />
           All Posts
         </Link>
 
         <header className="mb-12">
-          <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-500 mb-4">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-500 mb-4">
             <span>{post.meta.date}</span>
-            <span className="text-zinc-700">·</span>
+            <span className="text-neutral-800">·</span>
             <span className="flex items-center gap-1">
               <Clock size={14} />
               {post.meta.readTime}
             </span>
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-3xl md:text-5xl font-bold text-neutral-50 mb-6 leading-tight">
             {post.meta.title}
           </h1>
 
@@ -54,7 +56,7 @@ const BlogReadPage = () => {
             {post.meta.tags?.map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1 text-xs font-medium bg-white/5 border border-white/10 rounded-md text-zinc-400"
+                className="px-3 py-1 text-xs font-medium bg-neutral-900 border border-neutral-800 rounded-md text-neutral-400"
               >
                 {tag}
               </span>
@@ -62,14 +64,14 @@ const BlogReadPage = () => {
           </div>
         </header>
 
-        <div className="border-t border-white/10 pt-10">
+        <div className="border-t border-neutral-800 pt-10">
           <MarkdownRenderer content={post.content} />
         </div>
 
-        <div className="border-t border-white/10 mt-16 pt-8">
+        <div className="border-t border-neutral-800 mt-16 pt-8">
           <Link
             to="/blog"
-            className="inline-flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-sm font-medium"
+            className="inline-flex items-center gap-2 text-neutral-500 hover:text-neutral-50 transition-colors text-sm font-medium"
           >
             <ArrowLeft size={16} />
             Back to all posts

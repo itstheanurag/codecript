@@ -15,24 +15,24 @@ const Navbar = React.memo(() => {
   const location = useLocation();
 
   return (
-    <nav className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-white/10">
+    <nav className="sticky top-0 z-50 bg-neutral-950/80 backdrop-blur-md border-b border-neutral-800">
       <div className="flex items-center justify-between px-6 py-2 max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
           <Link
             to="/"
-            className="flex items-center gap-2 text-white text-2xl tracking-tight lobster-two-bold"
+            className="flex items-center gap-2 text-neutral-50 text-2xl tracking-tight lobster-two-bold"
           >
             CodeCript
           </Link>
-          <ul className="hidden md:flex items-center gap-4 text-sm text-zinc-300 font-semibold tracking-wider">
+          <ul className="hidden md:flex items-center gap-4 text-sm text-neutral-400 font-semibold tracking-wider">
             {navItems.map((item) => {
               const isActive = location.pathname.startsWith(item.href);
               return (
                 <li key={item.href}>
                   <Link
                     to={item.href}
-                    className={`hover:text-white transition-colors duration-200 decoration-2 underline-offset-4 ${
-                      isActive ? "text-white underline" : ""
+                    className={`hover:text-neutral-50 transition-colors duration-200 decoration-2 underline-offset-4 ${
+                      isActive ? "text-neutral-50 underline" : ""
                     }`}
                   >
                     {item.label}
@@ -43,7 +43,7 @@ const Navbar = React.memo(() => {
           </ul>
         </div>
 
-        <button className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200">
+        <button className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-50 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200">
           <Github size={18} />
           <span className="hidden sm:inline">Star on GitHub</span>
         </button>

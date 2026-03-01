@@ -31,7 +31,7 @@ const CodeBlock = ({ code, language }: CodeBlockProps) => {
 
   if (!html) {
     return (
-      <pre className="bg-zinc-900 border border-white/10 rounded-lg p-4 text-sm text-zinc-300 font-mono overflow-x-auto mb-4">
+      <pre className="bg-neutral-900 border border-neutral-800 rounded-lg p-4 text-sm text-neutral-400 font-mono overflow-x-auto mb-4">
         <code>{code}</code>
       </pre>
     );
@@ -40,7 +40,7 @@ const CodeBlock = ({ code, language }: CodeBlockProps) => {
   return (
     <div
       ref={containerRef}
-      className="shiki-wrapper mb-4 rounded-lg overflow-x-auto border border-white/10 text-sm [&>pre]:p-4 [&>pre]:bg-zinc-900! [&>pre]:overflow-x-auto"
+      className="shiki-wrapper mb-4 rounded-lg overflow-x-auto border border-neutral-800 text-sm [&>pre]:p-4 [&>pre]:bg-neutral-900! [&>pre]:overflow-x-auto"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

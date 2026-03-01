@@ -13,7 +13,7 @@ const Sidebar = ({ basePath, items, groups }: SidebarProps) => {
   const location = useLocation();
 
   return (
-    <aside className="w-64 shrink-0 border-r border-white/10 overflow-y-auto">
+    <aside className="w-64 shrink-0 border-r border-neutral-800 overflow-y-auto">
       <div className="p-6">
         <nav className="flex flex-col gap-1">
           {items
@@ -56,21 +56,21 @@ const SidebarGroup = ({
   const [isOpen, setIsOpen] = useState<boolean>(isAnyActive || true);
 
   return (
-    <div className="flex flex-col gap-1 mt-4 first:mt-0">
+    <div className="flex flex-col mt-4 first:mt-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between px-2 py-1.5 text-xs font-bold text-zinc-500 uppercase tracking-widest hover:text-white transition-colors group"
+        className="flex items-center justify-between px-2 py-1.5 text-xs font-bold text-neutral-500 tracking-widest hover:text-neutral-50 transition-colors group"
       >
         {group.title}
         <ChevronDown
           size={14}
           className={`transition-transform duration-200 ${
             isOpen ? "" : "-rotate-90"
-          } group-hover:text-white`}
+          } group-hover:text-neutral-50`}
         />
       </button>
       {isOpen && (
-        <div className="flex flex-col gap-1 ml-2 border-l border-white/5 pl-2">
+        <div className="flex flex-col gap-1 ml-2 border-l border-neutral-900 pl-2">
           {group.items.map((item) => (
             <SidebarLink
               key={item.slug}
@@ -96,10 +96,10 @@ const SidebarLink = ({
 }) => (
   <Link
     to={to}
-    className={`px-2 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+    className={`px-2 py-1 rounded-lg text-sm font-medium transition-colors ${
       isActive
-        ? "bg-white/10 text-white"
-        : "text-zinc-400 hover:text-white hover:bg-white/5"
+        ? "bg-neutral-900 text-neutral-50"
+        : "text-neutral-400 hover:text-neutral-50 hover:bg-neutral-900"
     }`}
   >
     {title}
