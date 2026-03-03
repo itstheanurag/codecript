@@ -85,27 +85,27 @@ const Hero = () => {
       <BackgroundMesh />
 
       <div className="relative max-w-6xl mx-auto px-6 text-center z-10 pb-20">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-950 border border-white/10 text-zinc-100 text-sm font-bold mb-8 uppercase tracking-widest">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-950 border border-white/10 text-neutral-100 text-sm font-bold mb-8 uppercase tracking-widest">
           <span className="flex h-2 w-2 bg-white animate-pulse"></span>
           System Design Courses Live
         </div>
 
         <h1 className="text-5xl md:text-7xl lg:text-8xl text-white tracking-tight mb-8 leading-tighter">
           Master Software <br className="hidden md:block" />
-          <span className="text-white relative inline-block px-4 border border-white/10 bg-zinc-950 mt-2 lobster-two-bold">
+          <span className="text-white relative inline-block px-4 border border-white/10 bg-neutral-950 mt-2 lobster-two-bold">
             <span className="relative z-10">Engineering.</span>
             <div className="absolute inset-0 z-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(255,255,255,0.1)_4px,rgba(255,255,255,0.1)_6px)]"></div>
           </span>
         </h1>
 
-        <p className="text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto mb-12 leading-relaxed">
+        <p className="text-lg md:text-xl text-neutral-300 max-w-2xl mx-auto mb-12 leading-relaxed">
           The ultimate platform to learn languages, data structures, algorithms,
           and system design. Build real-world projects and ace your technical
           interviews.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-          <button className="flex items-center gap-2 px-3  py-2 bg-white hover:bg-zinc-200 text-zinc-950 rounded-lg text-md transition-transform hover:scale-101 font-sans">
+          <button className="flex items-center gap-2 px-3  py-2 bg-white hover:bg-neutral-200 text-neutral-950 rounded-lg text-md transition-transform hover:scale-101 font-sans">
             Start Learning
             <ChevronRight size={20} />
           </button>

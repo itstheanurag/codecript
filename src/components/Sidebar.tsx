@@ -7,13 +7,14 @@ interface SidebarProps {
   basePath: string;
   items: DocItem[];
   groups?: DocGroup[];
+  onItemClick?: () => void;
 }
 
-const Sidebar = ({ basePath, items, groups }: SidebarProps) => {
+const Sidebar = ({ basePath, items, groups, onItemClick }: SidebarProps) => {
   const location = useLocation();
 
   return (
-    <aside className="w-64 shrink-0 border-r border-neutral-800 overflow-y-auto">
+    <aside className="w-64 h-full shrink-0 border-r border-neutral-800 overflow-y-auto bg-neutral-950 lg:bg-transparent">
       <div className="p-6">
         <nav className="flex flex-col gap-1">
           {items
@@ -24,6 +25,7 @@ const Sidebar = ({ basePath, items, groups }: SidebarProps) => {
                 to={`${basePath}/${item.slug}`}
                 title={item.meta.title}
                 isActive={location.pathname === `${basePath}/${item.slug}`}
+                onClick={onItemClick}
               />
             ))}
 
@@ -33,6 +35,7 @@ const Sidebar = ({ basePath, items, groups }: SidebarProps) => {
               group={group}
               basePath={basePath}
               pathname={location.pathname}
+              onItemClick={onItemClick}
             />
           ))}
         </nav>
@@ -45,10 +48,12 @@ const SidebarGroup = ({
   group,
   basePath,
   pathname,
+  onItemClick,
 }: {
   group: DocGroup;
   basePath: string;
   pathname: string;
+  onItemClick?: () => void;
 }) => {
   const isAnyActive = group.items.some(
     (item) => pathname === `${basePath}/${item.slug}`,
@@ -77,6 +82,7 @@ const SidebarGroup = ({
               to={`${basePath}/${item.slug}`}
               title={item.meta.title}
               isActive={pathname === `${basePath}/${item.slug}`}
+              onClick={onItemClick}
             />
           ))}
         </div>
@@ -89,13 +95,16 @@ const SidebarLink = ({
   to,
   title,
   isActive,
+  onClick,
 }: {
   to: string;
   title: string;
   isActive: boolean;
+  onClick?: () => void;
 }) => (
   <Link
     to={to}
+    onClick={onClick}
     className={`px-2 py-1 rounded-lg text-sm font-medium transition-colors ${
       isActive
         ? "bg-neutral-900 text-neutral-50"

@@ -56,7 +56,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
           </h3>
         ),
         p: ({ children }) => (
-          <p className="text-neutral-400 leading-relaxed mb-4 text-[17px]">
+          <p className="text-neutral-400 leading-relaxed mb-4 text-base">
             {children}
           </p>
         ),

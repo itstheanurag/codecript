@@ -33,7 +33,7 @@ const DocContentPage = () => {
         <h1 className="text-3xl md:text-4xl font-bold text-neutral-300 mb-4">
           {section.title}
         </h1>
-        <p className="text-neutral-400 text-lg mb-8 leading-relaxed">
+        <p className="text-neutral-400 text-base mb-8 leading-relaxed">
           {section.description}
         </p>
         <p className="text-neutral-500">
