@@ -1,10 +1,30 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import CodeBlock from "./CodeBlock";
+import { slugify } from "../lib/slugify";
 
 interface MarkdownRendererProps {
   content: string;
 }
+
+const getTextContent = (children: React.ReactNode): string => {
+  if (typeof children === "string") return children;
+  if (typeof children === "number") return String(children);
+  if (Array.isArray(children)) return children.map(getTextContent).join("");
+  if (
+    children !== null &&
+    children !== undefined &&
+    typeof children === "object"
+  ) {
+    const childObj = children as unknown as {
+      props?: { children?: React.ReactNode };
+    };
+    if (childObj.props?.children !== undefined) {
+      return getTextContent(childObj.props.children);
+    }
+  }
+  return "";
+};
 
 const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
   return (
@@ -12,17 +32,26 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
       remarkPlugins={[remarkGfm]}
       components={{
         h1: ({ children }) => (
-          <h1 className="text-3xl md:text-4xl font-bold text-neutral-50 mt-8 mb-5">
+          <h1
+            id={slugify(getTextContent(children))}
+            className="text-3xl md:text-4xl font-bold text-neutral-50 mt-8 mb-5"
+          >
             {children}
           </h1>
         ),
         h2: ({ children }) => (
-          <h2 className="text-2xl font-bold text-neutral-50 mt-10 mb-4">
+          <h2
+            id={slugify(getTextContent(children))}
+            className="text-2xl font-bold text-neutral-50 mt-10 mb-4"
+          >
             {children}
           </h2>
         ),
         h3: ({ children }) => (
-          <h3 className="text-lg font-bold text-neutral-50 mt-8 mb-3">
+          <h3
+            id={slugify(getTextContent(children))}
+            className="text-lg font-bold text-neutral-50 mt-8 mb-3"
+          >
             {children}
           </h3>
         ),
