@@ -81,7 +81,7 @@ const BackgroundMesh = () => (
 
 const Hero = () => {
   return (
-    <div className="relative overflow-hidden h-full flex flex-col justify-center">
+    <div className="relative overflow-hidden h-full min-h-[500px] flex flex-col justify-center">
       <BackgroundMesh />
 
       <div className="relative max-w-6xl mx-auto px-6 text-center z-10 pb-20">

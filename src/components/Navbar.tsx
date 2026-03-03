@@ -62,7 +62,7 @@ const Navbar = React.memo(() => {
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-neutral-800 bg-neutral-950 px-6 py-4 animate-in fade-in slide-in-from-top-4 duration-200">
+        <div className="md:hidden absolute top-full left-0 right-0 border-t border-neutral-800 bg-neutral-950/95 backdrop-blur-md px-6 py-4 animate-in fade-in slide-in-from-top-4 duration-200 shadow-2xl">
           <ul className="flex flex-col gap-4 text-base text-neutral-400 font-medium">
             {navItems.map((item) => {
               const isActive = location.pathname.startsWith(item.href);
