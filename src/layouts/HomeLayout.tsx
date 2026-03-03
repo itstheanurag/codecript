@@ -4,13 +4,15 @@ import Footer from "../components/Footer";
 
 const HomeLayout = () => {
   return (
-    <>
+    <div className="h-screen overflow-hidden flex flex-col">
       <Navbar />
-      <main className="max-w-7xl mx-auto px-6 py-4">
-        <Outlet />
-      </main>
+      <div className="max-w-[90rem] mx-auto border-x border-neutral-800 flex-1 w-full">
+        <main className="h-full">
+          <Outlet />
+        </main>
+      </div>
       <Footer />
-    </>
+    </div>
   );
 };
 
