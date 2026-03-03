@@ -14,7 +14,7 @@ const DocContentPage = () => {
   if (!section) {
     return (
       <div className="p-12 text-center">
-        <h1 className="text-2xl font-bold text-neutral-50 mb-4">
+        <h1 className="text-2xl font-bold text-neutral-300 mb-4">
           Section not found
         </h1>
         <Link
@@ -29,8 +29,8 @@ const DocContentPage = () => {
 
   if (!slug) {
     return (
-      <div className="p-12 max-w-3xl">
-        <h1 className="text-3xl md:text-4xl font-bold text-neutral-50 mb-4">
+      <div className="p-12">
+        <h1 className="text-3xl md:text-4xl font-bold text-neutral-300 mb-4">
           {section.title}
         </h1>
         <p className="text-neutral-400 text-lg mb-8 leading-relaxed">
@@ -48,7 +48,7 @@ const DocContentPage = () => {
   if (!item) {
     return (
       <div className="p-12 text-center">
-        <h1 className="text-2xl font-bold text-neutral-50 mb-4">
+        <h1 className="text-2xl font-bold text-neutral-300 mb-4">
           Topic not found
         </h1>
         <Link
@@ -62,8 +62,8 @@ const DocContentPage = () => {
   }
 
   return (
-    <div className="p-8 md:p-12 max-w-3xl overflow-y-auto">
-      <h1 className="text-3xl md:text-4xl font-bold text-neutral-50 mb-8">
+    <div className="p-8 md:p-12 overflow-y-auto w-full">
+      <h1 className="text-3xl md:text-4xl font-bold text-neutral-300 mb-8">
         {item.meta.title}
       </h1>
       <MarkdownRenderer content={item.content} />
