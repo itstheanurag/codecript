@@ -107,8 +107,12 @@ function loadGroupedDocSection(section: string): DocGroup[] {
   }));
 }
 
+let cachedSections: Record<string, DocSection> | null = null;
+
 export function getDocSections(): Record<string, DocSection> {
-  return {
+  if (cachedSections) return cachedSections;
+
+  cachedSections = {
     "/languages": {
       title: "Languages",
       description: "Learn programming languages from the ground up.",
@@ -140,5 +144,44 @@ export function getDocSections(): Record<string, DocSection> {
       basePath: "/building",
       items: loadDocSection("building"),
     },
+  };
+
+  return cachedSections;
+}
+
+export interface AdjacentDocItems {
+  prev: DocItem | null;
+  next: DocItem | null;
+}
+
+export function getAdjacentDocItems(
+  sectionKey: string,
+  currentSlug: string,
+): AdjacentDocItems {
+  const section = getDocSections()[sectionKey];
+  if (!section) return { prev: null, next: null };
+
+  // Determine the group prefix (e.g. "javascript/" from "javascript/introduction")
+  const slugParts = currentSlug.split("/");
+  const groupPrefix =
+    slugParts.length > 1 ? slugParts.slice(0, -1).join("/") + "/" : "";
+
+  // Filter to only items in the same subdirectory
+  const scopedItems = groupPrefix
+    ? section.items.filter((item) => item.slug.startsWith(groupPrefix))
+    : section.items;
+
+  const currentIndex = scopedItems.findIndex(
+    (item) => item.slug === currentSlug,
+  );
+
+  if (currentIndex === -1) return { prev: null, next: null };
+
+  return {
+    prev: currentIndex > 0 ? scopedItems[currentIndex - 1] : null,
+    next:
+      currentIndex < scopedItems.length - 1
+        ? scopedItems[currentIndex + 1]
+        : null,
   };
 }

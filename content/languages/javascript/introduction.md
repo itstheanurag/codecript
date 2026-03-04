@@ -60,7 +60,3 @@ One of the best things about JavaScript is its low barrier to entry.
 We won't just look at code; we will understand the **patterns** and **logic** that make software work. We will start with the basics (Variables and Types), move into logic (Functions), and eventually master complex concepts like **Asynchronous Programming** and **Modern ES6+** syntax.
 
 JavaScript is evolving every year, and in this section, we will ensure you are learning the most modern and industry-standard practices.
-
----
-
-**Ready to get started?** Let's dive into our first topic: [Variables and Types](/languages/javascript/variables-and-types)

@@ -1,15 +1,28 @@
+import { useMemo } from "react";
 import { useParams, useLocation, Link } from "react-router-dom";
-import { getDocSections } from "../lib/content";
+import { getDocSections, getAdjacentDocItems } from "../lib/content";
 import MarkdownRenderer from "../components/MarkdownRenderer";
+import DocPagination from "../components/DocPagination";
 
 const DocContentPage = () => {
   const params = useParams();
   const slug = params["*"];
   const location = useLocation();
-  const sections = getDocSections();
 
   const sectionKey = "/" + location.pathname.split("/")[1];
+  const sections = getDocSections();
   const section = sections[sectionKey];
+
+  const item = useMemo(
+    () => (slug ? (section?.items.find((i) => i.slug === slug) ?? null) : null),
+    [section, slug],
+  );
+
+  const { prev, next } = useMemo(
+    () =>
+      slug ? getAdjacentDocItems(sectionKey, slug) : { prev: null, next: null },
+    [sectionKey, slug],
+  );
 
   if (!section) {
     return (
@@ -43,8 +56,6 @@ const DocContentPage = () => {
     );
   }
 
-  const item = section.items.find((i) => i.slug === slug);
-
   if (!item) {
     return (
       <div className="p-12 text-center">
@@ -67,6 +78,7 @@ const DocContentPage = () => {
         {item.meta.title}
       </h1>
       <MarkdownRenderer content={item.content} />
+      <DocPagination prev={prev} next={next} basePath={section.basePath} />
     </div>
   );
 };
