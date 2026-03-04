@@ -1,6 +1,6 @@
 ---
 title: Functions
-order: 3
+order: 4
 ---
 
 Functions are first-class citizens in JavaScript — they can be stored in variables, passed as arguments, and returned from other functions.

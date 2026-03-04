@@ -1,7 +1,15 @@
+import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import CodeBlock from "./CodeBlock";
 import { slugify } from "../lib/slugify";
+import CodeBlock from "./CodeBlock";
+import {
+  Info,
+  Lightbulb,
+  AlertCircle,
+  AlertTriangle,
+  Octagon,
+} from "lucide-react";
 
 interface MarkdownRendererProps {
   content: string;
@@ -24,6 +32,96 @@ const getTextContent = (children: React.ReactNode): string => {
     }
   }
   return "";
+};
+
+const ALERT_CONFIG = {
+  NOTE: {
+    icon: Info,
+    bg: "bg-blue-900/10",
+    border: "border-blue-800/50",
+    text: "text-blue-400",
+    label: "Note",
+  },
+  TIP: {
+    icon: Lightbulb,
+    bg: "bg-emerald-900/10",
+    border: "border-emerald-800/50",
+    text: "text-emerald-400",
+    label: "Tip",
+  },
+  IMPORTANT: {
+    icon: AlertCircle,
+    bg: "bg-purple-900/10",
+    border: "border-purple-800/50",
+    text: "text-purple-400",
+    label: "Important",
+  },
+  WARNING: {
+    icon: AlertTriangle,
+    bg: "bg-amber-900/10",
+    border: "border-amber-800/50",
+    text: "text-amber-400",
+    label: "Warning",
+  },
+  CAUTION: {
+    icon: Octagon,
+    bg: "bg-red-900/10",
+    border: "border-red-800/50",
+    text: "text-red-400",
+    label: "Caution",
+  },
+};
+
+const processAlertContent = (
+  children: React.ReactNode,
+): { content: React.ReactNode; type: keyof typeof ALERT_CONFIG | null } => {
+  let foundType: keyof typeof ALERT_CONFIG | null = null;
+
+  const walk = (node: React.ReactNode): React.ReactNode => {
+    if (foundType) return node;
+
+    if (typeof node === "string") {
+      const match = node.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i);
+      if (match) {
+        foundType = match[1].toUpperCase() as keyof typeof ALERT_CONFIG;
+        return node.replace(
+          /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/i,
+          "",
+        );
+      }
+    }
+
+    if (
+      React.isValidElement(node) &&
+      (node.props as { children?: React.ReactNode }).children
+    ) {
+      const newChildren = walk(
+        (node.props as { children?: React.ReactNode }).children,
+      );
+      if (foundType) {
+        return React.cloneElement(
+          node as React.ReactElement<{ children?: React.ReactNode }>,
+          { children: newChildren },
+        );
+      }
+    }
+
+    if (Array.isArray(node)) {
+      const newNodes = [...node];
+      for (let i = 0; i < newNodes.length; i++) {
+        const result = walk(newNodes[i]);
+        if (foundType) {
+          newNodes[i] = result;
+          return newNodes;
+        }
+      }
+    }
+
+    return node;
+  };
+
+  const content = walk(children);
+  return { content, type: foundType };
 };
 
 const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
@@ -113,11 +211,35 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             {children}
           </a>
         ),
-        blockquote: ({ children }) => (
-          <blockquote className="border-l-2 border-neutral-800 pl-4 italic text-neutral-500 mb-4">
-            {children}
-          </blockquote>
-        ),
+        blockquote: ({ children }) => {
+          const { content, type } = processAlertContent(children);
+
+          if (type) {
+            const config = ALERT_CONFIG[type];
+            const Icon = config.icon;
+            return (
+              <div
+                className={`p-4 rounded-lg border-l-4 mb-6 ${config.bg} ${config.border} shadow-sm`}
+              >
+                <div className="flex items-center gap-2 mb-2 font-bold tracking-tight">
+                  <Icon size={18} className={config.text} />
+                  <span className={`text-sm uppercase ${config.text}`}>
+                    {config.label}
+                  </span>
+                </div>
+                <div className="text-neutral-400 leading-relaxed italic">
+                  {content}
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <blockquote className="border-l-2 border-neutral-800 pl-4 italic text-neutral-500 mb-4">
+              {children}
+            </blockquote>
+          );
+        },
         hr: () => <hr className="border-neutral-900 my-8" />,
       }}
     >

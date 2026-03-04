@@ -122,7 +122,3 @@ let name = "Alice";
 
 - `name` is the **variable identifier**.
 - `"Alice"` is the **string value**.
-
----
-
-**Ready for more?** Next, we'll learn how to perform actions with this data in [Functions and Logic](/languages/javascript/functions).

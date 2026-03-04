@@ -92,7 +92,3 @@ let y = 10;
 1. **Always use `const` or `let`**: Avoid `var` to prevent scope-related bugs and confusing hoisting behavior.
 2. **Declare variables at the top of their scope**: Even though hoisting exists, declaring variables at the top makes your code much more readable.
 3. **Minimize Global Variables**: Relying on global variables can lead to naming collisions and hard-to-debug code.
-
----
-
-**Next Up:** Learn how to group your logic and make it reusable in [Functions](/languages/javascript/functions).
