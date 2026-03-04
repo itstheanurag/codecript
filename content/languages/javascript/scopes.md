@@ -1,6 +1,6 @@
 ---
 title: Scopes and Hoisting
-order: 5
+order: 7
 ---
 
 In the previous section, we mentioned that `var`, `let`, and `const` have different "scopes." In this section, we'll explore what that actually means and how JavaScript handles variable visibility.

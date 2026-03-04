@@ -1,5 +1,5 @@
 ---
-title: Variables and Data Types
+title: Variables
 order: 2
 ---
 
