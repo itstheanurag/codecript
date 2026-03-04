@@ -1,6 +1,6 @@
 ---
 title: Async Programming
-order: 8
+order: 10
 ---
 
 JavaScript is single-threaded but handles asynchronous operations through an event loop.
