@@ -1,80 +1,147 @@
 ---
 title: Functions
-order: 4
+order: 6
 ---
 
-Functions are first-class citizens in JavaScript — they can be stored in variables, passed as arguments, and returned from other functions.
+Imagine you have a specific recipe for a cake. Instead of writing down every single step every time someone asks for a cake, you just give them the recipe name. In programming, a **Function** is that recipe—a reusable block of code designed to perform a particular task.
 
-## Function Declaration
+## 1. How to Declare a Function
+
+Defining a function is like writing the recipe. You use the `function` keyword, give it a name, and define what it does inside curly braces.
 
 ```javascript
+function sayHello() {
+  console.log("Hello, World!");
+}
+```
+
+- **`function` keyword**: Tells JavaScript you are creating a function.
+- **Name**: `sayHello` is the identifier you'll use to run this code later.
+- **Parentheses `()`**: This is where you can define inputs (parameters).
+- **Curly Braces `{}`**: The "body" of the function where your actual code lives.
+
+---
+
+## 2. How to Invoke (Call) a Function
+
+Declaring a function doesn't run the code. To actually execute the logic, you must **Invoke** it by using its name followed by parentheses.
+
+```javascript
+sayHello(); // This "calls" the function and runs the console.log
+```
+
+Without the `()`, you are just referring to the function itself as an object, rather than running it.
+
+---
+
+## 3. Parameters vs. Arguments
+
+- **Parameters**: The placeholders inside the function's parentheses. Think of them as variables that only exist inside the function.
+- **Arguments**: The actual values you pass into the function when you call it.
+
+```javascript
+// 'name' is the PARAMETER (the placeholder)
 function greet(name) {
-  return `Hello, ${name}!`;
+  console.log(`Hello, ${name}!`);
+}
+
+// "Alice" is the ARGUMENT (the actual value)
+greet("Alice");
+```
+
+---
+
+## 4. Types of Functions
+
+### A. Named Functions (Declarations)
+
+The most common way. These are **Hoisted**, meaning you can call them even before they are defined in your file.
+
+```javascript
+announced(); // Works!
+
+function announced() {
+  console.log("I am a declaration!");
 }
 ```
 
-Declarations are **hoisted** — you can call them before they appear in the code.
+### B. Anonymous Functions
 
-## Function Expression
+A function without a name. These are often used as **Callbacks** (functions passed into other functions, like in loops).
 
 ```javascript
-const greet = function (name) {
-  return `Hello, ${name}!`;
+setTimeout(function () {
+  console.log("I ran after 1 second!");
+}, 1000);
+```
+
+### C. Function Expressions
+
+When you store a function (usually anonymous) inside a variable. These are **NOT hoisted**.
+
+```javascript
+const subtract = function (a, b) {
+  return a - b;
 };
 ```
 
-Expressions are **not hoisted** — they must be defined before use.
+### D. Arrow Functions (ES6)
 
-## Arrow Functions
+A modern, shorter syntax for function expressions.
 
 ```javascript
-const greet = (name) => `Hello, ${name}!`;
-
-// With body
-const add = (a, b) => {
-  const sum = a + b;
-  return sum;
-};
+const multiply = (a, b) => a * b;
 ```
 
-Arrow functions don't have their own `this` — they inherit it from the enclosing scope.
+---
 
-## Default Parameters
+## 5. Accessing Arguments
+
+Beyond standard parameters, JavaScript offers two ways to handle multiple inputs.
+
+### I. The `arguments` Object
+
+In non-arrow functions, you have access to a built-in `arguments` object that contains every value passed to the function.
 
 ```javascript
-function createUser(name, role = "viewer") {
-  return { name, role };
+function logArgs() {
+  console.log(arguments[0]); // Accesses first argument passed
 }
-
-createUser("Alice"); // { name: "Alice", role: "viewer" }
-createUser("Bob", "admin"); // { name: "Bob", role: "admin" }
 ```
 
-## Rest Parameters
+### II. Rest Parameters (`...`)
+
+The modern standard. It collects "the rest" of the arguments into a real array.
 
 ```javascript
 function sum(...numbers) {
   return numbers.reduce((total, n) => total + n, 0);
 }
-
-sum(1, 2, 3, 4); // 10
 ```
 
-## Closures
+---
 
-A function that "remembers" variables from its outer scope:
+## 6. Advanced Concepts
+
+### IIFE (Immediately Invoked Function Expression)
+
+A function that runs as soon as it is defined. Useful for keeping variables private.
 
 ```javascript
-function createCounter() {
-  let count = 0;
-  return {
-    increment: () => ++count,
-    getCount: () => count,
-  };
-}
+(function () {
+  console.log("I run immediately!");
+})();
+```
 
-const counter = createCounter();
-counter.increment(); // 1
-counter.increment(); // 2
-counter.getCount(); // 2
+### Closures
+
+A function that "remembers" the environment it was created in.
+
+```javascript
+function makeCounter() {
+  let count = 0;
+  return () => ++count;
+}
+const count = makeCounter();
+console.log(count()); // 1
 ```
