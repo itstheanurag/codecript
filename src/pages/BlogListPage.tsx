@@ -1,12 +1,17 @@
 import { Link } from "react-router-dom";
 import { Clock, ArrowRight } from "lucide-react";
 import { getAllBlogs } from "../lib/content";
+import SEO from "../components/SEO";
 
 const BlogListPage = () => {
   const blogs = getAllBlogs();
 
   return (
     <div className="py-20">
+      <SEO
+        title="Blog"
+        description="Deep dives, tutorials, and thoughts on software engineering, algorithms, and system design."
+      />
       <div className="max-w-5xl mx-auto px-6">
         <div className="mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-neutral-50 mb-4 lobster-two-bold">

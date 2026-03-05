@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Clock } from "lucide-react";
 import { getBlogBySlug } from "../lib/content";
 import MarkdownRenderer from "../components/MarkdownRenderer";
+import SEO from "../components/SEO";
 
 const BlogReadPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -27,8 +28,38 @@ const BlogReadPage = () => {
     );
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": post.meta.title,
+    "description": post.meta.excerpt,
+    "datePublished": post.meta.date,
+    "author": {
+      "@type": "Person",
+      "name": "Anurag" // Fallback or from meta if available
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "codecript",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${window.location.origin}/og-image.png`
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": window.location.href
+    }
+  };
+
   return (
     <div className="py-16">
+      <SEO
+        title={post.meta.title}
+        description={post.meta.excerpt}
+        ogType="article"
+        jsonLd={jsonLd}
+      />
       <article className="max-w-3xl mx-auto px-6">
         <Link
           to="/blog"
