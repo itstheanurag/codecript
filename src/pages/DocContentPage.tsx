@@ -3,6 +3,7 @@ import { useParams, useLocation, Link } from "react-router-dom";
 import { getDocSections, getAdjacentDocItems } from "../lib/content";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import DocPagination from "../components/DocPagination";
+import SEO from "../components/SEO";
 
 const DocContentPage = () => {
   const params = useParams();
@@ -72,8 +73,34 @@ const DocContentPage = () => {
     );
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": item.meta.title,
+    "description": `Learn ${item.meta.title} in the ${section.title} section. Master ${section.title.toLowerCase()} concepts with our detailed guides.`,
+    "articleSection": section.title,
+    "publisher": {
+      "@type": "Organization",
+      "name": "codecript",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${window.location.origin}/og-image.png`
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": window.location.href
+    }
+  };
+
   return (
     <div className="p-8 md:p-12 overflow-y-auto w-full">
+      <SEO
+        title={item.meta.title}
+        description={`Learn ${item.meta.title} in the ${section.title} section. Master ${section.title.toLowerCase()} concepts with our detailed guides.`}
+        ogType="article"
+        jsonLd={jsonLd}
+      />
       <h1 className="text-3xl md:text-4xl font-bold text-neutral-300 mb-8">
         {item.meta.title}
       </h1>
