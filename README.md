@@ -1,73 +1,51 @@
-# React + TypeScript + Vite
+# Codecript
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Codecript is a comprehensive, community-driven collection of documents and resources designed to help software engineers prepare for and crack technical interviews at top-tier tech companies.
 
-Currently, two official plugins are available:
+Whether you're brushing up on fundamental algorithms, diving into complex system design, or preparing for behavioral questions, Codecript provides structured, clear, and actionable content to aid your preparation.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **Data Structures & Algorithms**: Detailed guides and practice problems.
+- **System Design**: Architectural patterns, case studies, and fundamental concepts.
+- **Language-Specific Guides**: Deep dives into JavaScript, TypeScript, React, and more.
+- **Behavioral Interview Prep**: Tips and common questions for soft-skill assessments.
+- **Curated Content**: High-quality documents authored by the community.
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## Getting Started
 
-## Expanding the ESLint configuration
+To explore the content locally:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Clone the repository**:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+   ```bash
+   git clone https://github.com/itstheanurag/codecript.git
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+2. **Install dependencies**:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+   ```bash
+   npm install
+   ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+3. **Run the development server**:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+   ```bash
+   npm run dev
+   ```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+4. Open your browser to `http://localhost:5173` to browse the interactive versions of the documents.
+
+## Contributing
+
+We believe in the power of shared knowledge. If you have resources that helped you in your journey, please consider contributing!
+
+Check out our [Contributing Guidelines](CONTRIBUTING.md) to get started.
+
+## License
+
+This project is licensed under the Apache-2.0 License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+_Made with ❤️ by the community for future engineers._
