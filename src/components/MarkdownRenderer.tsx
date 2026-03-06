@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { slugify } from "../lib/slugify";
 import CodeBlock from "./CodeBlock";
+import CodeTabs from "./CodeTabs";
 import {
   Info,
   Lightbulb,
@@ -125,6 +126,63 @@ const processAlertContent = (
 };
 
 const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
+  // Pre-process content to group adjacent code blocks
+  const processedContent = React.useMemo(() => {
+    const lines = content.split("\n");
+    const newLines: string[] = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      const line = lines[i];
+      if (line.trim().startsWith("```")) {
+        const group: { language: string; code: string; label: string }[] = [];
+        let j = i;
+
+        while (j < lines.length) {
+          if (lines[j].trim().startsWith("```")) {
+            const lang = lines[j].trim().slice(3);
+            let code = "";
+            j++;
+            while (j < lines.length && !lines[j].trim().startsWith("```")) {
+              code += lines[j] + "\n";
+              j++;
+            }
+            group.push({
+              language: lang,
+              code: code.trim(),
+              label: lang || "Code",
+            });
+            j++; // skip closing ```
+
+            // Peek ahead: is the next non-empty line another code block?
+            let tempJ = j;
+            while (tempJ < lines.length && lines[tempJ].trim() === "") tempJ++;
+            if (tempJ < lines.length && lines[tempJ].trim().startsWith("```")) {
+              j = tempJ;
+              continue;
+            } else {
+              break;
+            }
+          } else {
+            break;
+          }
+        }
+
+        if (group.length > 1) {
+          // Wrap the group in a single block that we can intercept
+          newLines.push("```code-tabs");
+          newLines.push(JSON.stringify(group));
+          newLines.push("```");
+          i = j;
+          continue;
+        }
+      }
+      newLines.push(line);
+      i++;
+    }
+    return newLines.join("\n");
+  }, [content]);
+
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
@@ -171,6 +229,17 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
           <strong className="text-neutral-400 font-semibold">{children}</strong>
         ),
         code: ({ children, className }) => {
+          const isTabs = className?.includes("language-code-tabs");
+          if (isTabs) {
+            try {
+              const tabs = JSON.parse(String(children));
+              return <CodeTabs tabs={tabs} />;
+            } catch (err) {
+              console.error("Failed to parse code-tabs", err);
+              return null;
+            }
+          }
+
           const match = className?.match(/language-(\w+)/);
           if (match) {
             const code = String(children).replace(/\n$/, "");
@@ -243,7 +312,7 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
         hr: () => <hr className="border-neutral-900 my-8" />,
       }}
     >
-      {content}
+      {processedContent}
     </ReactMarkdown>
   );
 };

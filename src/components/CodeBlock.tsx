@@ -6,6 +6,29 @@ interface CodeBlockProps {
   language: string;
 }
 
+const LANGUAGE_ALIAS_MAP: Record<string, string> = {
+  cplusplus: "cpp",
+  "c++": "cpp",
+  csharp: "csharp",
+  "c#": "csharp",
+  cs: "csharp",
+  js: "javascript",
+  jsx: "jsx",
+  ts: "typescript",
+  tsx: "tsx",
+  py: "python",
+  sh: "bash",
+  shell: "bash",
+  yml: "yaml",
+  md: "markdown",
+};
+
+const normalizeLanguage = (rawLanguage: string): string => {
+  const firstToken = rawLanguage.trim().split(/\s+/)[0] ?? "";
+  const cleaned = firstToken.replace(/[{}]/g, "").toLowerCase();
+  return LANGUAGE_ALIAS_MAP[cleaned] ?? (cleaned || "text");
+};
+
 const CodeBlock = ({ code, language }: CodeBlockProps) => {
   const [html, setHtml] = useState<string>("");
   const [copied, setCopied] = useState(false);
@@ -13,17 +36,28 @@ const CodeBlock = ({ code, language }: CodeBlockProps) => {
 
   useEffect(() => {
     let cancelled = false;
+    const normalizedLanguage = normalizeLanguage(language);
+    const languageCandidates = Array.from(
+      new Set([normalizedLanguage, language.toLowerCase(), "text"]),
+    );
 
-    codeToHtml(code, {
-      lang: language || "text",
-      theme: "vitesse-dark",
-    })
-      .then((result) => {
-        if (!cancelled) setHtml(result);
-      })
-      .catch(() => {
-        if (!cancelled) setHtml("");
-      });
+    const renderHighlightedCode = async () => {
+      for (const lang of languageCandidates) {
+        try {
+          const result = await codeToHtml(code, {
+            lang,
+            theme: "vitesse-dark",
+          });
+          if (!cancelled) setHtml(result);
+          return;
+        } catch {
+          // Try next language candidate.
+        }
+      }
+      if (!cancelled) setHtml("");
+    };
+
+    void renderHighlightedCode();
 
     return () => {
       cancelled = true;

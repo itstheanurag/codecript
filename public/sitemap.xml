@@ -65,19 +65,43 @@
     <lastmod>2026-03-06</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/ds/arrays</loc>
+    <loc>https://codecript.pages.dev/ds/001-introduction</loc>
     <lastmod>2026-03-06</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/ds/hash-tables</loc>
+    <loc>https://codecript.pages.dev/ds/002-arrays</loc>
     <lastmod>2026-03-06</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/ds/linked-lists</loc>
+    <loc>https://codecript.pages.dev/ds/003-linked-lists</loc>
     <lastmod>2026-03-06</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/ds/trees</loc>
+    <loc>https://codecript.pages.dev/ds/004-stack</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/ds/005-queue</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/ds/006-hash-tables</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/ds/007-trees</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/ds/008-heaps</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/ds/009-graphs</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/ds/010-trie</loc>
     <lastmod>2026-03-06</lastmod>
   </url>
   <url>
@@ -125,11 +149,47 @@
     <lastmod>2026-03-06</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/javascript/async-programming</loc>
+    <loc>https://codecript.pages.dev/languages/javascript/009-js-engine</loc>
     <lastmod>2026-03-06</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/javascript/scopes</loc>
+    <loc>https://codecript.pages.dev/languages/javascript/010-execution-context</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/011-memory-management</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/012-browser-apis</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/013-event-loop</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/014-asynchronous-javascript</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/015-error-handling</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/016-type-conversions</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/017-prototypes</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/018-generators</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/019-classes-and-oop</loc>
     <lastmod>2026-03-06</lastmod>
   </url>
   <url>
@@ -141,11 +201,35 @@
     <lastmod>2026-03-06</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/typescript/interfaces-and-types</loc>
+    <loc>https://codecript.pages.dev/languages/typescript/001-introduction</loc>
     <lastmod>2026-03-06</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/typescript/introduction</loc>
+    <loc>https://codecript.pages.dev/languages/typescript/002-basic-types</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/typescript/003-interfaces-and-types</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/typescript/004-functions</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/typescript/005-advanced-types</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/typescript/006-object-keys</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/typescript/007-generics</loc>
+    <lastmod>2026-03-06</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/typescript/008-unions-and-intersections</loc>
     <lastmod>2026-03-06</lastmod>
   </url>
   <url>
