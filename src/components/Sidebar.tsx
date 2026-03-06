@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { ChevronDown } from "lucide-react";
 import type { DocItem, DocGroup } from "../lib/content";
 
@@ -114,18 +114,28 @@ const SidebarLink = ({
   title: string;
   isActive: boolean;
   onClick?: () => void;
-}) => (
-  <Link
-    to={to}
-    onClick={onClick}
-    className={`px-2 py-1 rounded-lg text-sm font-medium transition-colors ${
-      isActive
-        ? "bg-neutral-900 text-neutral-50"
-        : "text-neutral-400 hover:text-neutral-50 hover:bg-neutral-900"
-    }`}
-  >
-    {title}
-  </Link>
-);
+}) => {
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (isActive) {
+      // Avoid no-op route transitions that still trigger rerenders.
+      event.preventDefault();
+    }
+    onClick?.();
+  };
+
+  return (
+    <Link
+      to={to}
+      onClick={handleClick}
+      className={`px-2 py-1 rounded-lg text-sm font-medium transition-colors ${
+        isActive
+          ? "bg-neutral-900 text-neutral-50"
+          : "text-neutral-400 hover:text-neutral-50 hover:bg-neutral-900"
+      }`}
+    >
+      {title}
+    </Link>
+  );
+};
 
 export default Sidebar;

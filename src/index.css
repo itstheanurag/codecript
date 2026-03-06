@@ -37,3 +37,33 @@ body {
   font-weight: 700;
   font-style: italic;
 }
+
+@keyframes code-tab-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes code-tab-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+}
+
+.code-tab-pane-enter {
+  animation: code-tab-enter 220ms ease-out;
+}
+
+.code-tab-pane-exit {
+  animation: code-tab-exit 220ms ease-out forwards;
+}
