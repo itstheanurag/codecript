@@ -23,15 +23,15 @@ export const DocLayout = () => {
   const currentItem = slug ? section?.items.find((i) => i.slug === slug) : null;
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="min-h-screen h-dvh flex flex-col overflow-hidden">
       <Navbar />
-      <div className="max-w-[90rem] mx-auto border-x border-neutral-800 flex-1 w-full min-h-0 relative">
+      <div className="max-w-[96rem] mx-auto md:border-x border-neutral-800 flex-1 w-full min-h-0 relative">
         <div className="flex h-full">
           {/* Mobile Sidebar Toggle */}
           {section && (
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="lg:hidden fixed bottom-6 right-6 z-40 p-4 rounded-full bg-neutral-900 border border-neutral-800 text-neutral-400 shadow-2xl hover:text-neutral-50 transition-all hover:scale-110 active:scale-95"
+              className="lg:hidden fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 p-3.5 rounded-full bg-neutral-900 border border-neutral-800 text-neutral-400 shadow-2xl hover:text-neutral-50 transition-all hover:scale-105 active:scale-95"
             >
               {isSidebarOpen ? <X size={24} /> : <MenuIcon size={24} />}
             </button>
@@ -40,7 +40,7 @@ export const DocLayout = () => {
           {section && (
             <>
               {/* Desktop Sidebar */}
-              <div className="hidden lg:block h-full">
+              <div className="hidden lg:block h-full shrink-0">
                 <Sidebar
                   basePath={section.basePath}
                   items={section.items}
@@ -55,7 +55,7 @@ export const DocLayout = () => {
                   onClick={() => setIsSidebarOpen(false)}
                 >
                   <div
-                    className="absolute left-0 top-0 bottom-0 w-72 bg-neutral-950 border-r border-neutral-800 animate-in slide-in-from-left duration-300"
+                    className="absolute left-0 top-0 bottom-0 w-[min(20rem,86vw)] bg-neutral-950 animate-in slide-in-from-left duration-300"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Sidebar
@@ -71,7 +71,7 @@ export const DocLayout = () => {
           )}
 
           <main ref={mainRef} className="flex-1 overflow-y-auto w-full">
-            <div className="px-4 md:px-8 py-4 max-w-full overflow-x-hidden">
+            <div className="px-3 sm:px-5 md:px-8 lg:px-10 py-3 sm:py-4 md:py-6 max-w-full overflow-x-hidden">
               <Outlet
                 context={
                   { scrollContainerRef: mainRef } satisfies DocLayoutContext
@@ -80,7 +80,7 @@ export const DocLayout = () => {
             </div>
           </main>
           {currentItem && (
-            <aside className="w-64 shrink-0 border-l border-neutral-800 overflow-y-auto hidden xl:block">
+            <aside className="w-64 2xl:w-72 shrink-0 border-l border-neutral-800 overflow-y-auto hidden xl:block">
               <TableOfContents
                 content={currentItem.content}
                 scrollContainerRef={mainRef}

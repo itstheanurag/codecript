@@ -27,8 +27,8 @@ const DocContentPage = () => {
 
   if (!section) {
     return (
-      <div className="p-12 text-center">
-        <h1 className="text-2xl font-bold text-neutral-300 mb-4">
+      <div className="px-4 sm:px-6 py-10 sm:py-14 text-center">
+        <h1 className="text-xl sm:text-2xl font-bold text-neutral-300 mb-4">
           Section not found
         </h1>
         <Link
@@ -43,8 +43,8 @@ const DocContentPage = () => {
 
   if (!slug) {
     return (
-      <div className="p-12">
-        <h1 className="text-3xl md:text-4xl font-bold text-neutral-300 mb-4">
+      <div className="w-full max-w-4xl mx-auto px-1 sm:px-2 md:px-4 py-6 sm:py-8 md:py-10">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-neutral-300 mb-4">
           {section.title}
         </h1>
         <p className="text-neutral-400 text-base mb-8 leading-relaxed">
@@ -59,8 +59,8 @@ const DocContentPage = () => {
 
   if (!item) {
     return (
-      <div className="p-12 text-center">
-        <h1 className="text-2xl font-bold text-neutral-300 mb-4">
+      <div className="px-4 sm:px-6 py-10 sm:py-14 text-center">
+        <h1 className="text-xl sm:text-2xl font-bold text-neutral-300 mb-4">
           Topic not found
         </h1>
         <Link
@@ -94,14 +94,14 @@ const DocContentPage = () => {
   };
 
   return (
-    <div className="p-8 md:p-12 overflow-y-auto w-full">
+    <div className="w-full max-w-4xl mx-auto px-1 sm:px-2 md:px-4 py-4 sm:py-6 md:py-8 lg:py-10">
       <SEO
         title={item.meta.title}
         description={`Learn ${item.meta.title} in the ${section.title} section. Master ${section.title.toLowerCase()} concepts with our detailed guides.`}
         ogType="article"
         jsonLd={jsonLd}
       />
-      <h1 className="text-3xl md:text-4xl font-bold text-neutral-300 mb-8">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-neutral-300 mb-6 sm:mb-8">
         {item.meta.title}
       </h1>
       <MarkdownRenderer content={item.content} />

@@ -12,6 +12,19 @@ interface SidebarProps {
 
 const Sidebar = ({ basePath, items, groups, onItemClick }: SidebarProps) => {
   const location = useLocation();
+  const selectedLanguage =
+    basePath === "/languages"
+      ? location.pathname.replace("/languages/", "").split("/")[0] || null
+      : null;
+
+  const visibleGroups =
+    basePath === "/languages" && selectedLanguage
+      ? groups?.filter(
+          (group) =>
+            group.items[0]?.slug.split("/")[0]?.toLowerCase() ===
+            selectedLanguage.toLowerCase(),
+        )
+      : groups;
 
   return (
     <aside className="w-64 h-full shrink-0 border-r border-neutral-800 overflow-y-auto bg-neutral-950 lg:bg-transparent">
@@ -29,7 +42,7 @@ const Sidebar = ({ basePath, items, groups, onItemClick }: SidebarProps) => {
               />
             ))}
 
-          {groups?.map((group) => (
+          {visibleGroups?.map((group) => (
             <SidebarGroup
               key={group.title}
               group={group}
