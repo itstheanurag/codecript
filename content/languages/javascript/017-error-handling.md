@@ -1,6 +1,6 @@
 ---
 title: Error Handling
-order: 15
+order: 17
 ---
 
 Errors are part of life for any developer. If you don't handle them, your app will crash. JavaScript provides a powerful mechanism called `try...catch` to handle these errors gracefully.

@@ -1,6 +1,6 @@
 ---
 title: The Event Loop
-order: 13
+order: 15
 ---
 
 JavaScript is **Single-Threaded**, meaning it can only do one thing at a time. So how can it handle multiple tasks like fetching data, timers, and user clicks simultaneously? The answer is the **Event Loop**.

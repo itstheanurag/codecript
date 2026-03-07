@@ -1,6 +1,6 @@
 ---
 title: Generator Functions
-order: 18
+order: 23
 ---
 
 Normal JavaScript functions follow a "Run-to-Completion" model: once they start, they don't stop until they finish or return. **Generators** break this rule.
@@ -94,4 +94,4 @@ for (let step of steps()) {
 }
 ```
 
-Generators provide a powerful way to handle data streams and complex async logic (though `async/await` has taken over most async use cases). In our final chapter, we'll see how to bring all these concepts together into the standard tool for modern architecture: **Classes**.
+Generators provide a powerful way to handle data streams and complex async logic. With this, you have covered almost every major internal architecture of JavaScript!

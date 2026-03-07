@@ -1,6 +1,6 @@
 ---
 title: Classes and OOP
-order: 19
+order: 22
 ---
 
 JavaScript is fundamentally prototype-based, but for developers coming from languages like Java or Python, the prototype syntax can feel messy. In ES6, JavaScript introduced **Classes**—a cleaner syntax to handle Object-Oriented Programming (OOP).

@@ -1,6 +1,6 @@
 ---
 title: Asynchronous JavaScript
-order: 14
+order: 16
 ---
 
 JavaScript is a single-threaded language, but most of the things it does (like network calls or timers) are asynchronous. To understand why we need this, let's look at an analogy.
@@ -85,6 +85,9 @@ Sometimes you need to handle multiple promises at once. JavaScript provides powe
 | **`Promise.allSettled()`** | Waits for all to finish, regardless of success. | **Safe**. You get results for everything. | Slower (waits for everything even if some could fail early). |
 | **`Promise.race()`**       | Returns the first result (success or failure).  | Good for timeouts.                        | You lose the other results.                                  |
 | **`Promise.any()`**        | Returns the first **successful** result.        | Good for redundant servers.               | Rejects only if **all** fail.                                |
+
+> [!TIP]
+> Interested in how these work under the hood? See the [Promise Polyfills](./021-polyfills#2-promise-polyfills).
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Type Conversions (Coercion)
-order: 16
+order: 18
 ---
 
 JavaScript is a "weakly typed" language, which means it will often try to help you by automatically converting types to make an operation work. While this can be convenient, it's also where the most famous "weird" behaviors of JS live.

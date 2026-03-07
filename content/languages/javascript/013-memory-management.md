@@ -1,6 +1,6 @@
 ---
 title: Memory Management
-order: 11
+order: 13
 ---
 
 Understanding how JavaScript stores and moves data in memory is essential for preventing bugs where data changes unexpectedly.
@@ -89,4 +89,3 @@ A deep copy creates a completely independent copy of the entire structure, inclu
 
 > [!IMPORTANT]
 > **Always ask yourself**: "Do I need to modify the original data, or should I work on a copy?" In modern frameworks like React, working on copies (**immutability**) is the golden rule.
-

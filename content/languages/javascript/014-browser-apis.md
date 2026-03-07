@@ -1,6 +1,6 @@
 ---
 title: Browser APIs (Web APIs)
-order: 12
+order: 14
 ---
 
 While JavaScript is a powerful language, it doesn't have built-in timers or the ability to "wait." These features are provided by the **Browser Environment** (or Node.js) through **Web APIs**.
@@ -103,5 +103,3 @@ Instead, the browser takes the request (whether it's a timer or a fetch call), h
 
 > [!IMPORTANT]
 > Browser APIs are the bridge between the JS Engine and the computer's capabilities (like network, timers, and the screen).
-
-

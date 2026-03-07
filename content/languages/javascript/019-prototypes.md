@@ -1,6 +1,6 @@
 ---
 title: Prototypes and Inheritance
-order: 17
+order: 19
 ---
 
 Many developers find JavaScript's inheritance confusing because it doesn't work like "traditional" class-based languages (like Java or C++). Instead, JavaScript uses a system called **Prototypical Inheritance**.
@@ -50,8 +50,7 @@ const nums = [10, 20, 30];
 console.log(nums.first()); // 10
 ```
 
-> [!WARNING]
-> While powerful, **"polluting" the global prototype** is generally considered bad practice in large libraries because it can cause conflicts if another library (or the browser itself) adds a method with the same name.
+> Understanding `this` is essential for building polyfills and working with JavaScript's Object-Oriented patterns. For a deep dive into how these methods are built, see the **[Polyfills](./024-polyfills)** guide.
 
 ---
 
@@ -89,4 +88,4 @@ console.log(parent.color); // "red" (parent remains unchanged)
 
 Prototypes are the engine that powers JavaScript objects. Understanding them is essential before moving on to **Classes**, which are actually just a cleaner "sugar" over this prototype system.
 
-Next, we'll look at a more niche but powerful feature: **Generator Functions**.
+Next, we'll look at a fundamental concept that powers methods and constructors: **[The "this" Keyword](./020-this-keyword)**.

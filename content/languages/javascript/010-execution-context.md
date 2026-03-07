@@ -80,3 +80,4 @@ function getName() {
 > [!WARNING]
 > While `var` is hoisted as `undefined`, variables declared with `let` and `const` are also hoisted but placed in a **Temporal Dead Zone**, meaning you cannot access them until their declaration is reached.
 
+To understand how JavaScript handles these rules across different levels of your code, check out the next chapter on **[Scope and Hoisting](./011-scope-and-hoisting)**.

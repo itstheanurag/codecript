@@ -107,7 +107,7 @@ const total = costs.reduce((sum, current) => sum + current, 0); // 60
 ```
 
 > [!TIP]
-> **Always provide an initial value** (like `0` above) to prevent errors on empty arrays!
+> **Always provide an initial value** (like `0` above) to prevent errors on empty arrays! To learn how these methods work under the hood, check out the [Array Polyfills](./021-polyfills#1-array-polyfills).
 
 ### IV. Flattening: `flat()` and `flatMap()`
 
