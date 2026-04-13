@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import { slugify } from "../lib/slugify";
 import CodeBlock from "./CodeBlock";
 import CodeTabs from "./CodeTabs";
+import Mermaid from "./Mermaid";
 import {
   Info,
   Lightbulb,
@@ -242,8 +243,14 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
 
           const match = className?.match(/language-(\w+)/);
           if (match) {
+            const lang = match[1].toLowerCase();
             const code = String(children).replace(/\n$/, "");
-            return <CodeBlock code={code} language={match[1]} />;
+
+            if (lang === "mermaid") {
+              return <Mermaid chart={code} />;
+            }
+
+            return <CodeBlock code={code} language={lang} />;
           }
           return (
             <code className="bg-neutral-900 text-neutral-200 px-1.5 py-0.5 rounded text-sm font-mono border border-neutral-800">
