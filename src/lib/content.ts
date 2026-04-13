@@ -131,6 +131,7 @@ export function getDocSections(): Record<string, DocSection> {
       description: "Essential algorithms for problem solving and interviews.",
       basePath: "/algo",
       items: loadDocSection("algo"),
+      groups: loadGroupedDocSection("algo"),
     },
     "/sys-design": {
       title: "System Design",
