@@ -1,11 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import HomeLayout from "./layouts/HomeLayout";
-import BlogLayout from "./layouts/BlogLayout";
 import DocLayout from "./layouts/DocLayout";
 import HomePage from "./pages/HomePage";
-import BlogListPage from "./pages/BlogListPage";
-import BlogReadPage from "./pages/BlogReadPage";
 import DocContentPage from "./pages/DocContentPage";
 
 function App() {
@@ -16,12 +13,6 @@ function App() {
           {/* Home — with footer */}
           <Route element={<HomeLayout />}>
             <Route path="/" element={<HomePage />} />
-          </Route>
-
-          {/* Blog — no footer */}
-          <Route element={<BlogLayout />}>
-            <Route path="/blog" element={<BlogListPage />} />
-            <Route path="/blog/:slug" element={<BlogReadPage />} />
           </Route>
 
           {/* Doc sections — sidebar + content, no footer */}

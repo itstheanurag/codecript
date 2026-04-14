@@ -78,6 +78,33 @@ graph TD
 
 ---
 
+## 5. Interview Pro-Tips
+
+### The Worst Case Is a Linked List — Always Mention It
+If you insert values in sorted order (1, 2, 3, 4, 5...) into a plain BST, the tree degenerates into a linked list. Every operation becomes O(N). Interviewers love to ask "what's the worst case?" — the answer is O(N), and you should immediately follow up with "this is why self-balancing trees like AVL or Red-Black trees exist."
+
+### In-Order Traversal Gives Sorted Output
+A BST's in-order traversal (Left → Root → Right) always produces values in sorted ascending order. This is a frequently tested property. Any question like "find the kth smallest element in a BST" uses this.
+
+### AVL vs. Red-Black — Know the Trade-offs
+- **AVL Trees**: Strictly balanced (height differs by at most 1). Faster *lookups* but more rotations on insert/delete.
+- **Red-Black Trees**: Loosely balanced. Faster *insert/delete*. Used in Java's `TreeMap` and C++'s `std::map`.
+In interviews, knowing these exist and why is usually sufficient — you don't need to implement them from scratch.
+
+### Common BST Interview Problems
+- Validate BST (check that every node satisfies the BST property)
+- Lowest Common Ancestor in a BST (simpler than general trees — use BST property to navigate)
+- Kth Smallest Element
+- Convert Sorted Array to BST (height-balanced)
+
+### What Interviewers Are Testing
+- Do you know the O(log N) average vs O(N) worst case distinction?
+- Can you implement insert, search, and delete?
+- Do you know the in-order traversal property?
+- Are you aware of self-balancing trees and when they're needed?
+
+---
+
 ## Key Takeaway
 
 A BST combines the flexibility of a Linked List with the search speed of a Sorted Array. It is the core reason why database indexes are so fast!

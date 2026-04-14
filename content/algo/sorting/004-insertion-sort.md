@@ -79,6 +79,24 @@ Insertion Sort is surprisingly useful in the real world:
 
 ---
 
+## 6. Interview Pro-Tips
+
+### Know Why Timsort Uses It
+Python's built-in `sorted()` and Java's `Arrays.sort()` for objects use **Timsort** — a hybrid that runs Insertion Sort on small runs (size < 64), then Merge Sort to combine them. Why? Because for tiny arrays, Insertion Sort's low overhead makes it faster than the asymptotically-better algorithms. This is a great thing to mention in interviews to show you know how real-world sorts work.
+
+### It IS Stable
+Insertion Sort only moves an element past another if it is *strictly smaller*, so it preserves the relative order of equal elements. It is a **stable** sort.
+
+### Best Case O(N) — Know When That Matters
+If data arrives in a nearly sorted stream (e.g., a live feed of timestamps that are "mostly" in order), Insertion Sort is genuinely the best choice — it will process it in near-linear time while Quick Sort would still pay a full O(N log N) bill.
+
+### What Interviewers Are Testing
+- Can you trace the "shift-right-until-correct-position" logic step by step?
+- Do you know when O(N²) is acceptable or even preferable?
+- Do you know the connection to Timsort and real-world adaptive sorting?
+
+---
+
 ## Key Takeaway
 
 Insertion Sort is adaptive and stable. It's the most "human" way of sorting items and is the unsung hero that helps faster algorithms finish the job.

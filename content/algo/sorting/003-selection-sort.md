@@ -78,6 +78,24 @@ Selection Sort is rarely used for large datasets, but it has one specific advant
 
 ---
 
+## 6. Interview Pro-Tips
+
+### The Minimum Swaps Fact — Know It
+Selection Sort's one real advantage is that it performs at most **N-1 swaps** (one per pass). No other comparison-based sort can guarantee fewer swaps. This becomes relevant if swapping is expensive (e.g., swapping large objects in memory). Interviewers love to ask "when would you prefer Selection Sort?" — this is the answer.
+
+### It is NOT Stable
+Unlike Bubble or Insertion Sort, Selection Sort **is not stable**. When it swaps the minimum into position, it can disturb the relative order of equal elements. Example: `[(B,1), (A,1), (C,2)]` sorted by number → `(A,1)` and `(B,1)` might swap unexpectedly.
+
+### Always Knows O(N²) — No Best Case Shortcut
+Unlike Bubble Sort (which can exit early), Selection Sort **always** does exactly N*(N-1)/2 comparisons. It cannot be optimized for nearly-sorted data.
+
+### What Interviewers Are Testing
+- Do you know the tradeoff between comparisons and swaps?
+- Do you know it's **not** stable and why?
+- Can you explain the "sorted partition vs. unsorted partition" mental model?
+
+---
+
 ## Key Takeaway
 
 Selection Sort is the definition of "Searching and Sorting." It spends all its energy searching for the minimum to make the sorting part trivial.

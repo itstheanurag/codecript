@@ -14,10 +14,13 @@ const DocContentPage = () => {
   const sections = getDocSections();
   const section = sections[sectionKey];
 
-  const item = useMemo(
-    () => (slug ? (section?.items.find((i) => i.slug === slug) ?? null) : null),
-    [section, slug],
-  );
+  const item = useMemo(() => {
+    if (slug) {
+      return section?.items.find((i) => i.slug === slug) ?? null;
+    }
+    // If no slug, look for 'index'
+    return section?.items.find((i) => i.slug === "index") ?? null;
+  }, [section, slug]);
 
   const { prev, next } = useMemo(
     () =>
@@ -41,7 +44,8 @@ const DocContentPage = () => {
     );
   }
 
-  if (!slug) {
+  // If there's no slug AND no index file, show placeholder
+  if (!slug && !item) {
     return (
       <div className="w-full max-w-4xl mx-auto px-1 sm:px-2 md:px-4 py-6 sm:py-8 md:py-10">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-neutral-300 mb-4">

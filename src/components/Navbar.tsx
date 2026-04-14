@@ -9,7 +9,6 @@ const navItems = [
   { label: "Algorithms", href: "/algo" },
   { label: "System Design", href: "/sys-design" },
   { label: "Building", href: "/building" },
-  { label: "Blog", href: "/blog" },
 ];
 
 const Navbar = React.memo(() => {
@@ -105,10 +104,15 @@ const Navbar = React.memo(() => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-50 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200">
+          <a
+            href="https://github.com/itstheanurag/codecript"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-50 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200"
+          >
             <Github size={18} />
             <span className="hidden sm:inline">Star on GitHub</span>
-          </button>
+          </a>
 
           <button
             className="md:hidden p-2 text-neutral-400 hover:text-neutral-50 transition-colors"

@@ -78,10 +78,32 @@ graph TD
 
 ---
 
-## 5. Interview Pro-Tips
+## 5. Common Variations to Know
 
-### Look out for "Sorted"
-If an interview question mentions a **sorted array**, Binary Search should be the first thing that pops into your mind.
+### Find First / Last Occurrence
+When duplicates exist, the basic template returns *any* match. To find the **first occurrence**, when you find a match, record the index and keep searching **left** (`right = mid - 1`). For the **last occurrence**, keep searching **right** (`left = mid + 1`).
+
+### Find Insertion Point
+When the target isn't found, `left` ends up pointing to exactly where the target *should* be inserted to keep the array sorted. This is how `bisect_left` in Python works.
+
+### Binary Search on the Answer Space
+This is the most powerful pattern. Instead of searching an *array*, you binary search on a *range of possible answers*. You define a `canAchieve(mid)` function and find the minimum/maximum valid answer. Classic examples: "Minimum speed to finish tasks," "Capacity to ship packages in D days," "Koko eating bananas." If you ever see "minimize the maximum" or "maximize the minimum" in a problem, think binary search on the answer.
+
+---
+
+## 6. Interview Pro-Tips
+
+### Pattern Recognition Signal
+If a question mentions a **sorted array**, or if you can establish a **monotonic condition** (all values on one side are valid, all on the other are invalid), Binary Search is likely the right tool.
 
 ### The Overflow Edge Case
-In Java/C++, `(left + right) / 2` can overflow the `int` limit if the array is massive. Using `left + (right - left) / 2` is the safer, production-ready way to calculate the middle.
+In Java/C++, `(left + right) / 2` can silently overflow the `int` limit for large arrays. **Always use** `left + (right - left) / 2` — it's the production-safe way that interviewers expect you to know.
+
+### The `left < high` vs `left <= high` Trap
+The choice of `<` vs `<=` and whether boundaries move to `mid` or `mid ± 1` is the single most common source of bugs. A safe default: use `left <= right` with boundaries at `mid + 1` and `mid - 1`. Only deviate when you have a clear reason (e.g., finding a boundary condition).
+
+### What Interviewers Are Testing
+- Do you recognize that the input must be sorted?
+- Do you handle the overflow edge case for `mid`?
+- Can you adapt the template for "find first/last" and "insertion point"?
+- Can you apply binary search beyond arrays (i.e., on the answer space)?

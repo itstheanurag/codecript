@@ -1,41 +1,5 @@
 import { parseFrontmatter } from "./frontmatter";
 
-// --- Blog types and loader ---
-
-export interface BlogMeta {
-  title: string;
-  excerpt: string;
-  date: string;
-  readTime: string;
-  tags: string[];
-}
-
-export interface BlogPost {
-  slug: string;
-  meta: BlogMeta;
-  content: string;
-}
-
-const blogModules = import.meta.glob<string>("/content/blog/*.md", {
-  query: "?raw",
-  import: "default",
-  eager: true,
-});
-
-export function getAllBlogs(): BlogPost[] {
-  return Object.entries(blogModules)
-    .map(([path, raw]) => {
-      const slug = path.split("/").pop()!.replace(".md", "");
-      const { data, content } = parseFrontmatter<BlogMeta>(raw);
-      return { slug, meta: data, content };
-    })
-    .sort((a, b) => (b.meta.date ?? "").localeCompare(a.meta.date ?? ""));
-}
-
-export function getBlogBySlug(slug: string): BlogPost | undefined {
-  return getAllBlogs().find((b) => b.slug === slug);
-}
-
 // --- Doc types and loader ---
 
 export interface DocMeta {
@@ -90,7 +54,8 @@ function loadGroupedDocSection(section: string): DocGroup[] {
 
   items.forEach((item) => {
     const parts = item.slug.split("/");
-    if (parts.length > 1) {
+    // Only group items that are in subdirectories and are not 'index' files
+    if (parts.length > 1 && parts[parts.length - 1] !== "index") {
       const groupName = parts[0];
       // Capitalize first letter of groupName
       const groupTitle = groupName.charAt(0).toUpperCase() + groupName.slice(1);

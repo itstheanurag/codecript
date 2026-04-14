@@ -72,9 +72,28 @@ graph TD
 ## 5. Priority Queues
 
 Heap Sort is interesting, but the **Binary Heap** itself is even more useful for implementing **Priority Queues**.
-- In systems like an Operation System, high-priority tasks must be processed first.
+- In systems like an Operating System, high-priority tasks must be processed first.
 - In Dijkstra's Algorithm, we always need the "shortest distance" node next.
-- A Heap provides O(log N) insertion and O(1) peek for the highest priority item.
+- A Heap provides O(log N) insertion and O(1) peek for the highest-priority item.
+
+---
+
+## 6. Interview Pro-Tips
+
+### Heap Sort vs. Quick Sort — The Trade-off
+Heap Sort guarantees O(N log N) in **all** cases and uses O(1) space. Quick Sort is faster in practice but can degrade to O(N²) on bad pivots. When interviewers ask "what if you can't afford the worst case?", Heap Sort is the answer.
+
+### Know How to "Heapify"
+The `heapify` operation is the key building block — it takes an arbitrary array and turns it into a valid heap in O(N) time (not O(N log N) as you might expect). This is a common interview surprise: building a heap is O(N), not O(N log N).
+
+### Binary Heap ↔ Priority Queue
+A Binary Heap *is* the standard implementation of a Priority Queue. When an interviewer asks you to solve "always process the smallest/largest element next" efficiently, a min-heap or max-heap is what they want — and you should know that insertion is O(log N), extraction is O(log N), and peek is O(1).
+
+### What Interviewers Are Testing
+- Can you implement `heapify` correctly (the subtle recursive sift-down)?
+- Do you know the O(N) build-heap trick?
+- Can you explain when to choose Heap Sort over Merge/Quick Sort?
+- Do you understand Priority Queues and their connection to the heap?
 
 ---
 

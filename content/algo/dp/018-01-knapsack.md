@@ -75,6 +75,33 @@ graph TD
 
 ---
 
+## 5. Interview Pro-Tips
+
+### The "Include or Exclude" Framing is Everything
+Every 0/1 Knapsack problem reduces to the same binary decision: for each item, do you take it or leave it? Framing it this way immediately gives you the recurrence:
+`dp[w] = max(dp[w], value[i] + dp[w - weight[i]])`
+
+### Walk Backwards When Space-Optimizing
+The crucial insight for the 1D space-optimized version: you must iterate `w` from **right to left** (from `capacity` down to `weight[i]`). If you go left to right, you'd be using the updated value of `dp[w - weight[i]]`, meaning you'd count the same item twice (turning it into the "Unbounded Knapsack" problem).
+
+### 0/1 vs. Unbounded Knapsack
+- **0/1 Knapsack**: Each item can only be used **once** → iterate capacity backwards.
+- **Unbounded Knapsack**: Each item can be used **unlimited times** → iterate capacity forwards.
+Coin Change (where you can reuse coins) is Unbounded Knapsack.
+
+### Common Problems Using This Pattern
+- Partition Equal Subset Sum
+- Target Sum
+- Last Stone Weight II
+- All of these reduce to "can we pick a subset that sums to X?"
+
+### What Interviewers Are Testing
+- Can you define the DP state and write the recurrence relation?
+- Do you know the backwards iteration trick for space optimization?
+- Can you distinguish 0/1 from Unbounded Knapsack?
+
+---
+
 ## Key Takeaway
 
 0/1 Knapsack is the foundation of **Resource Allocation**. Whether it's a computer deciding which processes to run within memory limits or a company deciding which projects to fund with a fixed budget, this algorithm is the definitive solution.

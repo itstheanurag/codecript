@@ -83,10 +83,29 @@ Using a **Binary Heap (Priority Queue)**:
 
 ## 5. Important Limitation!
 
-Dijkstra's **only** works on graphs with **non-negative weights**. If your graph has negative edges (like a debt system or a gravity beam), Dijkstra's "greedy" assumption breaks because it might find a massive negative path later on that it already "settled." In that case, use **Bellman-Ford**.
+Dijkstra's **only** works on graphs with **non-negative weights**. If your graph has negative edges (like a debt system), Dijkstra's "greedy" assumption breaks because it might find a massive negative path later that it already "settled." In that case, use **Bellman-Ford**.
+
+---
+
+## 6. Interview Pro-Tips
+
+### The Priority Queue Is Non-Negotiable
+A naive Dijkstra's without a priority queue runs in O(V²). With a binary-heap-backed priority queue, it drops to O((V + E) log V). Always mention that you'd use a min-heap (or `heapq` in Python / `PriorityQueue` in Java) to get the optimal time complexity.
+
+### The "Stale Entry" Pattern
+In the implementation above, you'll see: `if (d > distances[currNode]) continue;`. This is the lazy deletion trick — because we can't efficiently update existing priority queue entries, we might have stale (outdated) entries. Checking before processing keeps correctness without extra complexity.
+
+### Negative Weights → Bellman-Ford
+Dijkstra fails on negative weights. Bellman-Ford handles them in O(V × E). If negative *cycles* exist (the total weight of a loop is negative), the shortest path is undefined — Bellman-Ford detects this too.
+
+### What Interviewers Are Testing
+- Do you use a Priority Queue (min-heap) for optimal performance?
+- Do you understand the "relaxation" of edges?
+- Do you know the negative weight limitation and what to use instead?
+- Can you explain the stale-entry pattern?
 
 ---
 
 ## Key Takeaway
 
-Dijkstra's is the backbone of GPS navigation and network routing. It’s fast, efficient, and proof that being "greedy" sometimes pays off in a big way.
+Dijkstra's is the backbone of GPS navigation and network routing. It's fast, efficient, and proof that being "greedy" sometimes pays off in a big way.

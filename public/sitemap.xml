@@ -2,250 +2,614 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://codecript.pages.dev/</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/algo</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/algo/binary-search</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/algo/backtracking/008-backtracking</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/algo/dynamic-programming</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/algo/divide-and-conquer/005-divide-and-conquer</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/algo/sorting</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/algo/dp/009-fibonacci</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/dp/018-01-knapsack</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/dp/020-lcs</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/graphs/012-bfs</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/graphs/013-dfs</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/graphs/014-dijkstras-algorithm</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/graphs/015-topological-sort</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/graphs/016-union-find</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/graphs/017-mst</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/greedy/021-activity-selection</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/index</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/kadanes/006-kadanes-algorithm</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/searching/001-binary-search</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/sorting/002-bubble-sort</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/sorting/003-selection-sort</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/sorting/004-insertion-sort</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/sorting/005-merge-sort</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/sorting/006-quick-sort</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/sorting/007-heap-sort</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/trees/010-binary-search-tree</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/trees/011-lowest-common-ancestor</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/trie/019-trie</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/blog</loc>
-    <lastmod>2026-03-06</lastmod>
-  </url>
-  <url>
-    <loc>https://codecript.pages.dev/blog/git-workflow-for-teams</loc>
-    <lastmod>2026-03-06</lastmod>
-  </url>
-  <url>
-    <loc>https://codecript.pages.dev/blog/react-vs-vue-2026</loc>
-    <lastmod>2026-03-06</lastmod>
-  </url>
-  <url>
-    <loc>https://codecript.pages.dev/blog/system-design-caching-strategies</loc>
-    <lastmod>2026-03-06</lastmod>
-  </url>
-  <url>
-    <loc>https://codecript.pages.dev/blog/typescript-generics-explained</loc>
-    <lastmod>2026-03-06</lastmod>
-  </url>
-  <url>
-    <loc>https://codecript.pages.dev/blog/understanding-big-o-notation</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/building</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/building/build-a-chat-app</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/building/001-url-shortener</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/building/build-a-todo-cli</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/building/002-chat-system</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/building/build-a-url-shortener</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/building/003-news-feed</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/building/004-video-streaming</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/building/005-todo-cli</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/building/index</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/ds</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/ds/001-introduction</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/ds/002-arrays</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/ds/003-linked-lists</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/ds/004-stack</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/ds/005-queue</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/ds/006-hash-tables</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/ds/007-trees</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/ds/008-heaps</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/ds/009-graphs</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/ds/010-trie</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/ds/011-strings</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/ds/012-sets</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/ds/013-disjoint-set-union</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/ds/index</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/go/basics</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/go/concurrency</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/index</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/javascript/001-introduction</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/javascript/002-variables-and-types</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/javascript/003-operators</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/javascript/004-conditionals</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/javascript/005-loops</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/javascript/006-functions</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/javascript/007-objects</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/javascript/008-arrays</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/javascript/009-js-engine</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/javascript/010-execution-context</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/javascript/011-memory-management</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/languages/javascript/011-scope-and-hoisting</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/javascript/012-browser-apis</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/languages/javascript/012-closures-and-currying</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/javascript/013-event-loop</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/languages/javascript/013-memory-management</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/javascript/014-asynchronous-javascript</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/languages/javascript/014-browser-apis</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/javascript/015-error-handling</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/languages/javascript/015-event-loop</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/javascript/016-type-conversions</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/languages/javascript/016-asynchronous-javascript</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/javascript/017-prototypes</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/languages/javascript/017-error-handling</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/javascript/018-generators</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/languages/javascript/018-type-conversions</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/javascript/019-classes-and-oop</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/languages/javascript/019-prototypes</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/python/basics</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/languages/javascript/020-this-keyword</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/languages/python/data-structures</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/languages/javascript/021-constructor-functions</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/022-classes-and-oop</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/023-generators</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/024-polyfills</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/javascript/index</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/001-introduction</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/002-variables-and-types</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/003-operators</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/004-conditionals</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/005-loops</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/006-functions</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/007-lists</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/008-dictionaries-and-sets</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/009-python-engine</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/010-execution-model</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/011-scope-and-namespacing</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/012-closures-and-decorators</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/013-memory-management</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/014-standard-library</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/015-concurrency-and-parallelism</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/016-asynchronous-programming</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/017-error-handling</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/018-type-hinting</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/019-magic-methods</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/020-iterators-and-generators</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/021-context-managers</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/022-classes-and-oop</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/023-functional-programming</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/024-virtual-environments</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/python/index</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/typescript/001-introduction</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/typescript/002-basic-types</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/typescript/003-interfaces-and-types</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/typescript/004-functions</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/typescript/005-advanced-types</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/typescript/006-object-keys</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/typescript/007-generics</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/typescript/008-unions-and-intersections</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design</loc>
-    <lastmod>2026-03-06</lastmod>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/sys-design/cap-theorem</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/sys-design/001-scalability</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/sys-design/database-scaling</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/sys-design/002-latency-vs-throughput</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
-    <loc>https://codecript.pages.dev/sys-design/load-balancing</loc>
-    <lastmod>2026-03-06</lastmod>
+    <loc>https://codecript.pages.dev/sys-design/003-cap-theorem</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/004-consistency-models</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/005-availability</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/006-fault-tolerance</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/007-dns</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/008-cdn</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/009-load-balancing</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/010-database-scaling</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/011-sql-vs-nosql</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/012-caching-strategies</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/013-cache-invalidation</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/014-blob-storage</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/015-distributed-file-systems</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/016-monolith-vs-microservices</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/017-service-oriented-architecture-soa</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/018-event-driven-architecture</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/019-pub-sub-systems</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/020-message-queues</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/021-api-gateway</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/022-rest</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/023-grpc</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/024-websockets</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/025-polling-vs-long-polling</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/026-streaming</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/027-idempotency</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/028-rate-limiting</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/029-distributed-locking</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/030-leader-election-heartbeats</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/031-consensus-algorithms</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/032-data-partitioning</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/033-handling-failures</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/034-auto-scaling</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/035-denormalization</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/036-authn-vs-authz</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/037-oauth-jwt</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/038-https-tls</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/039-observability</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/044-interview-strategy</loc>
+    <lastmod>2026-04-14</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/sys-design/index</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
 </urlset>
