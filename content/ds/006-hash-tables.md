@@ -3,65 +3,82 @@ title: Hash Tables
 order: 6
 ---
 
-**Hash Tables** (also known as HashMaps or Dictionaries) are incredibly powerful structures that provide near-constant time lookups. They work by using a **Hash Function** to map keys to specific indices in an array.
-
-![Pencil sketch of a Hash Table](/home/gaurav/.gemini/antigravity/brain/0301a085-3412-430f-ae50-3c32dc593579/hash_table_ds_sketch_1772819691344.png)
-
-## 1. How It Works
-
-1. **Hash Function:** You give the table a key (like a string).
-2. **Mapping:** The hash function turns that key into a number (an index).
-3. **Collision Resolution:** If two keys map to the same index, we use techniques like **Chaining** (linked list in each bucket) as shown in the sketch.
+A **Hash Table** (or Hash Map) is a data structure that stores data in **key-value pairs**. It uses a special function (the **Hash Function**) to map a key to a specific location in an array, allowing for incredibly fast data retrieval.
 
 ---
 
-## 2. Complexity Analysis
+## 1. The Intuition: "The Post Office"
 
-| Operation     | Average Case | Worst Case |
-| :------------ | :----------- | :--------- |
-| **Insertion** | O(1)         | O(n)       |
-| **Search**    | O(1)         | O(n)       |
-| **Deletion**  | O(1)         | O(n)       |
-
----
-
-## 3. Multi-Language Implementations
-
-```java
-import java.util.HashMap;
-HashMap<String, Integer> map = new HashMap<>();
-map.put("Alice", 25);
-int age = map.get("Alice");
-```
-
-```cpp
-#include <unordered_map>
-std::unordered_map<std::string, int> map;
-map["Alice"] = 25;
-```
-
-```python
-# Dicts are hash tables
-inventory = {"Apples": 50, "Bananas": 30}
-count = inventory["Apples"]
-```
-
-```typescript
-const map = new Map<string, number>();
-map.set("Alice", 25);
-```
-
-```go
-inventory := make(map[string]int)
-inventory["Apples"] = 50
-```
+Imagine a **Post Office** with 1,000 locked P.O. boxes.
+1. When you want to store a package, you give the clerk your **Key** (e.g., your name).
+2. The clerk runs your name through a formula (the **Hash Function**) that spits out a number, like `412`.
+3. Your package goes directly into **Box #412**.
+4. To get it back, you just give your name, the clerk calculates `412` again, and goes straight to that box. You don't have to check Box #1, #2, #3... (**O(1) Average Access**)
 
 ---
 
-## 4. Why Use Hash Tables?
+## 2. Key Operations & Complexity
 
-- **Speed:** Fastest lookup for key-value pairs.
-- **Deduplication:** Effortlessly keeping track of unique items.
-- **Frequency Counting:** Counting occurrences of elements in a list.
+| Operation | Average | Worst Case | Note |
+| :--- | :--- | :--- | :--- |
+| **Search** | O(1) | O(n) | Constant time on average. |
+| **Insert** | O(1) | O(n) | Instant unless a collision occurs. |
+| **Delete** | O(1) | O(n) | Instant search + deletion. |
 
-Next, we'll branch out into hierarchical data structures with **Trees**.
+> [!WARNING]
+> The **Worst Case O(n)** happens when every single key hashes to the same box (a **Collision**). Modern hash functions are designed to make this extremely rare.
+
+---
+
+## 3. Multi-Language Implementation
+
+```language-code-tabs
+[
+  {
+    "label": "Javascript",
+    "language": "javascript",
+    "code": "const map = new Map();\nmap.set(\"name\", \"Antigravity\"); // Insert\nconst val = map.get(\"name\"); // Search"
+  },
+  {
+    "label": "Python",
+    "language": "python",
+    "code": "my_dict = {}\nmy_dict[\"name\"] = \"Antigravity\" # Insert\nval = my_dict.get(\"name\") # Search"
+  },
+  {
+    "label": "Java",
+    "language": "java",
+    "code": "HashMap<String, String> map = new HashMap<>();\nmap.put(\"name\", \"Antigravity\");\nString val = map.get(\"name\");"
+  },
+  {
+    "label": "C++",
+    "language": "cpp",
+    "code": "#include <unordered_map>\nstd::unordered_map<string, string> map;\nmap[\"name\"] = \"Antigravity\";\nstring val = map[\"name\"];"
+  }
+]
+```
+
+---
+
+## 4. Interview Pro-Tips
+
+### The "O(1) Solver"
+If you find yourself using a loop inside a loop to search for something (O(n²)), ask yourself: "Can I use a Hash Map to store this data and find it in O(1) instead?" This is the single most common way to optimize an algorithm during an interview.
+
+### Collisions: How to Handle Them
+Interviewers love to ask: "What happens if two different keys hash to the same index?"
+- **Chaining**: Every box in the array is actually a **Linked List**. Multiple items just hang off the same box.
+- **Open Addressing**: If Box #412 is full, look for the next empty box (#413, #414...).
+
+### The "Load Factor"
+Hash Tables need extra "breathing room" to stay fast. Most implementations will automatically resize (double in size) when they get about **70-75% full** (the "Load Factor").
+
+### What Interviewers Are Testing
+- Do you understand that O(1) is an **average**, not a guarantee?
+- Can you explain how a hash function works at a high level?
+- Do you know how to handle collisions?
+
+---
+
+## Key Takeaway
+
+Hash Tables are the **superpower** of data structures. They offer near-instant access to data, making them the first tool you should reach for when you need to optimize search-heavy code.

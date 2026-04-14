@@ -3,101 +3,94 @@ title: Trees
 order: 7
 ---
 
-While arrays and linked lists are linear, a **Tree** is a hierarchical data structure. It starts with a single **Root** node, which branches off into **Children** nodes, creating a parent-child relationship.
-
-![Pencil sketch of a Binary Search Tree](/home/gaurav/.gemini/antigravity/brain/0301a085-3412-430f-ae50-3c32dc593579/trees_ds_sketch_v3_retry_1772819729944.png)
-
-## 1. Binary Search Tree (BST)
-
-A common and powerful type of tree is the **Binary Search Tree**. It follows a strict rule:
-
-- The **Left** child's value must be _less_ than the parent's value.
-- The **Right** child's value must be _greater_ than the parent's value.
-
-This rule makes searching for an item extremely fast: **O(log n)**.
+A **Tree** is a non-linear data structure that represents a **hierarchy**. It consists of **Nodes** connected by **Edges**, starting from a single node called the **Root**.
 
 ---
 
-## 2. Multi-Language Implementations (BST Insert)
+## 1. The Intuition: "A Filing System"
 
-```java
-class Node {
-    int val; Node left, right;
-    Node(int val) { this.val = val; }
-}
-public TreeNode insert(TreeNode root, int val) {
-    if (root == null) return new TreeNode(val);
-    if (val < root.val) root.left = insert(root.left, val);
-    else root.right = insert(root.right, val);
-    return root;
-}
-```
+Imagine the **Folders on your computer**.
+1. There is one main folder at the top (the **Root**, e.g., `C:` or `/`).
+2. Inside that folder are other folders (**Children**).
+3. Those folders can contain even more folders (**Sub-folders**) or files (**Leaves**).
+4. No matter how many folders you have, if you follow the path upwards, you always end up at the same Root. (**Hierarchical Structure**)
 
-```cpp
-struct Node {
-    int val; Node *left, *right;
-    Node(int v) : val(v), left(NULL), right(NULL) {}
-};
-Node* insert(Node* root, int val) {
-    if (!root) return new Node(val);
-    if (val < root->val) root->left = insert(root->left, val);
-    else root->right = insert(root->right, val);
-    return root;
-}
-```
+---
 
-```python
-class Node:
-    def __init__(self, val):
-        self.val = val
-        self.left = self.right = None
+## 2. Common Tree Types
 
-def insert(root, val):
-    if not root: return Node(val)
-    if val < root.val: root.left = insert(root.left, val)
-    else: root.right = insert(root.right, val)
-    return root
-```
+| Type | Rule | Use Case |
+| :--- | :--- | :--- |
+| **Binary Tree** | Each node has at most **2** children. | General hierarchical data. |
+| **Binary Search Tree (BST)** | Left child < Parent < Right child. | Fast searching and sorting. |
+| **Balanced Tree** | The height of left and right subtrees is roughly equal. | Guarantees O(log n) speed (e.g., AVL, Red-Black). |
 
-```typescript
-class TNode {
-  val: number;
-  left: TNode | null = null;
-  right: TNode | null = null;
-  constructor(v: number) {
-    this.val = v;
+---
+
+## 3. Key Operations & Complexity (BST)
+
+| Operation | Average | Worst Case | Note |
+| :--- | :--- | :--- | :--- |
+| **Search** | O(log n) | O(n) | O(log n) requires a balanced tree. |
+| **Insert** | O(log n) | O(n) | Path from root to leaf. |
+| **Delete** | O(log n) | O(n) | More complex; requires re-linking. |
+
+> [!TIP]
+> **The Degenerate Case**: If you insert numbers into a BST in sorted order (1, 2, 3...), the tree becomes a single long line (like a Linked List), and performance drops to **O(n)**. This is why balanced trees are used in real-world databases.
+
+---
+
+## 4. Multi-Language Implementation (BST Node)
+
+```language-code-tabs
+[
+  {
+    "label": "Javascript",
+    "language": "javascript",
+    "code": "class Node {\n  constructor(val) {\n    this.val = val;\n    this.left = null;\n    this.right = null;\n  }\n}"
+  },
+  {
+    "label": "Python",
+    "language": "python",
+    "code": "class Node:\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None"
+  },
+  {
+    "label": "Java",
+    "language": "java",
+    "code": "class Node {\n    int val;\n    Node left, right;\n    Node(int x) { val = x; }\n}"
+  },
+  {
+    "label": "C++",
+    "language": "cpp",
+    "code": "struct Node {\n    int val;\n    Node *left, *right;\n    Node(int x) : val(x), left(nullptr), right(nullptr) {}\n};"
   }
-}
-function insert(root: TNode | null, val: number): TNode {
-  if (!root) return new TNode(val);
-  if (val < root.val) root.left = insert(root.left, val);
-  else root.right = insert(root.right, val);
-  return root;
-}
-```
-
-```go
-type Node struct {
-    val int
-    left, right *Node
-}
-func insert(root *Node, val int) *Node {
-    if root == nil { return &Node{val: val} }
-    if val < root.val {
-        root.left = insert(root.left, val)
-    } else {
-        root.right = insert(root.right, val)
-    }
-    return root
-}
+]
 ```
 
 ---
 
-## 3. Tree Traversals
+## 5. Interview Pro-Tips
 
-1. **In-Order (Left, Root, Right):** Ascending order for BST.
-2. **Pre-Order (Root, Left, Right):** Copying/Serializing.
-3. **Post-Order (Left, Right, Root):** Deletion/Expression analysis.
+### Recursion is Your Best Friend
+Trees are **Recursive** by nature (every child of a tree is itself the root of a smaller tree). 90% of tree interview questions can be solved with a simple recursive function that handles the "Root," "Left Child," and "Right Child."
 
-Next, we'll look at a specific type of tree used for priority: **Heaps**.
+### Know Your Traversals
+Interviewers frequently ask you to visit nodes in a specific order:
+- **In-Order** (Left, Root, Right): Returns items in **sorted order** for a BST.
+- **Pre-Order** (Root, Left, Right): Used for creating a copy of a tree.
+- **Post-Order** (Left, Right, Root): Used for deleting nodes or evaluating math expressions.
+- **Level-Order** (Top-down, layer by layer): Uses a **Queue** (BFS).
+
+### Identify the "Balanced" Requirement
+If an interviewer asks for O(log n) performance on a dynamic set of data, they are hinting at a Balanced Tree. Mentioning **AVL Trees** or **Red-Black Trees** shows you know how real systems (like the Linux kernel or Java's `TreeMap`) stay fast.
+
+### What Interviewers Are Testing
+- Can you write clean recursive code?
+- Do you understand the BST property?
+- Can you traverse a tree level-by-level using a Queue?
+
+---
+
+## Key Takeaway
+
+Trees are the master of **sorted, hierarchical data**. They provide a perfect compromise between the lightning-fast searching of a sorted array and the effortless insertion of a linked list.
