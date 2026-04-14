@@ -9,7 +9,6 @@ const navItems = [
   { label: "Algorithms", href: "/algo" },
   { label: "System Design", href: "/sys-design" },
   { label: "Building", href: "/building" },
-  { label: "Blog", href: "/blog" },
 ];
 
 const Navbar = React.memo(() => {
