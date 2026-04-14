@@ -24,16 +24,16 @@ At its core, Python is an **interpreted language**. This means that code is exec
 
 Python's versatility has made it the "Swiss Army Knife" of the digital age:
 
-### 🤖 Data Science & AI
+### Data Science & AI
 This is Python's "Killer App." Libraries like **NumPy, Pandas, Scikit-learn, and TensorFlow** have made Python the industry standard for data analysis and machine learning.
 
-### 🌐 Web Development
+### Web Development
 High-performance frameworks like **Django and Flask** allow developers to build secure and scalable backends quickly.
 
-### ⚙️ Automation & Scripting
+### Automation & Scripting
 Python is the go-to tool for DevOps engineers and system administrators to automate repetitive tasks, manage clouds, and scrape websites.
 
-### 🧪 Scientific Computing
+### Scientific Computing
 Used extensively by researchers and scientists for physics simulations, genome mapping, and financial modeling.
 
 ---
