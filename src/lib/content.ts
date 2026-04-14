@@ -90,7 +90,8 @@ function loadGroupedDocSection(section: string): DocGroup[] {
 
   items.forEach((item) => {
     const parts = item.slug.split("/");
-    if (parts.length > 1) {
+    // Only group items that are in subdirectories and are not 'index' files
+    if (parts.length > 1 && parts[parts.length - 1] !== "index") {
       const groupName = parts[0];
       // Capitalize first letter of groupName
       const groupTitle = groupName.charAt(0).toUpperCase() + groupName.slice(1);
