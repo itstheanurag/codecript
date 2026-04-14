@@ -15,6 +15,15 @@ Imagine a **Stack of Plates** in a cafeteria.
 3. The plate that was washed *last* is the one that gets used *first*. (**LIFO**)
 4. You can peek at the top plate to see if it's clean, but you can't see the plates underneath. (**Peek**)
 
+```mermaid
+graph TD
+    subgraph StackOp ["Stack: LIFO"]
+    direction BT
+    Plate1[Plate 1] --- Plate2[Plate 2] --- Plate3[Plate 3] --- Top[Top / New Plate]
+    end
+    style StackOp fill:#1a1a1a,stroke:#333
+```
+
 ---
 
 ## 2. Key Operations & Complexity

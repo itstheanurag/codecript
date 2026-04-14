@@ -14,6 +14,20 @@ Imagine a **Treasure Hunt**.
 2. To find the 5th clue, you **must** start at the 1st, then go to the 2nd, the 3rd, and so on. You can't just jump to clue #5. (**O(n) Access**)
 3. If you want to insert a new clue between #2 and #3, you just change the address on clue #2 to point to your new scrap, and make your new scrap point to clue #3. No one else has to move! (**O(1) Insertion**)
 
+```mermaid
+graph LR
+    subgraph Singly ["Singly Linked List"]
+    A[Node A] --> B[Node B] --> C[Node C] --> D[NULL]
+    end
+    
+    subgraph Doubly ["Doubly Linked List"]
+    E[Node X] <--> F[Node Y] <--> G[Node Z]
+    end
+
+    style Singly fill:#1a1a1a,stroke:#333
+    style Doubly fill:#1a1a1a,stroke:#333
+```
+
 ---
 
 ## 2. Types of Linked Lists

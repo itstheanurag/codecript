@@ -15,6 +15,22 @@ Imagine **LinkedIn**.
 3. If I can only see your profile but you can't see mine, that's a **Directed Edge** (an arrow). If we are mutual connections, that's an **Undirected Edge** (a line).
 4. If some connections are "closer" than others (like "Family" vs. "Acquaintance"), we can add a **Weight** to the edge. (**Weighted Graph**)
 
+```mermaid
+graph LR
+    subgraph Undirected ["Undirected (Mutual)"]
+    A((Alice)) --- B((Bob))
+    B --- C((Charlie))
+    end
+    
+    subgraph Directed ["Directed (Following)"]
+    D((Dave)) --> E((Eve))
+    E --> F((Frank))
+    end
+    
+    style Undirected fill:#1a1a1a,stroke:#333
+    style Directed fill:#1a1a1a,stroke:#333
+```
+
 ---
 
 ## 2. How we store Graphs

@@ -17,6 +17,24 @@ Imagine a **Party of Strangers**.
     - **Union**: "Merge these two groups."
     - **Find**: "Is Person A in the same group as Person C?"
 
+```mermaid
+graph TD
+    subgraph Groups ["Managing Connectivity"]
+    direction LR
+    subgraph G1 ["Group 1"]
+    A((A)) --- B((B))
+    B --- C((C))
+    end
+    subgraph G2 ["Group 2"]
+    D((D)) --- E((E))
+    end
+    subgraph G3 ["Group 3"]
+    F((F))
+    end
+    end
+    style Groups fill:#1a1a1a,stroke:#333
+```
+
 ---
 
 ## 2. The Power-Up Optimizations

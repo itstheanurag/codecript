@@ -14,6 +14,19 @@ In languages like **Java**, **Python**, and **Javascript**, strings are **Immuta
 - If you do something like `str = str + "!"`, you aren't changing the original string. Instead, the computer creates a **brand new string** in memory and points your variable to it.
 - Doing this inside a loop is a common way to accidentally create **O(n²)** performance bugs!
 
+```mermaid
+graph LR
+    subgraph StringMem ["String in Memory: 'HELLO'"]
+    H[H] --- E[E] --- L1[L] --- L2[L] --- O[O]
+    end
+    style StringMem fill:#1a1a1a,stroke:#333
+    style H fill:#8b5cf6,color:#fff
+    style E fill:#8b5cf6,color:#fff
+    style L1 fill:#8b5cf6,color:#fff
+    style L2 fill:#8b5cf6,color:#fff
+    style O fill:#8b5cf6,color:#fff
+```
+
 ---
 
 ## 2. String Complexity

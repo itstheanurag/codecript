@@ -14,6 +14,20 @@ Imagine a **Party Guest List**.
 2. You don't necessarily care about the order people arrived in; you just care *if* they are on the list or not. (**Membership**)
 3. To check if "Alice" is at the party, you don't want to read the whole list from top to bottom. You want to know instantly. (**O(1) Average Search**)
 
+```mermaid
+graph TD
+    subgraph Stream ["Input Stream (with duplicates)"]
+    A1[Alice] --- B1[Bob] --- A2[Alice] --- C1[Charlie] --- B2[Bob]
+    end
+    
+    Stream --> SetFilter[Set Logic]
+    
+    subgraph FinalSet ["Unique Guest List"]
+    Alice --- Bob --- Charlie
+    end
+    style FinalSet fill:#065f46,color:#fff
+```
+
 ---
 
 ## 2. Common Set Types

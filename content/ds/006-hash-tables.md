@@ -15,6 +15,18 @@ Imagine a **Post Office** with 1,000 locked P.O. boxes.
 3. Your package goes directly into **Box #412**.
 4. To get it back, you just give your name, the clerk calculates `412` again, and goes straight to that box. You don't have to check Box #1, #2, #3... (**O(1) Average Access**)
 
+```mermaid
+graph LR
+    Key[Key: "Antigravity"] --> HashFunc[Hash Function]
+    HashFunc --> Index[Index: 412]
+    Index --> Bucket[Bucket 412: "Value"]
+    
+    subgraph HashArray ["Hash Table Array"]
+    B1[...] --- B412[Bucket 412] --- B999[...]
+    end
+    style HashArray fill:#1a1a1a,stroke:#333
+```
+
 ---
 
 ## 2. Key Operations & Complexity

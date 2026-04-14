@@ -15,6 +15,17 @@ Imagine a **Company**.
 3. No matter where you are in the company, if you look at your manager, they always earn more (or the same). (**Heap Property**)
 4. To find the highest-paid person in the company, you only ever have to look at the top. (**O(1) Peek**)
 
+```mermaid
+graph TD
+    CEO[CEO: $500k] --> VP1[VP A: $250k]
+    CEO --> VP2[VP B: $250k]
+    VP1 --> M1[Manager: $120k]
+    VP1 --> M2[Manager: $110k]
+    VP2 --> M3[Manager: $130k]
+    
+    style CEO fill:#eab308,color:#000
+```
+
 ---
 
 ## 2. Min-Heap vs. Max-Heap

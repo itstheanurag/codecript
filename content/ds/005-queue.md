@@ -14,6 +14,14 @@ Imagine a **Queue at a supermarket**.
 2. When the cashier is ready, they serve the person at the **front** of the line. (**Dequeue**)
 3. The person who has been waiting the *longest* is the one served *first*. (**FIFO**)
 
+```mermaid
+graph LR
+    subgraph QueueOp ["Queue: FIFO"]
+    In[Enqueue] --> Back[Back] --- Middle[...] --- Front[Front] --> Out[Dequeue]
+    end
+    style QueueOp fill:#1a1a1a,stroke:#333
+```
+
 ---
 
 ## 2. Key Operations & Complexity

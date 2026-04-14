@@ -15,6 +15,17 @@ Imagine the **Folders on your computer**.
 3. Those folders can contain even more folders (**Sub-folders**) or files (**Leaves**).
 4. No matter how many folders you have, if you follow the path upwards, you always end up at the same Root. (**Hierarchical Structure**)
 
+```mermaid
+graph TD
+    Root[Root Folder] --> Child1[Subfolder A]
+    Root --> Child2[Subfolder B]
+    Child1 --> Leaf1[File 1]
+    Child1 --> Leaf2[File 2]
+    Child2 --> Leaf3[File 3]
+    
+    style Root fill:#3b82f6,color:#fff
+```
+
 ---
 
 ## 2. Common Tree Types

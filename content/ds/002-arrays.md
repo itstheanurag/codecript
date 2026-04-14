@@ -14,6 +14,19 @@ Imagine an **egg carton**.
 2. But if you want to put a new "mega-egg" in the 1st slot, you have to shift every other egg one spot to the right to make room. (**O(n) Insertion**)
 3. If the carton only has 12 slots, and you want a 13th egg, you need to buy a whole new, bigger carton and move all your eggs into it. (**Dynamic Array Resizing**)
 
+```mermaid
+graph LR
+    subgraph Memory ["Contiguous Memory Layout"]
+    A[Index 0] --- B[Index 1] --- C[Index 2] --- D[Index 3] --- E[Index 4]
+    end
+    style Memory fill:#1a1a1a,stroke:#333
+    style A fill:#22c55e,color:#fff
+    style B fill:#22c55e,color:#fff
+    style C fill:#22c55e,color:#fff
+    style D fill:#22c55e,color:#fff
+    style E fill:#22c55e,color:#fff
+```
+
 ---
 
 ## 2. Key Operations & Complexity
