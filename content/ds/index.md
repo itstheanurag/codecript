@@ -9,7 +9,7 @@ Picking the wrong data structure can make your app 100x slower, while picking th
 
 ---
 
-## 🛠️ The Toolbox
+## The Toolbox
 
 We have structured this directory into a comprehensive guide for every structure you'll need for production and interviews:
 
@@ -33,7 +33,7 @@ We have structured this directory into a comprehensive guide for every structure
 
 ---
 
-## 🎨 visual-first Learning
+## visual-first Learning
 Every structure in this guide includes **Mermaid diagrams** and real-world analogies (like "Egg Cartons" or "Treasure Hunts") to ensure you develop deep mental models, not just memorize syntax.
 
 Select **Introduction** in the sidebar to begin!

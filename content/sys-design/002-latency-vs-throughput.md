@@ -75,7 +75,7 @@ Instead of averages, we use percentiles:
 - **P95** → 95% of requests are faster than this
 - **P99** → Tail latency (critical for reliability)
 
-👉 Real systems optimize for **P95/P99**, not averages.
+ Real systems optimize for **P95/P99**, not averages.
 
 ---
 

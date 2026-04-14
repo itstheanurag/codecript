@@ -61,7 +61,7 @@ Vertical scaling means increasing the capacity of a **single machine** by upgrad
 - Database queries slowing down due to resource limits
 - Traffic spikes causing crashes
 
-👉 At this point, scaling up further becomes inefficient → you must scale out.
+ At this point, scaling up further becomes inefficient → you must scale out.
 
 ---
 

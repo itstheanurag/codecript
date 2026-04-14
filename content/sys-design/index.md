@@ -9,7 +9,7 @@ In this section, we cover the core concepts used to build massive systems like N
 
 ---
 
-## 🏛️ The Core Pillars
+## The Core Pillars
 
 Every massive system is built on these foundational concepts:
 
@@ -30,7 +30,7 @@ Every massive system is built on these foundational concepts:
 
 ---
 
-## 🧭 The Interview Framework
+## The Interview Framework
 System design interviews are notoriously open-ended. We provide a structured framework ([The Interview Strategy](/sys-design/044-interview-strategy)) to help you navigate from gathering requirements to deep-diving into specific components.
 
 Select a topic from the **sidebar** to start building your design intuition!

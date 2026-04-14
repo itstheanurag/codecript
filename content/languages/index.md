@@ -13,17 +13,17 @@ Whether you are a complete beginner or an experienced developer looking to add a
 
 We have curated deep-dives into several major languages. Click on a language below to start your journey:
 
-### 🐍 Python
+### Python
 **The Swiss Army Knife.** Python is the gold standard for Data Science, AI, and Automation. It is highly readable and beginner-friendly, making it the perfect first language.
 - [Start Learning Python](/languages/python/001-introduction)
 
-### 📜 Javascript
+### Javascript
 **The Language of the Web.** If you want to build interactive websites, modern web apps (React, Vue), or even cross-platform mobile apps, Javascript is essential.
 - [Start Learning Javascript](/languages/javascript/001-introduction)
 
 ---
 
-## 🧠 What You'll Learn
+## What You'll Learn
 In every language guide, we focus on:
 - **Foundations**: Variables, Control Flow, and Functions.
 - **Deep Dives**: Memory Management, Scope, and Asynchronous programming.

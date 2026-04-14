@@ -11,13 +11,13 @@ If data is the **"ingredients"** your program works with, data structures are th
 
 ## 1. Why Learn Data Structures?
 
-### ⚡ Efficiency
+### Efficiency
 The primary reason to use data structures is to optimize performance. For example, finding a name in a sorted list is much faster than searching through a pile of random names. Picking the right structure can turn an operation that takes minutes into one that takes milliseconds.
 
-### 📈 Scalability
+### Scalability
 As your data grows from 10 items to 10 million, simple approaches often fail spectacularly. Proper data structures allow your application to scale gracefully without consuming all of your server's memory or CPU.
 
-### 🧩 Problem Solving
+### Problem Solving
 Most complex algorithms rely on specific data structures to work. By mastering these, you unlock the ability to solve advanced patterns like pathfinding in a map, recommendation engines, or real-time autocomplete.
 
 ---

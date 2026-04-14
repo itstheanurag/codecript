@@ -9,7 +9,7 @@ This 24-part series is a comprehensive journey from "Hello World" to mastering t
 
 ---
 
-## 🗺️ The 4-Batch Roadmap
+## The 4-Batch Roadmap
 
 We have structured the Python guide into four distinct batches for a logical learning progression:
 
@@ -39,7 +39,7 @@ Master high-level patterns like Decorators, Generators, and OOP.
 
 ---
 
-## 🚀 Why This Guide?
+## Why This Guide?
 We don't just show you how to write code; we show you **how to interview.** Every module includes "Interview Pro-Tips" that highlight the specific patterns and "Gotchas" that top tech companies look for.
 
 Select **Introduction** in the sidebar to get started!

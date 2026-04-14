@@ -9,7 +9,7 @@ This section covers the essential pattern recognition skills you need to solve c
 
 ---
 
-## 🧭 The Pattern Roadmap
+## The Pattern Roadmap
 
 Algorithms are best learned through **Patterns**. Instead of memorizing 1,000 problems, learn these core strategic categories:
 
@@ -30,7 +30,7 @@ Managing connections and networks.
 
 ---
 
-## 🧠 The "Big O" Mindset
+## The "Big O" Mindset
 In every algorithm guide, we analyze the **Time and Space Complexity**. We don't just care if it works—we care if it's **scalable**.
 
 Select a pattern from the **sidebar** to get started!

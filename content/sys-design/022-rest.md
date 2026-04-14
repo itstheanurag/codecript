@@ -38,8 +38,8 @@ REST uses standard HTTP methods to perform operations on resources:
 
 Resources should be named as **nouns**, not verbs. Use hierarchical paths to represent relationships.
 
--   ✅ **Good**: `GET /users`, `POST /orders`, `GET /users/123/posts`
--   ❌ **Bad**: `GET /getUsers`, `POST /createOrder`, `GET /postsForUser/123`
+-    **Good**: `GET /users`, `POST /orders`, `GET /users/123/posts`
+-    **Bad**: `GET /getUsers`, `POST /createOrder`, `GET /postsForUser/123`
 
 ---
 

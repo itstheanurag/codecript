@@ -9,7 +9,7 @@ This series is designed to take you from the very basics (Variables & Loops) to 
 
 ---
 
-## 🗺️ Learning Roadmap
+## Learning Roadmap
 
 We have divided the Javascript curriculum into logical phases:
 
@@ -38,7 +38,7 @@ Master the tools used in modern React/Node.js development.
 
 ---
 
-## 💡 Why This Guide?
+## Why This Guide?
 Most tutorials teach you *how* to write JS. We focus on **why** it works the way it does. By understanding the underlying engine and memory management, you'll be able to solve complex bugs and ace technical interviews at top-tier tech companies.
 
 Select **Introduction** in the sidebar to begin!

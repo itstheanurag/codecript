@@ -46,9 +46,9 @@ function getLength<T extends { length: number }>(item: T): number {
   return item.length;
 }
 
-getLength("hello"); // ✅ string has length
-getLength([1, 2, 3]); // ✅ array has length
-getLength(42); // ❌ number has no length
+getLength("hello"); //  string has length
+getLength([1, 2, 3]); //  array has length
+getLength(42); //  number has no length
 ```
 
 ## Generic Interfaces
