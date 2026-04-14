@@ -79,7 +79,30 @@ graph LR
 
 ## 5. Watch out for Cycles!
 
-Topological sort is **only** possible in a DAG (Directed **Acyclic** Graph). If there is a cycle (e.g., Task A depends on B, and B depends on A), you will never be able to start either task. Kahn’s algorithm is great because if the final `result` list doesn't include every node, it **proves** the graph has a cycle.
+Topological sort is **only** possible in a DAG (Directed **Acyclic** Graph). If there is a cycle (e.g., Task A depends on B, and B depends on A), you will never be able to start either task. Kahn's algorithm is great because if the final `result` list doesn't include every node, it **proves** the graph has a cycle.
+
+---
+
+## 6. Interview Pro-Tips
+
+### Two Algorithms — Know Both
+**Kahn's Algorithm** (shown above) is BFS-based, uses in-degree counts, and naturally detects cycles (result length < N). **DFS-based Topological Sort** processes nodes in DFS post-order and reverses the result. Both produce valid orderings.
+
+### The Cycle Detection Bonus
+Kahn's cycle detection is a freebie — if `result.length !== numNodes`, there's a cycle. This makes it the preferred interview approach for problems like "Course Schedule" (LeetCode 207), which is essentially "can you topologically sort this graph?"
+
+### Common Interview Problems Using This Pattern
+- **Course Schedule I & II** (detect cycles / find ordering)
+- **Alien Dictionary** (infer ordering of characters from sorted word list)
+- **Minimum Number of Semesters** (parallel scheduling variant)
+
+When you see "dependencies" or "prerequisites" in a problem, Topological Sort is almost certainly the answer.
+
+### What Interviewers Are Testing
+- Do you recognize the "prerequisite" pattern and map it to a DAG?
+- Can you implement Kahn's algorithm correctly (handling the in-degree queue)?
+- Do you know how to detect cycles as a side effect?
+- Can you explain the DFS-based alternative?
 
 ---
 

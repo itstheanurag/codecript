@@ -75,6 +75,24 @@ We will show both the **Base** implementation and the **Optimized** version whic
 
 ---
 
+## 6. Interview Pro-Tips
+
+### Will you actually use this in production?
+Practically never. Interviewers know this. They ask about it to test whether you understand **in-place sorting**, **stability**, and **early-termination optimization** — not because they expect you to deploy it.
+
+### It IS Stable
+Bubble Sort never swaps equal elements (only swaps when `arr[j] > arr[j+1]`, not `>=`), so it **preserves the original relative order of equal elements**. This makes it a **stable** sort — a property worth knowing when interviewers ask you to compare sorting algorithms.
+
+### Always mention the `swapped` optimization
+If asked to write or explain Bubble Sort in an interview, immediately add the `swapped` flag and explain that it brings the best case to O(N). Showing you can identify and apply an optimization without being prompted is a signal interviewers look for.
+
+### What Interviewers Are Testing
+- Do you know when Best Case improves from O(N²) to O(N) and why?
+- Can you explain stability vs. instability?
+- Can you reason about in-place vs. extra-memory tradeoffs?
+
+---
+
 ## Key Takeaway
 
 Bubble Sort is rarely used in production because it's slow (O(N²)), but it is the perfect introduction to the idea of **In-place** swapping and **Best-case optimization**.

@@ -79,6 +79,27 @@ Only keep track of the **last two** numbers.
 
 ---
 
+## 5. Interview Pro-Tips
+
+### Walk Through All Four Stages
+In an interview, start by acknowledging the naive recursive approach — then immediately say "this has overlapping subproblems, so let me add memoization." Then mention you can optimize to O(1) space with the rolling variable approach. Walking through this progression shows the interviewer you understand the full arc of optimization.
+
+### Don't Just Memorize the Code — Know *Why* Each Stage Works
+- **Naive**: O(2^N) because `fib(n)` branches into two, forming a binary tree of calls.
+- **Memoization**: O(N) because each unique value of n is computed exactly once.
+- **Tabulation**: Same O(N) time, eliminates recursion stack risk.
+- **Space Optimized**: We only need the last two values — all prior values can be discarded.
+
+### Fibonacci is the Gateway, Not the Destination
+Fibonacci is asked to test whether you understand the *principle*: memoize overlapping subproblems. Once you explain Fibonacci clearly, an interviewer will pivot to harder DP — Climbing Stairs, House Robber, Coin Change. They all follow the same "one or two previous states" pattern.
+
+### What Interviewers Are Testing
+- Can you give the O(2^N) → O(N) → O(1) space journey fluently?
+- Do you know what "overlapping subproblems" and "optimal substructure" mean and can you identify them here?
+- Can you generalize to problems like Climbing Stairs (k steps) or House Robber?
+
+---
+
 ## Key Takeaway
 
 Fibonacci illustrates the two core requirements for DP:

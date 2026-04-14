@@ -79,6 +79,25 @@ With both optimizations, Union-Find is legendarily fast.
 
 ---
 
+## 6. Interview Pro-Tips
+
+### Always Use Both Optimisations Together
+Path Compression alone reduces Find to near O(1). Union by Rank alone keeps trees shallow. **Together**, they give the legendary O(α(N)) — effectively constant time. In interviews, always state both optimisations by name to show you know the full solution.
+
+### Cycle Detection in Undirected Graphs
+The trick is simple: when you try to `union(u, v)`, if `find(u) === find(v)` (they already share the same root), adding edge `u-v` would create a cycle. This is the cleanest cycle-detection approach for undirected graphs and is used in Kruskal's MST algorithm.
+
+### Connected Components Count
+Initialise a `count = n` (one component per node). Every time `union` successfully merges two groups (returns `true`), decrement `count`. At the end, `count` is the number of connected components. This is used in "Number of Islands" (treating each cell as a node) and similar problems.
+
+### What Interviewers Are Testing
+- Can you implement `find` with path compression?
+- Can you implement `union` with rank/size?
+- Do you know the amortized complexity?
+- Can you apply Union-Find to cycle detection or connected components counting?
+
+---
+
 ## Key Takeaway
 
 Union-Find is a "Magic" data structure. It manages groups and connectivity with near-perfect performance, making it the go-to tool for any problem involving **merging and sets**.

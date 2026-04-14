@@ -81,6 +81,31 @@ graph TD
 
 ---
 
+## 5. Interview Pro-Tips
+
+### When to Reach for a Trie
+If the problem involves **prefixes**, **autocomplete**, or **searching many strings with a common prefix**, a Trie is almost always the right data structure. Key signals: "startsWith", "words that start with", "count words with prefix."
+
+### Hash Map vs. Trie — Know the Trade-off
+A Hash Map can tell you if a *whole word* exists in O(1). A Trie can tell you if a *prefix* exists in O(L) and retrieve all words with that prefix. For prefix-heavy workloads, Trie wins decisively. For pure word lookup with no prefix requirements, a Hash Map is simpler.
+
+### Implement `search` and `startsWith` — Know Both
+The difference is tiny but important:
+- `search("alg")`: Follow path A→L→G, then check `isEndOfWord`. Must be true.
+- `startsWith("alg")`: Follow path A→L→G. Only check that the path exists — `isEndOfWord` doesn't matter.
+
+### Space Considerations
+A Trie with 26 children per node can be memory-hungry for sparse datasets. Alternatives:
+- Use a `Map<char, TrieNode>` instead of a fixed array (saves space for sparse alphabets).
+- **Compressed Trie (Radix Tree)**: Collapses single-child chains into single edges. Used in Linux kernel's routing tables.
+
+### What Interviewers Are Testing
+- Can you implement `insert`, `search`, and `startsWith` correctly?
+- Do you know when to use a Trie vs. a Hash Map?
+- Can you extend the Trie to count words, handle wildcards (`.` matching any char), or support deletion?
+
+---
+
 ## Key Takeaway
 
 Tries are the "Autocomplete Masters." They are why Google starts suggesting searches for you after just two letters. If you ever need to perform "Starts-with" queries on millions of strings, the Trie is your best friend.

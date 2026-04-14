@@ -78,13 +78,28 @@ graph TD
 ## 5. Interview Pro-Tips
 
 ### In-Place vs. Stable
-Quick Sort is **in-place** (uses very little memory), but it is **not stable**. If you have two items with the same value, their relative order might flip.
+Quick Sort is **in-place** (O(log N) stack space for recursion), but it is **not stable**. If two items have the same value, their relative order might flip. Use Merge Sort when stability is required.
 
-### The "Dual Pivot"
-Java’s `Arrays.sort()` uses a variation called **Dual-Pivot Quicksort**, which chooses two pivots and partitions the array into three parts, making it even faster on modern hardware.
+### Always Randomise the Pivot
+When implementing Quick Sort in an interview, add random pivot selection immediately. The worst-case O(N²) happens on already-sorted input with a naive last-element pivot. Randomising the pivot makes this essentially impossible — and shows the interviewer you know the real-world pitfall.
+
+```javascript
+// Randomise pivot before partitioning
+const randIdx = Math.floor(Math.random() * (high - low + 1)) + low;
+[arr[randIdx], arr[high]] = [arr[high], arr[randIdx]];
+```
+
+### The "Dual Pivot" — Know It for System Design
+Java's `Arrays.sort()` on primitives uses **Dual-Pivot Quicksort** (two pivots, three partitions). Java's `Arrays.sort()` on *objects* uses **Timsort** (stable). Knowing this distinction is a great thing to mention when asked about language internals.
+
+### What Interviewers Are Testing
+- Can you implement the `partition` function correctly without off-by-one errors?
+- Do you know the worst case and how to mitigate it?
+- Can you articulate in-place vs. stable and when each matters?
+- Do you know why standard libraries prefer Quick Sort for primitives?
 
 ---
 
 ## Key Takeaway
 
-Quick Sort is the "Ferrari" of algorithms. It’s built for speed, works beautifully on hardware caches, and is the implementation of choice for most high-performance language libraries.
+Quick Sort is the "Ferrari" of algorithms. It's built for speed, works beautifully on hardware caches, and is the implementation of choice for most high-performance language libraries.

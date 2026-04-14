@@ -81,11 +81,34 @@ The **N-Queens** problem is the perfect example: Place N queens on an N×N chess
 
 ## 5. Why prune?
 
-The magic of Backtracking isn't just trying everything — it's **Pruning**. 
+The magic of Backtracking isn't just trying everything — it's **Pruning**.
 As soon as we see a choice violates a rule (e.g., placing a Queen where she is attacked), we immediately stop that branch. This prevents millions of useless calculations.
+
+---
+
+## 6. Interview Pro-Tips
+
+### The Three Steps Are Your Template
+In any backtracking interview problem, immediately structure your solution as: **Choose → Explore → Un-choose**. Writing these three comments in your code before filling in the logic keeps you on track and shows the interviewer you have a systematic approach.
+
+### Pruning is the Difference Between Pass and Fail
+A backtracking solution without pruning is just brute force with extra steps. Always ask: "What constraint can I check early to avoid going down a dead-end path?" For N-Queens, checking columns and diagonals before placing. For Sudoku, checking rows/cols/boxes before inserting.
+
+### Classic Problems to Know
+- **Subsets / Permutations / Combinations** — The foundational trio. Know all three.
+- **N-Queens** — The canonical backtracking interview problem.
+- **Sudoku Solver** — More complex pruning.
+- **Word Search** — Backtracking on a 2D grid.
+- **Palindrome Partitioning** — Backtracking meets DP.
+
+### What Interviewers Are Testing
+- Do you have the Choose/Explore/Un-choose pattern clearly in your code?
+- Is your pruning condition correct and applied early?
+- Do you understand why time complexity is O(N!) or O(2^N) and why pruning helps?
+- Can you trace through the decision tree of a small example?
 
 ---
 
 ## Key Takeaway
 
-Backtracking is "Trial and Error" done systematically. It’s the go-to algorithm for **searching a space of possibilities** where constraints are tight.
+Backtracking is "Trial and Error" done systematically. It's the go-to algorithm for **searching a space of possibilities** where constraints are tight.

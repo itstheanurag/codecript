@@ -83,6 +83,24 @@ graph TD
 
 ---
 
+## 6. Interview Pro-Tips
+
+### Choose Merge Sort When Stability Is Required
+If the problem involves sorting objects where the original order of equal elements must be preserved (e.g., sorting a list of users by last name, where users with the same last name should stay in the order they appeared), you *must* use a stable sort. Merge Sort is the standard stable O(N log N) choice.
+
+### The O(N) Space Cost is a Real Trade-off
+In memory-constrained environments, allocating O(N) extra space for temporary arrays is a problem. This is why Heap Sort exists (O(1) space, O(N log N) time). In interviews, acknowledging this trade-off shows maturity.
+
+### Merge Sort on Linked Lists — It Wins
+Merge Sort is actually *preferred* over Quick Sort for linked lists because the merge step doesn't need random access — it just rewires pointers. Quick Sort, on the other hand, struggles because partition needs to jump around, which is expensive on linked lists.
+
+### What Interviewers Are Testing
+- Do you understand the Divide and Conquer paradigm clearly?
+- Can you implement the `merge` step correctly (the subtle part most people get wrong)?
+- Do you know when to choose Merge Sort vs. Quick Sort vs. Heap Sort?
+
+---
+
 ## Key Takeaway
 
 Merge Sort is the "Reliable Professional." It takes up more space than others, but it is fast, stable, and perfectly consistent every time.

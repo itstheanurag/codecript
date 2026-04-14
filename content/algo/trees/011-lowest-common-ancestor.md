@@ -79,6 +79,29 @@ graph TD
 
 ---
 
+## 5. Interview Pro-Tips
+
+### BST vs. General Binary Tree — Two Different Algorithms
+- **In a BST**: You can use the BST property. If both `p` and `q` are less than `root`, go left. If both are greater, go right. Otherwise, `root` is the LCA. This runs in O(log N) on balanced BSTs.
+- **In a general Binary Tree**: Use the recursive "search and report" approach shown above. O(N) time, no shortcuts.
+
+The single-function recursive solution shown works for *both*, but knowing the BST optimization shows insight.
+
+### The "One Found" Case
+When only one subtree returns a non-null node, it means both `p` and `q` are in that same subtree — and whichever one was found first *is* the LCA (because the other must be a descendant of it). This is the subtle case people often miss when explaining the algorithm.
+
+### Variations to Know
+- **LCA with Parent Pointers**: If each node has a `parent` pointer, walk both nodes up to the root collecting ancestors, then find the first common one (use a Set).
+- **LCA with Depth**: Bring the deeper node to the same depth, then walk both up simultaneously.
+- **LCA for Multiple Queries**: For many queries on the same tree, preprocess with Euler Tour + Sparse Table for O(1) per query.
+
+### What Interviewers Are Testing
+- Can you explain the recursive logic clearly (base case, left/right results, the "both non-null" case)?
+- Do you know the BST-specific optimization?
+- Can you extend to handle the case where one of p/q might not be in the tree?
+
+---
+
 ## Key Takeaway
 
-LCA is a foundational problem. It’s used in **Version Control Systems** (to find where two branches diverged) and **Object Inheritance** in programming languages.
+LCA is a foundational problem. It's used in **Version Control Systems** (to find where two branches diverged) and **Object Inheritance** in programming languages.

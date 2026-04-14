@@ -79,6 +79,28 @@ This is one of the few problems where the **Greedy Choice Property** holds perfe
 
 ---
 
+## 6. Interview Pro-Tips
+
+### Sort by Finish Time — Committed to Memory
+The non-obvious insight is sorting by **finish time**, not start time and not duration. Many candidates instinctively sort by start time (wrong) or by shortest duration (wrong). Finish time is the key because it maximizes remaining time for future activities.
+
+### Interval Scheduling is Everywhere
+Activity Selection is the foundational "interval scheduling" problem. Variants you'll see:
+- **Meeting Rooms I**: Can one person attend all meetings? (Check overlaps)
+- **Meeting Rooms II**: Minimum rooms needed (sort starts & ends, use two pointers)
+- **Non-overlapping Intervals**: Minimum removals to make intervals non-overlapping (same greedy)
+- **Job Scheduling to Maximize Profit**: Weighted Activity Selection (uses DP instead)
+
+### When Does Greedy Fail? Use DP Instead
+The un-weighted version (maximize count) → Greedy. The **weighted** version (maximize total value/profit of selected activities) → DP. This is a classic interview trick: make the activities have different "profits" and the greedy finish-time approach no longer works.
+
+### What Interviewers Are Testing
+- Can you explain *why* sorting by finish time is the right greedy choice?
+- Do you recognize this as the template for interval scheduling problems?
+- Can you tell when greedy is sufficient vs. when you need DP?
+
+---
+
 ## Key Takeaway
 
 Activity selection is the basis for **Job Scheduling** and **Resource Management**. It proves that sometimes, the simplest local decision is exactly what you need to solve the global problem.

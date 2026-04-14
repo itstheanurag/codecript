@@ -57,6 +57,28 @@ The **Master Theorem** is used to determine the time complexity of Divide and Co
 
 ---
 
+## 6. Interview Pro-Tips
+
+### Recognise the Pattern — Not Just the Algorithm
+Divide and Conquer is a *paradigm*, not a single algorithm. When you see a problem that involves splitting input in half and combining results, your brain should immediately say "D&C." This applies to: sorting, binary search, closest pair of points, counting inversions in an array, and more.
+
+### The Master Theorem — Know the Big Three
+When asked for the time complexity of your D&C algorithm, apply the Master Theorem to `T(n) = aT(n/b) + f(n)`:
+- **Merge Sort**: `T(n) = 2T(n/2) + O(n)` → **O(N log N)**
+- **Binary Search**: `T(n) = T(n/2) + O(1)` → **O(log N)**
+- **Naive Matrix Multiply**: `T(n) = 8T(n/2) + O(n²)` → **O(N³)**
+
+### D&C vs. DP — The Key Distinction
+Both use recursion and break problems into subproblems. The difference: D&C subproblems are **independent** (results don't overlap). DP subproblems **overlap** (you'd recompute the same thing many times without memoization). If you find yourself recalculating the same subproblem, switch from D&C to DP.
+
+### What Interviewers Are Testing
+- Can you identify that a problem has independent sub-structure?
+- Can you write the recurrence relation and derive the complexity?
+- Do you understand the Divide, Conquer, and Combine steps clearly?
+- Can you distinguish D&C from DP?
+
+---
+
 ## Key Takeaway
 
 Divide and Conquer is about **Simplification**. By turning one large, scary problem into ten tiny, manageable ones, we can solve complex tasks with elegant recursive code.
