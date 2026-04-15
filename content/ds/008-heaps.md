@@ -1,105 +1,65 @@
 ---
-title: Heaps
+title: Priority Managed Trees: Heaps
 order: 8
 ---
 
-A **Heap** is a specialized tree-based data structure that satisfies the **Heap Property**. It is the engine behind a **Priority Queue**, allowing you to always access the "most important" (minimum or maximum) element instantly.
+# Heaps: Efficient Priority Management
+
+A **Heap** is a specialized **Complete Binary Tree** that satisfies the **Heap Property**. It is the industry-standard structure for implementing **Priority Queues**, where you need to quickly retrieve the element with the highest (or lowest) priority.
 
 ---
 
-## 1. The Intuition: "A Corporate Hierarchy"
+## 1. The Heap Property
 
-Imagine a **Company**.
-1. In a **Max-Heap**, the CEO (the **Root**) always has a higher salary than their direct reports (**Children**).
-2. Those reports likewise have higher salaries than the people they manage.
-3. No matter where you are in the company, if you look at your manager, they always earn more (or the same). (**Heap Property**)
-4. To find the highest-paid person in the company, you only ever have to look at the top. (**O(1) Peek**)
-
-```mermaid
-graph TD
-    CEO[CEO: $500k] --> VP1[VP A: $250k]
-    CEO --> VP2[VP B: $250k]
-    VP1 --> M1[Manager: $120k]
-    VP1 --> M2[Manager: $110k]
-    VP2 --> M3[Manager: $130k]
-    
-    style CEO fill:#eab308,color:#000
-```
+- **Max-Heap**: For every node $i$, the value of $i$ is greater than or equal to the values of its children. The largest element is always at the root.
+- **Min-Heap**: For every node $i$, the value of $i$ is less than or equal to the values of its children. The smallest element is always at the root.
 
 ---
 
-## 2. Min-Heap vs. Max-Heap
+## 2. The Array Representation
 
-| Type | Root Property | Use Case |
+Because a heap is a **Complete** binary tree (all levels are filled except possibly the last, which is filled from left to right), it is most efficiently stored in an **Array** rather than using nodes and pointers.
+
+For an element at index `i`:
+- **Left Child**: `2i + 1`
+- **Right Child**: `2i + 2`
+- **Parent**: `(i - 1) / 2` (Integer division)
+
+---
+
+## 3. Core Operations: Sift-Up and Sift-Down
+
+Maintaining the heap property requires two primary algorithms:
+
+### I. Sift-Up (Bubble Up)
+Used during **Insertion**. You add the new element at the end (the first empty leaf) and "bubble it up" by swapping with its parent until the heap property is restored.
+- **Complexity**: O(log N)
+
+### II. Sift-Down (Heapify Down)
+Used during **Deletion (Extract Max/Min)**. You replace the root with the last element in the array and "sift it down" by swapping it with its largest child until the heap property is restored.
+- **Complexity**: O(log N)
+
+---
+
+## 4. Complexity Analysis
+
+| Operation | Complexity | Description |
 | :--- | :--- | :--- |
-| **Min-Heap** | Root is the **Minimum** value. | Finding the shortest path (Dijkstra), minimum material cost. |
-| **Max-Heap** | Root is the **Maximum** value. | Scheduling the highest-priority tasks, finding "Top K" items. |
+| **Get Max/Min** | O(1) | Root is always at index 0. |
+| **Insert** | O(log N) | Requires Sift-Up. |
+| **Extract Max/Min** | O(log N) | Requires Sift-Down. |
+| **Build Heap** | O(N) | Transforming an unordered array into a heap. |
 
 ---
 
-## 3. Key Operations & Complexity
-
-| Operation | Time Complexity | Why? |
-| :--- | :--- | :--- |
-| **Peek** | O(1) | The min/max is always at the root. |
-| **Insert** | O(log n) | Add to the bottom and "bubble up" to the correct spot. |
-| **Pop Root** | O(log n) | Move the last element to root and "bubble down." |
-| **Build Heap** | O(n) | A mathematically optimized way to turn an array into a heap. |
+## Interview Pro-Tips: Why O(N) to build a heap?
+A common interview question: **"Why is the complexity of Building a Heap O(N) and not O(N log N)?"**
+- **The Answer**: While a single "Insert" into an existing heap is O(log N), building from scratch doesn't require N inserts. Instead, we use the "Floyd's Build-Heap" algorithm, which starts from the last non-leaf node and works upwards. Mathematically, the total number of swaps is a convergent series, resulting in a total time of **O(N)**.
 
 ---
 
-## 4. Multi-Language Implementation (Standard Library)
-
-```language-code-tabs
-[
-  {
-    "label": "Javascript",
-    "language": "javascript",
-    "code": "// JS has no built-in Heap! Use a library or array + manual logic\nconst minHeap = []; // Handled with custom bubbles up/down logic"
-  },
-  {
-    "label": "Python",
-    "language": "python",
-    "code": "import heapq\nheap = [] # Min-Heap by default\nheapq.heappush(heap, 10)\nmin_val = heapq.heappop(heap)\n\n# For Max-Heap, multiply values by -1"
-  },
-  {
-    "label": "Java",
-    "language": "java",
-    "code": "// Min-Heap (Default)\nPriorityQueue<Integer> minHeap = new PriorityQueue<>();\n// Max-Heap\nPriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());"
-  },
-  {
-    "label": "C++",
-    "language": "cpp",
-    "code": "#include <queue>\n// Max-Heap (Default)\nstd::priority_queue<int> maxHeap;\n// Min-Heap\nstd::priority_queue<int, vector<int>, greater<int>> minHeap;"
-  }
-]
-```
-
----
-
-## 5. Interview Pro-Tips
-
-### Use Heaps for "Top K" Problems
-Whenever you see a problem asking for the "Top K" largest or smallest items (e.g., "K closest points to origin"), a Heap is almost always the answer. Using a Heap of size $K$ allows you to find the answer in **O(n log K)** time instead of O(n log n) by sorting.
-
-### Memorize the Array Implementation
-Heaps are almost always stored in an **Array** rather than actual tree objects.
-- For a node at index `i`:
-- **Left Child**: `2 * i + 1`
-- **Right Child**: `2 * i + 2`
-- **Parent**: `Math.floor((i - 1) / 2)`
-Interviewers love to see if you can navigate the tree structure using only array indices.
-
-### The "Build Heap" complexity
-This is a famous "Gotcha." Building a heap from an unsorted array of size $n$ takes **O(n)** time, not O(n log n). Knowing this shows you understand the math behind the sift-down approach.
-
-### What Interviewers Are Testing
-- Do you understand the difference between a Heap and a BST? (Heaps are *not* fully sorted!)
-- Can you navigate a heap stored in an array?
-- Do you know how to use a Heap to solve priority-based problems?
-
----
-
-## Key Takeaway
-
-Heaps are the **prioritizers** of data structures. They don't care about sorting everything perfectly—they only care about making sure the *most important* thing is always ready to go.
+## Technical Summary
+1. `Priority`: Best for "Next most important" tasks.
+2. `Complete`: No gaps in the tree structure.
+3. `In-Place`: Can be implemented directly within an existing array.
+4. `Sift`: The core mechanism for maintaining balance.
