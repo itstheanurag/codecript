@@ -1,111 +1,85 @@
 ---
-title: Dijkstra's Algorithm
+title: Shortest Path: Dijkstra's Algorithm
 order: 14
 ---
 
-**Dijkstra's Algorithm** is the gold standard for finding the **shortest path** between nodes in a weighted graph.
+# Optimal Pathfinding: Dijkstra's Algorithm
+
+**Dijkstra's Algorithm** is a greedy algorithm used to find the shortest path from a single source vertex to all other vertices in a **Weighted Graph**. It is the foundation for network routing protocols (OSI Layer 3) and map-based navigation systems.
 
 ---
 
-## 1. The Intuition: "A Greedy Explorer"
+## 1. Requirement: Non-Negative Weights
 
-Imagine you are a traveler trying to find the quickest route to a destination.
-1. You start at your home (Distance = 0). You look at all the towns you can reach directly.
-2. You pick the **closest** town you haven't visited yet.
-3. Once you arrive at that town, you check if going *through* it provides a "shortcut" to any of its neighbors that you didn't know about before.
-4. You repeat this "pick the closest" strategy until you've reached every town.
-
-Dijkstra's is a **Greedy Algorithm** because it always makes the best local choice right now, trusting it will lead to the best global result.
+**CRITICAL**: Dijkstra's algorithm only works correctly on graphs where all edge weights are **Non-Negative**. 
+- **The Reason**: The greedy logic assumes that adding an edge to a path can only make it "longer." If negative weights exist, a longer path could eventually become shorter, breaking the core invariant. (For negative weights, use the **Bellman-Ford** algorithm).
 
 ---
 
-## 2. How we go about it: Relaxation
+## 2. The Core Mechanism: Relaxation
 
-The core "trick" of Dijkstra's is **Relaxation**.
-
-1.  **Initialize**: Set distance `0` for the start node and `Infinity` for everyone else.
-2.  **Pick**: Select the unvisited node with the **smallest distance** (usually using a **Priority Queue**).
-3.  **Relax**: Look at all its neighbors. If `(Distance to current node + Weight of edge)` is smaller than the `Current distance to neighbor`, update the neighbor's distance.
-4.  **Finish**: Mark the current node as `Visited` and repeat.
-
-```mermaid
-graph LR
-    A((A)) -- 4 --> B((B))
-    A -- 2 --> C((C))
-    C -- 1 --> B((B))
-    C -- 5 --> D((D))
-    B -- 8 --> D((D))
-    
-    style A fill:#f9f
-    Note["Start at A: Dist{A:0, others:inf}"]
-    Note2["Process A: Dist{B:4, C:2}"]
-    Note3["Pick C (cheapest): Shortcut found for B! Dist{B:3, D:7}"]
-```
+The algorithm maintains a "Shortest Distance" estimates for all nodes, initialized to Infinity. It then repeatedly:
+1. **Select**: Pick the unvisited node with the smallest distance estimate.
+2. **Relax**: For all neighbors of this node, check if the path through the current node is shorter than the neighbor's current estimate.
+3. **Update**: If it is shorter, update the neighbor's estimate.
 
 ---
 
 ## 3. Complexity Analysis
 
-Using a **Binary Heap (Priority Queue)**:
+Efficiency depends on the data structure used to find the "Minimum Distance" node.
 
-| Scenario | Time Complexity | Space Complexity |
-| :------- | :-------------- | :--------------- |
-| **Graph** | O((V + E) log V) | O(V)             |
-
-- `V` = Vertices, `E` = Edges.
-- **Log V** comes from the cost of adding/removing from the Priority Queue.
+| Implementation | Time Complexity | Use Case |
+| :--- | :--- | :--- |
+| **Array** | O(V²) | Dense graphs (many edges). |
+| **Priority Queue (Min-Heap)** | O((V + E) log V) | Sparse graphs (Standard industry approach). |
+| **Fibonacci Heap** | O(E + V log V) | Theoretical optimum (rarely used in practice). |
 
 ---
 
-## 4. Multi-Language Implementation
+## 4. Implementation (Priority Queue)
 
-```language-code-tabs
-[
-  {
-    "label": "Javascript",
-    "language": "javascript",
-    "code": "function dijkstra(graph, start) {\n  let distances = {};\n  let pq = new MinPriorityQueue(); // Hypothetical PQ\n  \n  for (let node in graph) distances[node] = Infinity;\n  distances[start] = 0;\n  pq.enqueue(start, 0);\n\n  while (!pq.isEmpty()) {\n    let { element: currNode, priority: d } = pq.dequeue();\n    \n    if (d > distances[currNode]) continue;\n\n    for (let neighbor in graph[currNode]) {\n      let weight = graph[currNode][neighbor];\n      let distance = d + weight;\n\n      if (distance < distances[neighbor]) {\n        distances[neighbor] = distance;\n        pq.enqueue(neighbor, distance);\n      }\n    }\n  }\n  return distances;\n}"
-  },
-  {
-    "label": "Python",
-    "language": "python",
-    "code": "import heapq\n\ndef dijkstra(graph, start):\n    distances = {node: float('inf') for node in graph}\n    distances[start] = 0\n    pq = [(0, start)]\n\n    while pq:\n        curr_d, u = heapq.heappop(pq)\n\n        if curr_d > distances[u]: continue\n\n        for v, weight in graph[u].items():\n            distance = curr_d + weight\n            if distance < distances[v]:\n                distances[v] = distance\n                heapq.heappush(pq, (distance, v))\n    return distances"
-  },
-  {
-    "label": "Java",
-    "language": "java",
-    "code": "public Map<Integer, Integer> dijkstra(Map<Integer, List<Edge>> graph, int start) {\n    Map<Integer, Integer> distances = new HashMap<>();\n    PriorityQueue<Node> pq = new PriorityQueue<>(Comparator.comparingInt(n -> n.dist));\n    \n    pq.add(new Node(start, 0));\n    distances.put(start, 0);\n\n    while (!pq.isEmpty()) {\n        Node curr = pq.poll();\n        if (curr.dist > distances.getOrDefault(curr.id, Integer.MAX_VALUE)) continue;\n\n        for (Edge edge : graph.getOrDefault(curr.id, new ArrayList<>())) {\n            int newDist = curr.dist + edge.weight;\n            if (newDist < distances.getOrDefault(edge.to, Integer.MAX_VALUE)) {\n                distances.put(edge.to, newDist);\n                pq.add(new Node(edge.to, newDist));\n            }\n        }\n    }\n    return distances;\n}"
-  }
-]
+```javascript
+function dijkstra(graph, startNode) {
+    let distances = {};
+    let pq = new PriorityQueue(); // Min-Heap
+
+    for (let node in graph) {
+        distances[node] = Infinity;
+    }
+    distances[startNode] = 0;
+    pq.enqueue(startNode, 0);
+
+    while (!pq.isEmpty()) {
+        let { node: u, priority: dist } = pq.dequeue();
+
+        if (dist > distances[u]) continue; // Optimization: Skip stale values
+
+        for (let neighbor in graph[u]) {
+            let weight = graph[u][neighbor];
+            let newDist = distances[u] + weight;
+
+            if (newDist < distances[neighbor]) { // RELAXATION
+                distances[neighbor] = newDist;
+                pq.enqueue(neighbor, newDist);
+            }
+        }
+    }
+    return distances;
+}
 ```
 
 ---
 
-## 5. Important Limitation!
-
-Dijkstra's **only** works on graphs with **non-negative weights**. If your graph has negative edges (like a debt system), Dijkstra's "greedy" assumption breaks because it might find a massive negative path later that it already "settled." In that case, use **Bellman-Ford**.
-
----
-
-## 6. Interview Pro-Tips
-
-### The Priority Queue Is Non-Negotiable
-A naive Dijkstra's without a priority queue runs in O(V²). With a binary-heap-backed priority queue, it drops to O((V + E) log V). Always mention that you'd use a min-heap (or `heapq` in Python / `PriorityQueue` in Java) to get the optimal time complexity.
-
-### The "Stale Entry" Pattern
-In the implementation above, you'll see: `if (d > distances[currNode]) continue;`. This is the lazy deletion trick — because we can't efficiently update existing priority queue entries, we might have stale (outdated) entries. Checking before processing keeps correctness without extra complexity.
-
-### Negative Weights → Bellman-Ford
-Dijkstra fails on negative weights. Bellman-Ford handles them in O(V × E). If negative *cycles* exist (the total weight of a loop is negative), the shortest path is undefined — Bellman-Ford detects this too.
-
-### What Interviewers Are Testing
-- Do you use a Priority Queue (min-heap) for optimal performance?
-- Do you understand the "relaxation" of edges?
-- Do you know the negative weight limitation and what to use instead?
-- Can you explain the stale-entry pattern?
+## 5. Interview Pro-Tips: Comparison with BFS
+- **Equality of Weights**: If all edge weights are identical (e.g., all 1), Dijkstra's algorithm becomes exactly **Breadth-First Search (BFS)**. Using a more complex Priority Queue in an unweighted graph is inefficient.
+- **Shortest Path to One Node**: If you only need the shortest path to a single target node (not all nodes), you can stop the algorithm as soon as you dequeue that target node from the Priority Queue.
+- **A\* Search**: Mention that A* is essentially Dijkstra's plus a "Heuristic" (an estimation of the remaining distance) to bias the search towards the goal.
 
 ---
 
-## Key Takeaway
-
-Dijkstra's is the backbone of GPS navigation and network routing. It's fast, efficient, and proof that being "greedy" sometimes pays off in a big way.
+## Technical Summary
+1. `Greedy`: Always processing the closest known node.
+2. `Relaxation`: Updating neighbors based on better paths.
+3. `Min-Heap`: The engine that makes the algorithm efficient for sparse graphs.
+4. `Non-Negative`: The fundamental constraint for algorithm correctness.
