@@ -4,6 +4,7 @@ import { Menu as MenuIcon, X } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import TableOfContents from "../components/TableOfContents";
+import Breadcrumbs from "../components/Breadcrumbs";
 import { getDocSections } from "../lib/content";
 
 export interface DocLayoutContext {
@@ -72,6 +73,7 @@ export const DocLayout = () => {
 
           <main ref={mainRef} className="flex-1 overflow-y-auto w-full">
             <div className="px-3 sm:px-5 md:px-8 lg:px-10 py-3 sm:py-4 md:py-6 max-w-full overflow-x-hidden">
+              <Breadcrumbs />
               <Outlet
                 context={
                   { scrollContainerRef: mainRef } satisfies DocLayoutContext

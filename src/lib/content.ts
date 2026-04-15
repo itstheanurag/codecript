@@ -27,7 +27,7 @@ export interface DocSection {
 }
 
 const docModules = import.meta.glob<string>(
-  "/content/{languages,ds,algo,sys-design,building}/**/*.md",
+  "/content/{languages,ds,algo,sys-design,building,behavioral,lld,fundamentals}/**/*.md",
   {
     query: "?raw",
     import: "default",
@@ -109,6 +109,24 @@ export function getDocSections(): Record<string, DocSection> {
       description: "Step-by-step guides to building real-world applications.",
       basePath: "/building",
       items: loadDocSection("building"),
+    },
+    "/behavioral": {
+      title: "Behavioral",
+      description: "Master the soft skills needed to ace the interview.",
+      basePath: "/behavioral",
+      items: loadDocSection("behavioral"),
+    },
+    "/lld": {
+      title: "Low-Level Design",
+      description: "Learn to design scalable and maintainable code bases.",
+      basePath: "/lld",
+      items: loadDocSection("lld"),
+    },
+    "/fundamentals": {
+      title: "Fundamentals",
+      description: "Core computer science concepts for senior engineers.",
+      basePath: "/fundamentals",
+      items: loadDocSection("fundamentals"),
     },
   };
 

@@ -27,6 +27,12 @@ function App() {
             <Route path="/sys-design/*" element={<DocContentPage />} />
             <Route path="/building" element={<DocContentPage />} />
             <Route path="/building/*" element={<DocContentPage />} />
+            <Route path="/behavioral" element={<DocContentPage />} />
+            <Route path="/behavioral/*" element={<DocContentPage />} />
+            <Route path="/lld" element={<DocContentPage />} />
+            <Route path="/lld/*" element={<DocContentPage />} />
+            <Route path="/fundamentals" element={<DocContentPage />} />
+            <Route path="/fundamentals/*" element={<DocContentPage />} />
           </Route>
         </Routes>
       </div>
