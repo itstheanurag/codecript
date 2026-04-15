@@ -1,105 +1,58 @@
 ---
-title: Browser APIs (Web APIs)
+title: Host Environment APIs
 order: 14
 ---
 
-While JavaScript is a powerful language, it doesn't have built-in timers or the ability to "wait." These features are provided by the **Browser Environment** (or Node.js) through **Web APIs**.
+# Web APIs: Interacting with the Browser
 
-When you use `setTimeout` or `fetch`, you aren't talking to the JavaScript engine directly—you are talking to the browser.
-
-## 1. Timers: `setTimeout`
-
-The `setTimeout()` method schedules a function to run after a specific amount of time (in milliseconds).
-
-```javascript
-console.log("Start");
-
-setTimeout(() => {
-  console.log("Inside Timeout");
-}, 2000); // Wait 2 seconds
-
-console.log("End");
-```
-
-**Output:**
-
-1. "Start"
-2. "End"
-3. (2 seconds later) "Inside Timeout"
-
-> [!NOTE]
-> Even if you set the time to `0`, the output order stays the same. This is because `setTimeout` is handled by the browser and its callback must wait for the Call Stack to be empty.
+JavaScript's power in the browser comes from its ability to interact with the **Host Environment**. While the JS engine handles the logic, the browser provides a set of **Web APIs** that allow you to manipulate the page, handle events, and communicate with servers.
 
 ---
 
-## 2. Intervals: `setInterval`
+## 1. The DOM (Document Object Model)
 
-The `setInterval()` method calls a function repeatedly with a fixed time delay between each call.
+The DOM is the programming interface for HTML and XML documents. It represents the page as a **Tree Structure** (the DOM Tree), where each node is an object representing a part of the document.
 
-```javascript
-let count = 0;
-const intervalId = setInterval(() => {
-  count++;
-  console.log(`Interval count: ${count}`);
-
-  if (count === 5) {
-    clearInterval(intervalId); // Stop the interval
-    console.log("Stopped!");
-  }
-}, 1000);
-```
+- **Querying**: `document.querySelector(".btn")`
+- **Manipulation**: `element.innerHTML`, `element.style.color`, `element.classList.add("hidden")`
+- **Event Listeners**: `element.addEventListener("click", handler)`
 
 ---
 
-## 3. Clearing Timers
+## 2. The BOM (Browser Object Model)
 
-Every time you create a timer, it returns a unique **ID**. You must use this ID to stop the timer if it's no longer needed, preventing memory leaks or unwanted behavior.
-
-- **`clearTimeout(id)`**: Cancels a timeout.
-- **`clearInterval(id)`**: Stops an interval.
-
----
-
-## 4. Storage API: `localStorage` & `sessionStorage`
-
-Browsers provide a way to store data locally in the user's browser, similar to a mini-database.
-
-- **`localStorage`**: Data is stored with **no expiration date**. Even if you close the browser tab or restart your computer, the data remains.
-- **`sessionStorage`**: Data is cleared when the **page session ends** (the tab is closed).
-
-```javascript
-// Saving data
-localStorage.setItem("theme", "dark");
-
-// Reading data
-const currentTheme = localStorage.getItem("theme");
-
-// Removing data
-localStorage.removeItem("theme");
-```
+The BOM allows JavaScript to "talk" to the browser itself, beyond the contents of the page.
+- **`window`**: The global object in the browser.
+- **`location`**: Current URL, paths, and navigation methods.
+- **`navigator`**: Information about the browser (user agent, geolocation, etc.).
+- **`history`**: Control over the browser's back and forward history (key for Single Page Apps).
 
 ---
 
-## 5. Network API: `fetch()`
+## 3. Storage and State
 
-The `fetch()` API is the modern way to make network requests (like getting data from a server or an API). It is built into the browser and returns a **Promise**.
-
-```javascript
-fetch("https://api.example.com/data")
-  .then((response) => response.json())
-  .then((data) => console.log(data))
-  .catch((error) => console.error("Error:", error));
-```
+Browsers provide several ways to store data locally on the user's machine:
+- **`localStorage`**: Persistent storage (stays even after the browser is closed).
+- **`sessionStorage`**: Temporary storage for the current tab.
+- **`IndexedDB`**: A low-level API for client-side storage of significant amounts of structured data (the industry standard for offline-first apps).
 
 ---
 
-## 6. Why doesn't JavaScript "Wait"?
+## 4. Modern Web Capabilities
 
-JavaScript is **Single-Threaded**. If `setTimeout` actually paused the execution for 2 seconds, the entire browser tab would freeze—no scrolling, no clicking, nothing.
-
-Instead, the browser takes the request (whether it's a timer or a fetch call), handles the work in the background, and then tells JavaScript: _"Hey, the task is done! Run this callback function when you're free."_
+- **`fetch()`**: The modern, Promise-based API for making network requests.
+- **Intersection Observer**: Efficiently detecting when an element enters the viewport (used for lazy-loading images).
+- **Web Workers**: Allowing you to run JavaScript in the background on a separate thread (preventing "Blocking the UI").
 
 ---
 
-> [!IMPORTANT]
-> Browser APIs are the bridge between the JS Engine and the computer's capabilities (like network, timers, and the screen).
+## Interview Pro-Tips: Event Delegation
+A common interview question: **What is event delegation?**
+- **The Answer**: Instead of attaching an event listener to 100 individual list items, you attach **one** listener to their parent. Because events "Bubble Up" through the DOM tree, the parent can catch them and use `event.target` to figure out which specific item was clicked. This significantly improves performance and memory usage.
+
+---
+
+## Technical Summary
+1. `DOM`: The object representation of the page.
+2. `BOM`: Interaction with browser features like history and location.
+3. `Concurrency`: Web Workers provide a way to achieve multi-threading in the browser.

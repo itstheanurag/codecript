@@ -1,95 +1,76 @@
 ---
-title: Error Handling
+title: Exception Handling
 order: 17
 ---
 
-Errors are part of life for any developer. If you don't handle them, your app will crash. JavaScript provides a powerful mechanism called `try...catch` to handle these errors gracefully.
+# Error Handling: Robustness and Propagation
 
-## 1. The `try...catch` Block
+Errors are an inevitable part of software development. In JavaScript, we manage errors through **Exceptions**. An uncaught exception will "Bubble Up" the call stack and eventually terminate the script if it reaches the global scope without being handled.
 
-The fundamental way to handle errors in JavaScript is with a `try...catch` block.
+---
+
+## 1. The `try...catch...finally` Block
+
+The primary syntax for handling errors is the `try-catch` block.
 
 ```javascript
 try {
-  // Code that might throw an error
-  const result = riskyOperation();
-  console.log(result);
+    const data = JSON.parse(untrustedJson);
 } catch (error) {
-  // Code to run if an error occurs
-  console.error("An error happened:", error.message);
+    console.error("Malformed JSON:", error.message);
 } finally {
-  // Code that runs no matter what (Optional)
-  console.log("Cleanup complete.");
+    console.log("Cleanup: closing database connection.");
 }
 ```
 
-- **`try`**: You "try" to run the code inside this block.
-- **`catch`**: if an error occurs, the execution stops in the `try` block and jumps here. The `error` object contains details like the `message` and the `stack` trace.
-- **`finally`**: This block always runs, whether there was an error or not. It's perfect for closing database connections or hiding loading spinners.
+- **`try`**: Wraps the code that might fail.
+- **`catch`**: Executes if an error occurs. It receives the **Error Object**.
+- **`finally`**: Executes regardless of the outcome (success or failure). It is the perfect place for "Cleanup" logic.
 
 ---
 
-## 2. Throwing Custom Errors
+## 2. The Error Object
 
-Sometimes you want to create your own errors when your app's logic is violated (e.g., a user enters a negative age). You can use the `throw` keyword for this.
+When an error occurs, JavaScript creates a specialized **Error Object**.
+- **`message`**: A human-readable description of the error.
+- **`name`**: The type of error (e.g., `TypeError`, `ReferenceError`, `SyntaxError`).
+- **`stack`**: A string showing the sequence of function calls (The Stack Trace) that led to the error. This is invaluable for debugging.
+
+---
+
+## 3. Propagation: Error Bubbling
+
+If an error is thrown inside a function and is NOT caught, the engine stops the function, moves up to the **Caller** function, and looks for a `catch` there. This continues until:
+1. It is caught by a `try...catch`.
+2. It reaches the **Global Execution Context**, triggering a browser console error or a Node.js crash.
+
+---
+
+## 4. Custom Error Classes
+
+For production applications, you should extend the built-in `Error` class to create domain-specific error types.
 
 ```javascript
-function checkAge(age) {
-  if (age < 0) {
-    throw new Error("Age cannot be negative!");
-  }
-  return `Age is ${age}`;
+class ValidationError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "ValidationError";
+    }
 }
 
-try {
-  checkAge(-5);
-} catch (e) {
-  console.log(e.name); // "Error"
-  console.log(e.message); // "Age cannot be negative!"
-}
+throw new ValidationError("Username too short");
 ```
 
 ---
 
-## 3. Asynchronous Error Handling
-
-Error handling works differently for asynchronous code depending on whether you are using Promises or Async/Await.
-
-### With Async/Await (Recommended)
-
-You can use standard `try...catch` blocks, making the code very readable.
-
-```javascript
-async function fetchUser() {
-  try {
-    const res = await fetch("https://api.github.com/users/octocat");
-    const data = await res.json();
-    console.log(data);
-  } catch (err) {
-    console.error("Fetch failed:", err);
-  }
-}
-```
-
-### With Promises
-
-You use the `.catch()` method at the end of your promise chain.
-
-```javascript
-fetch("...")
-  .then((res) => res.json())
-  .catch((err) => console.error(err));
-```
+## Interview Pro-Tips: Async Error Handling
+Remember that `try...catch` does NOT work for asynchronous callbacks or standard Promises unless you use `await`.
+- **Wrong**: `try { setTimeout(() => { throw new Error(); }); } catch(e) {}` (The error happens after the catch block has finished).
+- **Correct**: Using `.catch()` on the Promise or using `await` inside a `try...catch`.
 
 ---
 
-## 4. Why handle errors?
-
-1. **Better User Experience**: Instead of a blank screen or a frozen app, you can show a friendly message: _"Oops, something went wrong. Please try again."_
-2. **Debugging**: Errors provide a "Trace" that tells you exactly which line of code failed and why.
-3. **Security**: Proper error handling prevents your app from leaking sensitive server details in the browser console.
-
----
-
-> [!IMPORTANT]
-> **Always handle your errors**. An unhandled promise rejection or a thrown error that isn't caught can lead to unpredictable behavior in your application.
+## Technical Summary
+1. `Throwing`: Use the `throw` keyword to manually trigger an error.
+2. `Immutability`: Error objects once thrown should be treated as diagnostic data.
+3. `Best Practice`: Always catch specific errors if possible, and avoid empty `catch` blocks which "Swallow" bugs.

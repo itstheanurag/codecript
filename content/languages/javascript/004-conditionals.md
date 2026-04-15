@@ -1,103 +1,96 @@
 ---
-title: Conditionals
+title: Control Flow: Conditionals
 order: 4
 ---
 
-**Conditionals** are the decision-making tools in your code. They allow your program to execute different blocks of logic based on specific criteria, giving you control over the "flow" of your application.
+# Conditionals: Logic and Decision Branches
 
-Mastering conditionals means understanding precisely when a block of code is **invoked** (executed) and when it is **skipped**.
+Control flow determines the order in which statements are executed in a script. JavaScript provides several structures for branching execution based on the evaluation of expressions.
+
+---
 
 ## 1. The `if...else` Statement
 
-The `if` statement is the most common way to branch your logic. It evaluates a condition and runs the associated block of code ONLY if that condition is _truthy_.
-
-### How it Works (Invocation Rules)
-
-- **`if` block**: Invoked if the condition is `true` (or truthy).
-- **`else if` block**: Invoked if the previous conditions were `false` AND its own condition is `true`.
-- **`else` block**: The ultimate fallback. Invoked only if EVERY preceding condition in the chain was `false`.
+The most fundamental control structure. It executes a block of code if a specified condition is **Truthy**.
 
 ```javascript
-let temperature = 25;
+const score = 85;
 
-if (temperature > 30) {
-  console.log("It's hot outside!"); // Skipped
-} else if (temperature > 20) {
-  console.log("It's a pleasant day."); // Invoked!
+if (score >= 90) {
+    console.log("Grade: A");
+} else if (score >= 80) {
+    console.log("Grade: B");
 } else {
-  console.log("It's cold outside."); // Skipped
-}
-```
-
-> [!IMPORTANT]
-> **Short-Circuit Logic:** Once a condition in an `if...else if` chain is met, JavaScript executes that block and ignores the rest of the chain entirely. This means the order of your conditions matters!
-
----
-
-## 2. The `switch` Statement
-
-The `switch` statement is best used when you have a single variable compared against many possible values. It's often cleaner and more performant than a long `if...else if` chain.
-
-### Invocation and the "Break" Rule
-
-- **Matching**: The `switch` expression is compared against each `case` using **Strict Equality (`===`)**.
-- **Invocation**: Once a match is found, invocation starts from that case.
-- **The `break` keyword**: This is crucial. If you don't include `break`, JavaScript will continue executing the next cases automatically—even if they don't match! This is called **Fall-through**.
-- **`default`**: Similar to `else`, this runs if no case matches.
-
-```javascript
-let day = "Monday";
-
-switch (day) {
-  case "Monday":
-    console.log("Start of the work week."); // Invoked!
-    break; // Stops invocation here.
-  case "Friday":
-    console.log("Weekend is near.");
-    break;
-  default:
-    console.log("Just another day.");
+    console.log("Grade: C");
 }
 ```
 
 ---
 
-## 3. The Ternary Operator (`? :`)
+## 2. Truthiness and Falsiness
 
-The ternary operator is the only operator in JavaScript that takes three operands. It is used as a one-line alternative to `if...else`.
+In JavaScript, every value has an inherent boolean state. A value is **Falsy** if it is one of the following eight:
 
-**Syntax:** `condition ? expressionIfTrue : expressionIfFalse`
+1. `false`
+2. `0` (and `-0`, `0n`)
+3. `""` (Empty string)
+4. `null`
+5. `undefined`
+6. `NaN`
 
-### Invocation Rules
-
-The ternary operator is extremely efficient because it only evaluates (invokes) the expression that matches the condition.
-
-```javascript
-let age = 15;
-let canVote = age >= 18 ? "Yes" : "No";
-
-console.log(canVote); // "No"
-```
-
-**Why use it?**
-
-- Use it for simple assignments or returning values based on a condition.
-- Avoid nesting ternaries (`a ? b : c ? d : e`), as they become nearly impossible to read.
+**Everything else is Truthy**, including empty arrays `[]` and empty objects `{}`. This is a common point of confusion for developers coming from languages like Python.
 
 ---
 
-## 4. Truthy vs. Falsy
+## 3. The `switch` Statement
 
-To understand if a block will be invoked, you must know what JavaScript considers "true."
+Used for multiple branches based on a single value. It performs a **Strict Equality (`===`)** check.
 
-| Falsy Values (Skipped)   | Truthy Values (Invoked)  |
-| :----------------------- | :----------------------- |
-| `false`                  | `true`                   |
-| `0`, `-0`, `0n` (BigInt) | Any number other than 0  |
-| `""` (Empty string)      | `"Hello"`, `" "` (Space) |
-| `null`                   | `[]` (Empty array)       |
-| `undefined`              | `{}` (Empty object)      |
-| `NaN`                    | `function() {}`          |
+```javascript
+const role = "admin";
 
-> [!TIP]
-> You can "preview" how a condition will be treated by using the `Boolean()` function or the double-bang operator: `!!value`.
+switch (role) {
+    case "admin":
+        initAdminDashboard();
+        break; // Crucial to prevent "fall-through"
+    case "editor":
+        initEditor();
+        break;
+    default:
+        initGuest();
+}
+```
+
+---
+
+## 4. Logical Assignment (ES2021)
+
+Modern JavaScript provides concise operators that combine logical checks with assignment.
+
+- **`||=`**: Assigns if the variable is falsy.
+- **`&&=`**: Assigns if the variable is truthy.
+- **`??=`**: Assigns if the variable is nullish (`null` or `undefined`).
+
+---
+
+## Interview Pro-Tips: Switch vs. Object Maps
+While `switch` is fine, senior developers often replace complex conditional logic with **Object Maps** or **Lookup Tables** for better readability and performance.
+
+```javascript
+// Instead of switch:
+const roleActions = {
+    admin: () => initAdmin(),
+    editor: () => initEditor(),
+    guest: () => initGuest()
+};
+
+const action = roleActions[role] || roleActions.guest;
+action();
+```
+
+---
+
+## Technical Summary
+1. `Branching`: Evaluating expressions to decide the next path of execution.
+2. `Comparison`: Always use strict operators inside conditionals to avoid coercion bugs.
+3. `Early Return`: In functions, prefer returning early rather than nesting multiple `if/else` blocks.

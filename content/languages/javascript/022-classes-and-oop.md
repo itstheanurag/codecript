@@ -1,122 +1,93 @@
 ---
-title: Classes and OOP
+title: ES6 Classes and OOP
 order: 22
 ---
 
-JavaScript is fundamentally prototype-based, but for developers coming from languages like Java or Python, the prototype syntax can feel messy. In ES6, JavaScript introduced **Classes**—a cleaner syntax to handle Object-Oriented Programming (OOP).
+# Classes: Syntactic Sugar for Prototypes
 
-> [!IMPORTANT]
-> Classes in JavaScript are "Syntactic Sugar." Under the hood, they are still using the **Prototype Chain** we discussed in the previous chapter.
-
-## 1. Class Syntax
-
-A class acts as a blueprint for creating objects.
-
-```javascript
-class User {
-  constructor(name, email) {
-    this.name = name;
-    this.email = email;
-  }
-
-  greet() {
-    console.log(`Hello, I'm ${this.name}`);
-  }
-}
-
-const bob = new User("Bob", "bob@example.com");
-bob.greet(); // "Hello, I'm Bob"
-```
-
-### The `constructor`
-
-The `constructor` is a special method that runs automatically when you create a new instance with the `new` keyword. It's where you initialize an object's properties.
+Introduced in ES6 (ES2015), the `class` keyword provides a much cleaner and more familiar syntax for implementing Object-Oriented Programming (OOP) in JavaScript. However, it is important to remember that it does NOT introduce a new object model—it is purely **Syntactic Sugar** over the existing Prototypal Inheritance model.
 
 ---
 
-## 2. Inheritance (`extends` and `super`)
+## 1. Class Declaration and Constructors
 
-Classes make it incredibly easy for one class to inherit the properties and methods of another.
-
-```javascript
-class Admin extends User {
-  constructor(name, email, level) {
-    // Calling the constructor of the parent (User)
-    super(name, email);
-    this.level = level;
-  }
-
-  deleteUser(user) {
-    console.log(`${this.name} deleted ${user.name}`);
-  }
-}
-
-const admin = new Admin("Alice", "admin@site.com", 1);
-admin.greet(); // Inherited from User
-admin.deleteUser(bob); // Specific to Admin
-```
-
----
-
-## 3. Encapsulation: Private Fields
-
-Traditionally, all properties in a JS object were public. Modern JavaScript introduced **Private Fields**, which use the `#` prefix. These cannot be accessed or modified from outside the class.
+A class acts as a template for creating objects. It encapsulates data (properties) and behavior (methods) into a single unit.
 
 ```javascript
-class BankAccount {
-  #balance = 0; // Private property
-
-  deposit(amount) {
-    this.#balance += amount;
-  }
-
-  getBalance() {
-    return this.#balance;
-  }
-}
-
-const account = new BankAccount();
-account.deposit(100);
-console.log(account.getBalance()); // 100
-// console.log(account.#balance); // ERROR: Private field must be declared in an enclosing class
-```
-
----
-
-## 4. Getters and Setters
-
-You can define methods that look like properties using `get` and `set`. This allow you to add logic (like validation) when values are accessed or changed.
-
-```javascript
-class Person {
-  constructor(name) {
-    this._name = name;
-  }
-
-  get name() {
-    return this._name.toUpperCase();
-  }
-
-  set name(newName) {
-    if (newName.length > 0) {
-      this._name = newName;
+class Admin {
+    constructor(username) {
+        this.username = username;
     }
-  }
+
+    logIn() {
+        console.log(`${this.username} logged in.`);
+    }
+}
+
+const admin = new Admin("boss");
+```
+
+---
+
+## 2. Inheritance: `extends` and `super`
+
+Classes make inheritance significantly easier than the manual prototype linking used in constructor functions.
+
+- **`extends`**: Used to create a child class that inherits from a parent.
+- **`super()`**: Used to call the constructor of the parent class. It must be called before using `this` in a child constructor.
+
+```javascript
+class SuperAdmin extends Admin {
+    constructor(username, permissions) {
+        super(username); // Calls the Admin constructor
+        this.permissions = permissions;
+    }
 }
 ```
 
-## 5. Static Methods
+---
 
-Static methods belong to the class itself, not to the instances. They are often used for utility functions related to that class.
+## 3. Static Methods and Properties
+
+Static members are attached to the **Class itself**, not to instances of the class. They are commonly used for utility functions that don't depend on the state of a specific object.
 
 ```javascript
 class MathUtils {
-  static add(a, b) {
-    return a + b;
-  }
+    static add(a, b) { return a + b; }
 }
-
-console.log(MathUtils.add(5, 5)); // 10
+MathUtils.add(5, 5); // Called on the Class
 ```
 
-Classes bring structure and readability to JavaScript applications, making it easier to manage complex systems and state. With this, you have mastered the core pillars of modern JavaScript!
+---
+
+## 4. Private Fields (ES2020)
+
+For years, JavaScript developers used the underscore convention (`_private`) to signal that a property shouldn't be accessed from outside. Modern JavaScript now has native support for **Private Fields** using the `#` prefix.
+
+```javascript
+class BankAccount {
+    #balance = 0; // Private field
+
+    deposit(amount) {
+        this.#balance += amount;
+    }
+}
+```
+
+---
+
+## Interview Pro-Tips: Class vs Constructor
+If an interviewer asks what the difference is:
+1. **Syntax**: Classes are cleaner and support `extends` natively.
+2. **Strict Mode**: Classes are always in strict mode.
+3. **Hoisting**: Unlike function declarations, classes are NOT hoisted.
+4. **Method Enumerability**: Methods defined in a class are non-enumerable by default (cleaner `Object.keys()`).
+
+---
+
+## Technical Summary
+1. `Syntax Sugar`: Classes bridge the gap between JS and traditional OOP languages.
+2. `Immutability`: Methods are automatically placed on the prototype for memory efficiency.
+3. `Encapsulation`: Private fields provide true hard-privacy for object internal state.
+ flagship
+ flagship

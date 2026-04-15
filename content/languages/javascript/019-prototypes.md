@@ -1,91 +1,65 @@
 ---
-title: Prototypes and Inheritance
+title: Prototypal Inheritance
 order: 19
 ---
 
-Many developers find JavaScript's inheritance confusing because it doesn't work like "traditional" class-based languages (like Java or C++). Instead, JavaScript uses a system called **Prototypical Inheritance**.
+# Prototypes: The Engine of Inheritance
 
-## 1. What is a Prototype?
+In JavaScript, inheritance is not class-based as it is in Java or C++. Instead, it is **Prototype-based**. Objects can inherit properties and methods directly from other objects through an internal link known as the **Prototype Chain**.
 
-Every object in JavaScript has a secret link to another object, called its **Prototype**. When you try to access a property or method that doesn't exist on an object, JavaScript automatically looks for it in that object's prototype.
+---
 
-### `__proto__` vs `prototype`
+## 1. The Prototype Chain (`[[Prototype]]`)
 
-- **`__proto__`**: The actual link an _instance_ has to its prototype.
-- **`prototype`**: A property that only exists on _constructor functions_. It defines what the `__proto__` of future instances will be.
+Every object in JavaScript has a hidden property called `[[Prototype]]` (exposed in most browsers as `__proto__`). 
+- When you attempt to access a property on an object, the engine first looks at the object itself.
+- If the property is not found, the engine follows the link to the object's **Prototype**.
+- This continues up the chain until the property is found or the chain ends at `null` (the top of the chain, usually `Object.prototype`).
+
+This process is called **Property Delegation**.
+
+---
+
+## 2. `.prototype` vs. `__proto__`
+
+A common point of confusion:
+- **`__proto__`**: A property of **Instances**. It points to the actual prototype being used for lookups.
+- **`.prototype`**: A property of **Constructor Functions**. This is a template object that will be used as the `__proto__` for any new instances created using the `new` keyword.
 
 ```javascript
-const animal = { eats: true };
-const rabbit = { jumps: true };
+function Person(name) { this.name = name; }
+const alice = new Person("Alice");
 
-// Setting the prototype manually (the old way)
-rabbit.__proto__ = animal;
-
-console.log(rabbit.jumps); // true (found on rabbit)
-console.log(rabbit.eats); // true (found on animal via prototype chain)
+console.log(alice.__proto__ === Person.prototype); // true
 ```
 
 ---
 
-## 2. The Prototype Chain
+## 3. Method Sharing and Memory
 
-This "linking" doesn't stop at one level. Prototypes can have their own prototypes, creating a **Prototype Chain**. This chain eventually ends at `Object.prototype`, which has a prototype of `null`.
-
-> [!NOTE]
-> This is why almost every object has access to methods like `.toString()` or `.hasOwnProperty()`—they are inherited from the top-level `Object.prototype`.
-
----
-
-## 3. Modifying Built-in Prototypes (Polyfilling)
-
-Because JavaScript is dynamic, you can actually add your own methods to the blueprints of built-in objects like `Array`, `String`, or `Number`.
-
-```javascript
-// Adding a custom method to all Arrays
-Array.prototype.first = function () {
-  return this[0];
-};
-
-const nums = [10, 20, 30];
-console.log(nums.first()); // 10
-```
-
-> Understanding `this` is essential for building polyfills and working with JavaScript's Object-Oriented patterns. For a deep dive into how these methods are built, see the **[Polyfills](./024-polyfills)** guide.
+The primary benefit of prototypes is memory efficiency.
+- If you define a method inside a constructor (`this.greet = function...`), every instance creates a **New Copy** of that function. With 10,000 users, you have 10,000 functions in memory.
+- If you define the method on the **Prototype** (`Person.prototype.greet = ...`), all 10,000 instances **Share** a single function in memory.
 
 ---
 
-## 4. Overwriting Existing Methods
+## 4. Prototypal vs. Classical Inheritance
 
-You can also overwrite a built-in method by defining it yourself. This is how you might change behavior or fix a bug in a specific environment.
+- **Classical**: Classes are blueprints. Objects are copies of those blueprints. Changing a class after objects are created doesn't affect existing objects.
+- **Prototypal**: Inheritance is a live link. If you add a method to a prototype, all existing instances immediately get access to that method because they "Delegate" the call at runtime.
 
-```javascript
-// Overwriting the default toString for a specific object type
-function User(name) {
-  this.name = name;
-}
+---
 
-User.prototype.toString = function () {
-  return `User: ${this.name}`;
-};
+## Interview Pro-Tips: How does `new` work?
+If an interviewer asks what happens when you call `new Constructor()`:
+1. A new, empty object `{}` is created.
+2. The object's `__proto__` is linked to `Constructor.prototype`.
+3. The `Constructor` is called with `this` bound to the new object.
+4. The new object is returned (unless the constructor returns a different object).
 
-const me = new User("Alice");
-console.log(me.toString()); // "User: Alice" (instead of "[object Object]")
-```
+---
 
-## 5. Shadowing Properties
-
-If you define a property on an instance that has the same name as one in its prototype, the instance's property "shadows" (hides) the prototype's property.
-
-```javascript
-const parent = { color: "red" };
-const child = Object.create(parent);
-
-child.color = "blue"; // This shadows the parent's color
-
-console.log(child.color); // "blue"
-console.log(parent.color); // "red" (parent remains unchanged)
-```
-
-Prototypes are the engine that powers JavaScript objects. Understanding them is essential before moving on to **Classes**, which are actually just a cleaner "sugar" over this prototype system.
-
-Next, we'll look at a fundamental concept that powers methods and constructors: **[The "this" Keyword](./020-this-keyword)**.
+## Technical Summary
+1. `Delegation`: Looking up properties in a parent object.
+2. `Live Links`: Prototypes provide a dynamic relationship between instances and their parents.
+3. `Shadowing`: Defining a property on an instance "Masks" the property on the prototype.
