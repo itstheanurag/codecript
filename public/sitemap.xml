@@ -65,6 +65,10 @@
     <lastmod>2026-04-15</lastmod>
   </url>
   <url>
+    <loc>https://codecript.pages.dev/algo/searching/000-linear-search</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
     <loc>https://codecript.pages.dev/algo/searching/001-binary-search</loc>
     <lastmod>2026-04-15</lastmod>
   </url>
@@ -230,6 +234,70 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/go/008-concurrency-patterns-context</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/009-standard-library-io</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/010-os-and-files</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/011-json-and-serialization</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/012-networking-http-client</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/013-building-web-servers</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/014-middleware-and-context</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/015-database-sql-internals</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/016-unit-testing-fundamentals</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/017-mocking-and-interfaces</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/018-benchmarking-and-profiling</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/019-reflection-and-unsafe</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/020-generics-type-parameters</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/021-go-modules-and-tooling</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/022-memory-allocation-gc</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/023-production-deployment</loc>
+    <lastmod>2026-04-15</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/go/024-best-practices-effective-go</loc>
     <lastmod>2026-04-15</lastmod>
   </url>
   <url>
