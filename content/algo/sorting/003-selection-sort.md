@@ -3,99 +3,66 @@ title: Selection Sort
 order: 3
 ---
 
-**Selection Sort** is an intuitive sorting algorithm that segments the list into two parts: a sorted part at the beginning and an unsorted part at the end.
+# Selection Sort: Minimum Extraction
+
+**Selection Sort** is a simple, comparison-based sorting algorithm. It works by dividing the input list into two parts: a sorted sublist which is built up from left to right, and a remaining unsorted sublist. In each iteration, the algorithm finds the **Minimum** element from the unsorted part and swaps it with the first element of that part.
 
 ---
 
-## 1. The Intuition: "Picking the Smallest"
+## 1. The Core Mechanism
 
-Imagine you have a messy pile of numbered blocks.
-1. You look through the whole pile to find the **absolute smallest** block.
-2. You take that block and put it at the very beginning of a new row.
-3. You look through the remaining pile for the **next smallest**, and place it next to the first.
-
-In Selection Sort, we "select" the minimum element from the unsorted portion and swap it into its correct position.
+1. **Find**: Search the unsorted part of the array to find the smallest element.
+2. **Swap**: Exchange this smallest element with the first element of the unsorted part.
+3. **Advance**: Move the boundary between the sorted and unsorted parts one position to the right.
 
 ---
 
-## 2. How we go about it
-
-1.  **Search**: Find the minimum element in the unsorted part of the array.
-2.  **Swap**: Swap that minimum element with the first element of the unsorted part.
-3.  **Advance**: The "sorted" boundary moves one step to the right.
-
-```mermaid
-graph TD
-    A[Unsorted: 29, 10, 14, 37] --> B[Find Min: 10]
-    B --> C[Swap 10 with 29]
-    C --> D["Sorted: 10 | Unsorted: 29, 14, 37"]
-    D --> E[Find Min in Unsorted: 14]
-    E --> F[Swap 14 with 29]
-    F --> G["Sorted: 10, 14 | Unsorted: 29, 37"]
-```
-
----
-
-## 3. Complexity Analysis
+## 2. Complexity Analysis
 
 | Scenario | Time Complexity | Space Complexity |
-| :------- | :-------------- | :--------------- |
-| **Best Case** | O(N²)           | O(1)             |
-| **Average Case** | O(N²)           | O(1)             |
-| **Worst Case** | O(N²)           | O(1)             |
+| :--- | :--- | :--- |
+| **Best Case** | O(N²) | O(1) |
+| **Average Case** | O(N²) | O(1) |
+| **Worst Case** | O(N²) | O(1) |
 
-*Note: Selection Sort always performs O(N²) comparisons because it has to scan the remaining unsorted array every time to be sure it found the minimum.*
+- **No Best Case**: Unlike Bubble Sort or Insertion Sort, Selection Sort **always** performs the same number of comparisons ($\frac{N(N-1)}{2}$), even if the array is already sorted.
+- **Minimizing Swaps**: Selection Sort performs only **O(N)** swaps in the worst case. This makes it useful in scenarios where the cost of writing to memory (swapping) is much higher than the cost of comparing.
 
 ---
 
-## 4. Multi-Language Implementation
+## 3. Implementation
 
-```language-code-tabs
-[
-  {
-    "label": "Javascript",
-    "language": "javascript",
-    "code": "function selectionSort(arr) {\n  let n = arr.length;\n\n  for (let i = 0; i < n - 1; i++) {\n    let minIdx = i;\n    \n    // Find min in the unsorted segment\n    for (let j = i + 1; j < n; j++) {\n      if (arr[j] < arr[minIdx]) {\n        minIdx = j;\n      }\n    }\n\n    // Swap the found minimum with the first element\n    if (minIdx !== i) {\n      [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];\n    }\n  }\n  return arr;\n}"
-  },
-  {
-    "label": "Python",
-    "language": "python",
-    "code": "def selection_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        min_idx = i\n        for j in range(i + 1, n):\n            if arr[j] < arr[min_idx]:\n                min_idx = j\n        \n        # Swap\n        arr[i], arr[min_idx] = arr[min_idx], arr[i]\n    return arr"
-  },
-  {
-    "label": "Java",
-    "language": "java",
-    "code": "public class SelectionSort {\n    void sort(int arr[]) {\n        int n = arr.length;\n\n        for (int i = 0; i < n - 1; i++) {\n            int min_idx = i;\n            for (int j = i + 1; j < n; j++) {\n                if (arr[j] < arr[min_idx])\n                    min_idx = j;\n            }\n\n            // Swap\n            int temp = arr[min_idx];\n            arr[min_idx] = arr[i];\n            arr[i] = temp;\n        }\n    }\n}"
+```javascript
+function selectionSort(arr) {
+  let n = arr.length;
+  for (let i = 0; i < n - 1; i++) {
+    let minIdx = i;
+    // Find the minimum element in the remaining unsorted array
+    for (let j = i + 1; j < n; j++) {
+      if (arr[j] < arr[minIdx]) {
+        minIdx = j;
+      }
+    }
+    // Swap the found minimum element with the first element
+    if (minIdx !== i) {
+      [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+    }
   }
-]
+  return arr;
+}
 ```
 
 ---
 
-## 5. When to use it?
-
-Selection Sort is rarely used for large datasets, but it has one specific advantage: **it minimizes the number of swaps**. If swapping elements is a very expensive operation (e.g., swapping large images in memory), Selection Sort might be preferred over algorithms that swap constantly.
-
----
-
-## 6. Interview Pro-Tips
-
-### The Minimum Swaps Fact — Know It
-Selection Sort's one real advantage is that it performs at most **N-1 swaps** (one per pass). No other comparison-based sort can guarantee fewer swaps. This becomes relevant if swapping is expensive (e.g., swapping large objects in memory). Interviewers love to ask "when would you prefer Selection Sort?" — this is the answer.
-
-### It is NOT Stable
-Unlike Bubble or Insertion Sort, Selection Sort **is not stable**. When it swaps the minimum into position, it can disturb the relative order of equal elements. Example: `[(B,1), (A,1), (C,2)]` sorted by number → `(A,1)` and `(B,1)` might swap unexpectedly.
-
-### Always Knows O(N²) — No Best Case Shortcut
-Unlike Bubble Sort (which can exit early), Selection Sort **always** does exactly N*(N-1)/2 comparisons. It cannot be optimized for nearly-sorted data.
-
-### What Interviewers Are Testing
-- Do you know the tradeoff between comparisons and swaps?
-- Do you know it's **not** stable and why?
-- Can you explain the "sorted partition vs. unsorted partition" mental model?
+## 4. Interview Pro-Tips: Why is it Unstable?
+- **Stability**: Selection Sort is generally **Unstable**.
+- **The Reason**: When you swap the minimum element with the element at the beginning of the unsorted section, you might "Jump" over other equal elements, changing their relative order.
+- **Example**: Consider `[2a, 2b, 1]`. The `1` will be swapped with `2a`, resulting in `[1, 2b, 2a]`. The relative order of `2a` and `2b` has been reversed.
 
 ---
 
-## Key Takeaway
-
-Selection Sort is the definition of "Searching and Sorting." It spends all its energy searching for the minimum to make the sorting part trivial.
+## Technical Summary
+1. `Select`: The primary operation is finding the minimum.
+2. `O(N²)`: Always quadratic, regardless of input state.
+3. `Unstable`: Does not preserve relative order.
+4. `Min Swaps`: Best for systems with expensive write operations.
