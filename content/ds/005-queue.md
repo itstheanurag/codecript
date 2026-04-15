@@ -1,91 +1,59 @@
 ---
-title: Queues
+title: FIFO: Queues
 order: 5
 ---
 
-A **Queue** is a linear data structure that follows the **FIFO (First In, First Out)** principle. It's like a line of people waiting for a movie—the first person to arrive is the first one to get a ticket.
+# Queues: First-In, First-Out (FIFO)
+
+A **Queue** is a linear data structure that follows the **FIFO** (First-In, First-Out) principle. This means the first element added to the queue will be the first one to be removed, similar to a line of people waiting for service.
 
 ---
 
-## 1. The Intuition: "A Checkout Line"
+## 1. Core Operations
 
-Imagine a **Queue at a supermarket**.
-1. When a new customer arrives, they join the **back** of the line. (**Enqueue**)
-2. When the cashier is ready, they serve the person at the **front** of the line. (**Dequeue**)
-3. The person who has been waiting the *longest* is the one served *first*. (**FIFO**)
+A queue focuses on two ends: the **Front** (for removal) and the **Rear** (for insertion).
 
-```mermaid
-graph LR
-    subgraph QueueOp ["Queue: FIFO"]
-    In[Enqueue] --> Back[Back] --- Middle[...] --- Front[Front] --> Out[Dequeue]
-    end
-    style QueueOp fill:#1a1a1a,stroke:#333
-```
+- **`enqueue(item)`**: Adds an item to the **Rear** of the queue.
+- **`dequeue()`**: Removes and returns the item from the **Front**.
+- **`front()` / `peek()`**: Returns the item at the front without removing it.
+- **`isFull()` / `isEmpty()`**: Checks the current state of the queue.
+
+All core operations are **O(1)** (Constant Time).
 
 ---
 
-## 2. Key Operations & Complexity
+## 2. Advanced Variations
 
-| Operation | Time Complexity | Description |
-| :--- | :--- | :--- |
-| **Enqueue** | O(1) | Add an item to the back. |
-| **Dequeue** | O(1) | Remove an item from the front. |
-| **Peek** | O(1) | Look at the front item without removing it. |
-| **isEmpty** | O(1) | Check if the queue is empty. |
+### I. Circular Queue
+In a standard array-based queue, once the "Rear" reaches the end of the array, you can't add more items even if there is space at the front (due to dequeues). A **Circular Queue** connects the last position back to the first, maximizing memory usage.
 
----
+### II. Deque (Double-Ended Queue)
+Supports insertion and deletion from **Both** ends. It is a highly flexible structure that can act as both a Stack and a Queue.
 
-## 3. Multi-Language Implementation
-
-```language-code-tabs
-[
-  {
-    "label": "Javascript",
-    "language": "javascript",
-    "code": "// Use a dedicated library or a Linked List for O(1) dequeue\n// Array.shift() is O(n)!\nconst queue = [];\nqueue.push(1); // Enqueue\nconst front = queue.shift(); // Dequeue (O(n) in JS arrays)"
-  },
-  {
-    "label": "Python",
-    "language": "python",
-    "code": "from collections import deque\nqueue = deque()\nqueue.append(1) # Enqueue\nfront = queue.popleft() # Dequeue"
-  },
-  {
-    "label": "Java",
-    "language": "java",
-    "code": "Queue<Integer> q = new LinkedList<>();\nq.offer(1); // Enqueue\nint front = q.poll(); // Dequeue"
-  },
-  {
-    "label": "C++",
-    "language": "cpp",
-    "code": "#include <queue>\nstd::queue<int> q;\nq.push(1);\nq.pop();"
-  }
-]
-```
+### III. Priority Queue
+Elements are removed based on their **Priority** rather than their arrival time. These are typically implemented using **Heaps** (see Module 8).
 
 ---
 
-## 4. Interview Pro-Tips
+## 3. Practical Applications
 
-### Use Queues for "Processing in Order"
-If a problem involves processing tasks in the exact order they arrive (like a printer queue or handling web requests), a Queue is your go-to structure.
-
-### BFS (Breadth-First Search)
-The most common use of a Queue in interviews is for **BFS on trees or graphs**. BFS explores level-by-level, and a Queue is required to keep track of which nodes to visit next in the correct order.
-
-### The "O(n) shift" trap
-In many languages (like Javascript), using `shift()` on an array is **O(n)** because every other element has to move one spot to the left. In an interview, always mention that you'd use a **Linked List** or a **Circular Buffer** to achieve true **O(1)** dequeue performance.
-
-### Variations: Priority Queue & Deque
-- **Priority Queue**: Items are served based on priority, not just arrival time (implemented with a Heap).
-- **Deque (Double-Ended Queue)**: You can add or remove from *both* ends.
-
-### What Interviewers Are Testing
-- Do you know the difference between LIFO and FIFO?
-- Can you explain why a simple array might not be the best implementation for a Queue?
-- Do you understand the role of Queues in BFS?
+1. **Breadth-First Search (BFS)**: Queues are the engine behind BFS. They store the "Neighbors" of a node that need to be visited next, ensuring we explore level-by-level.
+2. **CPU Scheduling**: Operating systems use queues to manage the order in which processes are executed (Round Robin).
+3. **Task Queues**: Systems like Celery or RabbitMQ use queues to handle background jobs asynchronously.
+4. **Buffering**: Managing data streams (like video streaming or printer spooling) where the speed of production and consumption varies.
 
 ---
 
-## Key Takeaway
+## Interview Pro-Tips: Implementing a Queue using Stacks
+A classic interview logic puzzle: **"How do you implement a Queue using only two Stacks?"**
+- **The Answer**: 
+    1. For `enqueue`, simply push the item onto **Stack A**.
+    2. For `dequeue`, if **Stack B** is empty, pop everything from **Stack A** and push it into **Stack B** (this reverses the order). Then pop from **Stack B**.
+- **Performance**: While a single dequeue might take O(N) when moving elements, the **Amortized** cost over many operations remains **O(1)**.
 
-Queues are the essence of **fairness** in computer science. They ensure that whoever waits longest is served first, and they are critical for any system that handles asynchronous data or level-by-level exploration.
+---
+
+## Technical Summary
+1. `Linear`: Standard order of arrival.
+2. `Pointers`: Tracks `head` and `tail` for O(1) efficiency.
+3. `Synchronization`: Queues are the primary tool for decoupled communication between different parts of a system.

@@ -1,91 +1,63 @@
 ---
-title: Memory Management
+title: Memory Management Internals
 order: 13
 ---
 
-Understanding how JavaScript stores and moves data in memory is essential for preventing bugs where data changes unexpectedly.
+# Garbage Collection and Memory Lifecycle
 
-## 1. Pass by Value (Primitives)
-
-When you assign a **Primitive Type** (String, Number, Boolean, null, undefined, Symbol) to a variable, the actual **value** is stored in memory. When you copy it to another variable, a completely new copy of that value is created.
-
-```javascript
-let x = 10;
-let y = x; // y gets a copy of the value 10
-
-y = 20; // Changing y does NOT affect x
-console.log(x); // 10
-console.log(y); // 20
-```
+Memory management in JavaScript is automated, but it is not magic. Developers who understand how the engine allocates and reclaims memory are better equipped to build high-performance, leak-free applications.
 
 ---
 
-## 2. Pass by Reference (Objects & Arrays)
+## 1. The Memory Lifecycle
 
-Unlike primitives, **Objects and Arrays** are stored by reference. When you assign an object to a variable, you aren't storing the object itself—you are storing a **memory address** (a pointer) to where the object sits in memory.
+Every time you create a variable, function, or object, the JS engine follows a three-step cycle:
 
-When you copy it, you are just copying that address. Both variables now point to the **same object**.
-
-```javascript
-const user1 = { name: "Alice" };
-const user2 = user1; // user2 points to the SAME memory address as user1
-
-user2.name = "Bob";
-
-console.log(user1.name); // "Bob" (Uh oh! user1 changed too)
-```
+1. **Allocation**: The engine reserves memory for the new data.
+2. **Usage**: The program reads or writes to that memory.
+3. **Release**: Once the memory is no longer needed, it is "released" (freed) for future use.
 
 ---
 
-## 3. Cloning Objects & Arrays
+## 2. Stack vs. Heap Allocation
 
-To prevent unintended side effects, you often need to create a **copy** of an object rather than a new reference.
+### I. The Stack (Fast, Static)
+Used for primitive values (`number`, `string`, `boolean`, `null`, `undefined`) and **Execution Contexts**. It follows a strict LIFO order and has a fixed size (managed by the OS).
 
-### I. Shallow Copy
-
-A shallow copy creates a new object, but nested objects still point to the original references.
-
-- **Spread Operator `{...obj}` or `[...arr]`**:
-
-  ```javascript
-  const original = { name: "Alice", details: { age: 25 } };
-  const copy = { ...original };
-
-  copy.name = "Bob"; // original.name is still "Alice" (Safe)
-  copy.details.age = 30; // original.details.age becomes 30 (NOT safe!)
-  ```
-
-### II. Deep Copy
-
-A deep copy creates a completely independent copy of the entire structure, including all nested levels.
-
-- **`structuredClone()` (Modern & Recommended)**:
-  Available in modern browsers and Node.js 17+.
-
-  ```javascript
-  const deepCopy = structuredClone(original);
-  deepCopy.details.age = 40; // original.details.age is still 25 (Safe!)
-  ```
-
-- **`JSON.parse(JSON.stringify())` (The "Old" Way)**:
-  Works for simple data, but fails with Functions, Dates, or `undefined`.
-
-  ```javascript
-  const deepCopy = JSON.parse(JSON.stringify(original));
-  ```
+### II. The Heap (Flexible, Dynamic)
+Used for objects and arrays. Since their size is not known at compile time, they are allocated in the Heap—a large, unstructured pool of memory. Variables on the Stack hold **References** (pointers) to locations in the Heap.
 
 ---
 
-## Summary Table
+## 3. Garbage Collection: Mark-and-Sweep
 
-| Feature              | Pass by Value               | Pass by Reference                  |
-| :------------------- | :-------------------------- | :--------------------------------- |
-| **Data Types**       | Primitives (Num, String...) | Objects, Arrays, Functions         |
-| **Stored in Memory** | The actual value            | The memory address                 |
-| **Copying**          | Creates a new value         | Creates a new pointer to same data |
-| **Change Impact**    | Independent                 | Shared                             |
+The JavaScript engine uses an automatic **Garbage Collector (GC)** to determine which memory to release. The most common algorithm used today is **Mark-and-Sweep**.
+
+1. **Roots**: The GC starts with a set of "roots" (global variables and active function contexts).
+2. **Marking**: It traverses the entire memory graph, marking every object it can "reach" from those roots.
+3. **Sweeping**: Any object that is NOT marked as reachable is considered garbage and its memory is reclaimed.
 
 ---
 
-> [!IMPORTANT]
-> **Always ask yourself**: "Do I need to modify the original data, or should I work on a copy?" In modern frameworks like React, working on copies (**immutability**) is the golden rule.
+## 4. Common Causes of Memory Leaks
+
+Even with a GC, code can "leak" reachability, preventing memory from being reclaimed:
+
+- **Dangling Timers/Intervals**: Forgetting to call `clearInterval()` even after the callback is no longer needed.
+- **Detached DOM Nodes**: Keeping a JS reference to a DOM element that has been removed from the visible page.
+- **Accidental Globals**: Variables declared without `var`, `let`, or `const` become properties of the `window` object and live forever.
+- **Unclosed Closures**: As discussed in Module 12, storing closures that capture large objects.
+
+---
+
+## Interview Pro-Tips: Tracking Performance
+If an interviewer asks how you've handled memory issues:
+1. **Chrome DevTools (Memory Tab)**: Explain how you use **Heap Snapshots** to see which objects are taking up the most space.
+2. **Allocation Timelines**: Discuss how you identify "GC Thrashing"—when the garbage collector runs too frequently because of rapid, temporary object creation.
+
+---
+
+## Technical Summary
+1. `Automated`: GC handles most cleanup, but doesn't remove "reachable" junk.
+2. `Immutability`: Creating new objects frequently increases heap pressure.
+3. `Best Practice`: Nullify large object references when they are no longer needed, and always clean up event listeners and intervals.

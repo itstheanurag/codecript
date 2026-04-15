@@ -1,89 +1,57 @@
 ---
-title: Stacks
+title: LIFO: Stacks
 order: 4
 ---
 
-A **Stack** is a linear data structure that follows the **LIFO (Last In, First Out)** principle. It's essentially a list where you can only add or remove items from one end.
+# Stacks: Last-In, First-Out (LIFO)
+
+A **Stack** is a linear data structure that follows a specific order in which operations are performed. The order is **LIFO** (Last-In, First-Out)—meaning the last element added to the stack is the first one to be removed.
 
 ---
 
-## 1. The Intuition: "A Stack of Plates"
+## 1. Core Operations
 
-Imagine a **Stack of Plates** in a cafeteria.
-1. When a clean plate is added, it goes on the **very top**. (**Push**)
-2. When someone needs a plate, they take the one from the **very top**. (**Pop**)
-3. The plate that was washed *last* is the one that gets used *first*. (**LIFO**)
-4. You can peek at the top plate to see if it's clean, but you can't see the plates underneath. (**Peek**)
+A stack is a restricted data structure; you can only interact with the "Top" element.
 
-```mermaid
-graph TD
-    subgraph StackOp ["Stack: LIFO"]
-    direction BT
-    Plate1[Plate 1] --- Plate2[Plate 2] --- Plate3[Plate 3] --- Top[Top / New Plate]
-    end
-    style StackOp fill:#1a1a1a,stroke:#333
-```
+- **`push(item)`**: Adds an item to the top of the stack.
+- **`pop()`**: Removes and returns the top item.
+- **`peek()` / `top()`**: Returns the top item without removing it.
+- **`isEmpty()`**: Returns a boolean indicating if the stack has no elements.
+
+All core operations are **O(1)** (Constant Time).
 
 ---
 
-## 2. Key Operations & Complexity
+## 2. Implementations
 
-| Operation | Time Complexity | Description |
-| :--- | :--- | :--- |
-| **Push** | O(1) | Add an item to the top. |
-| **Pop** | O(1) | Remove the item from the top. |
-| **Peek** | O(1) | Look at the top item without removing it. |
-| **isEmpty**| O(1) | Check if the stack is empty. |
+### I. Array-based Stack
+Uses a dynamic array to store elements. 
+- **Pros**: Fast, high cache locality.
+- **Cons**: Occasional O(N) cost during resizing.
 
----
-
-## 3. Multi-Language Implementation
-
-```language-code-tabs
-[
-  {
-    "label": "Javascript",
-    "language": "javascript",
-    "code": "const stack = [];\nstack.push(1); // Push\nconst top = stack.pop(); // Pop"
-  },
-  {
-    "label": "Python",
-    "language": "python",
-    "code": "stack = []\nstack.append(1) # Push\ntop = stack.pop() # Pop"
-  },
-  {
-    "label": "Java",
-    "language": "java",
-    "code": "Stack<Integer> stack = new Stack<>();\nstack.push(1);\nint top = stack.pop();"
-  },
-  {
-    "label": "C++",
-    "language": "cpp",
-    "code": "#include <stack>\nstd::stack<int> s;\ns.push(1);\ns.pop();"
-  }
-]
-```
+### II. Linked List-based Stack
+Each element is a node pointing to the one below it.
+- **Pros**: Truly constant time for all operations (no resizing).
+- **Cons**: Higher memory overhead due to pointers.
 
 ---
 
-## 4. Interview Pro-Tips
+## 3. Practical Applications
 
-### Use Stacks for "Undo" or "Backtracking"
-If a problem involves going back to a previous state (like the "Undo" button in Word, or the "Back" button in your browser), a Stack is the natural solution.
-
-### Matching Parentheses
-This is the #1 Stack interview question. To check if brackets like `{[()]}` are balanced, you push open brackets onto a stack and pop them when you see a closing bracket. If the popped bracket doesn't match, or the stack isn't empty at the end, it's unbalanced.
-
-### Recursive to Iterative
-Every recursive function uses the **System Call Stack** under the hood. If an interviewer asks you to convert a recursive solution to an iterative one to avoid "Stack Overflow," you'll almost always use an explicit `Stack` data structure to mimic the recursion.
-
-### What Interviewers Are Testing
-- Do you understand the LIFO principle?
-- Can you identify problems that require "reversing" or "nested" logic?
-- Do you know the difference between the Call Stack and the Stack data structure?
+1. **The Function Call Stack**: Every time a programming language calls a function, a "Frame" containing local variables and the return address is **Pushed** onto the system stack. When the function returns, the frame is **Popped**.
+2. **Undo/Redo Logic**: Every action in a text editor is pushed onto a stack. "Undo" simply pops the last action.
+3. **Expression Evaluation**: Parsing mathematical expressions (Reverse Polish Notation) and balancing parentheses `(([]))`.
+4. **Backtracking**: Storing the state while exploring paths in algorithms (like DFS).
 
 ---
 
-## Key Takeaway
+## Interview Pro-Tips: The Stack Overflow
+A common interview topic: **"What is a Stack Overflow?"**
+- **The Answer**: The system's "Call Stack" has a fixed, finite size. If a program has deep recursion (especially infinite recursion), it will keep pushing new frames onto the stack until it exceeds the reserved memory. This triggers a **Stack Overflow Error**, crashing the application. To prevent this, developers use iteration or "Tail Call Optimization" (if the language supports it).
 
-Stacks are simple but powerful. They are the backbone of recursion, expression evaluation, and any process that needs to remember "where it just was."
+---
+
+## Technical Summary
+1. `Vertical`: Think of a stack of physical plates.
+2. `O(1)`: Efficient access to the most recent data.
+3. `Context`: Used heavily by compilers and runtimes for flow control.

@@ -1,107 +1,74 @@
 ---
-title: Trees
+title: Hierarchical Models: Trees
 order: 7
 ---
 
-A **Tree** is a non-linear data structure that represents a **hierarchy**. It consists of **Nodes** connected by **Edges**, starting from a single node called the **Root**.
+# Trees: Non-Linear Hierarchical Structures
+
+A **Tree** is a non-linear data structure used to represent hierarchical relationships. Unlike arrays or linked lists, which are linear sequences, a tree organizes data into **Nodes** connected by **Edges**, starting from a single **Root** node.
 
 ---
 
-## 1. The Intuition: "A Filing System"
+## 1. Key Terminology
 
-Imagine the **Folders on your computer**.
-1. There is one main folder at the top (the **Root**, e.g., `C:` or `/`).
-2. Inside that folder are other folders (**Children**).
-3. Those folders can contain even more folders (**Sub-folders**) or files (**Leaves**).
-4. No matter how many folders you have, if you follow the path upwards, you always end up at the same Root. (**Hierarchical Structure**)
-
-```mermaid
-graph TD
-    Root[Root Folder] --> Child1[Subfolder A]
-    Root --> Child2[Subfolder B]
-    Child1 --> Leaf1[File 1]
-    Child1 --> Leaf2[File 2]
-    Child2 --> Leaf3[File 3]
-    
-    style Root fill:#3b82f6,color:#fff
-```
+- **Root**: The top-most node (no parent).
+- **Edge**: The link between a parent and a child.
+- **Leaf**: A node with no children.
+- **Depth**: The number of edges from the root to a specific node.
+- **Height**: The number of edges from a node to the deepest leaf in its subtree.
 
 ---
 
-## 2. Common Tree Types
+## 2. Binary Tree and Binary Search Tree (BST)
 
-| Type | Rule | Use Case |
-| :--- | :--- | :--- |
-| **Binary Tree** | Each node has at most **2** children. | General hierarchical data. |
-| **Binary Search Tree (BST)** | Left child < Parent < Right child. | Fast searching and sorting. |
-| **Balanced Tree** | The height of left and right subtrees is roughly equal. | Guarantees O(log n) speed (e.g., AVL, Red-Black). |
+### I. Binary Tree
+A tree where every node has at most **two** children (Left and Right).
 
----
+### II. Binary Search Tree (BST)
+A binary tree with a specific ordering property:
+- For every node, all values in its **Left Subtree** are smaller.
+- All values in its **Right Subtree** are larger.
 
-## 3. Key Operations & Complexity (BST)
-
-| Operation | Average | Worst Case | Note |
-| :--- | :--- | :--- | :--- |
-| **Search** | O(log n) | O(n) | O(log n) requires a balanced tree. |
-| **Insert** | O(log n) | O(n) | Path from root to leaf. |
-| **Delete** | O(log n) | O(n) | More complex; requires re-linking. |
-
-> [!TIP]
-> **The Degenerate Case**: If you insert numbers into a BST in sorted order (1, 2, 3...), the tree becomes a single long line (like a Linked List), and performance drops to **O(n)**. This is why balanced trees are used in real-world databases.
+**Complexity**: 
+- **Average Case**: O(log N) for search, insert, and delete.
+- **Worst Case**: O(N) if the tree becomes "Unbalanced" (skewed into a linked list).
 
 ---
 
-## 4. Multi-Language Implementation (BST Node)
+## 3. Self-Balancing Trees (AVL and Red-Black)
 
-```language-code-tabs
-[
-  {
-    "label": "Javascript",
-    "language": "javascript",
-    "code": "class Node {\n  constructor(val) {\n    this.val = val;\n    this.left = null;\n    this.right = null;\n  }\n}"
-  },
-  {
-    "label": "Python",
-    "language": "python",
-    "code": "class Node:\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None"
-  },
-  {
-    "label": "Java",
-    "language": "java",
-    "code": "class Node {\n    int val;\n    Node left, right;\n    Node(int x) { val = x; }\n}"
-  },
-  {
-    "label": "C++",
-    "language": "cpp",
-    "code": "struct Node {\n    int val;\n    Node *left, *right;\n    Node(int x) : val(x), left(nullptr), right(nullptr) {}\n};"
-  }
-]
-```
+To prevent the O(N) worst-case scenario, we use self-balancing trees. They perform "Rotations" during insertion and deletion to ensure the height remained logarithmic (O(log N)).
+
+- **AVL Trees**: Strict balancing; better for search-intensive applications.
+- **Red-Black Trees**: Less strict balancing; faster for insertion and deletion (used in many standard libraries like Java's `TreeMap`).
 
 ---
 
-## 5. Interview Pro-Tips
+## 4. Tree Traversals
 
-### Recursion is Your Best Friend
-Trees are **Recursive** by nature (every child of a tree is itself the root of a smaller tree). 90% of tree interview questions can be solved with a simple recursive function that handles the "Root," "Left Child," and "Right Child."
+There are three primary ways to visit every node in a binary tree:
 
-### Know Your Traversals
-Interviewers frequently ask you to visit nodes in a specific order:
-- **In-Order** (Left, Root, Right): Returns items in **sorted order** for a BST.
-- **Pre-Order** (Root, Left, Right): Used for creating a copy of a tree.
-- **Post-Order** (Left, Right, Root): Used for deleting nodes or evaluating math expressions.
-- **Level-Order** (Top-down, layer by layer): Uses a **Queue** (BFS).
-
-### Identify the "Balanced" Requirement
-If an interviewer asks for O(log n) performance on a dynamic set of data, they are hinting at a Balanced Tree. Mentioning **AVL Trees** or **Red-Black Trees** shows you know how real systems (like the Linux kernel or Java's `TreeMap`) stay fast.
-
-### What Interviewers Are Testing
-- Can you write clean recursive code?
-- Do you understand the BST property?
-- Can you traverse a tree level-by-level using a Queue?
+1. **In-order (Left, Root, Right)**: Visiting nodes in ascending order (only in a BST).
+2. **Pre-order (Root, Left, Right)**: Useful for creating a copy of the tree.
+3. **Post-order (Left, Right, Root)**: Useful for deleting the tree or evaluating mathematical expressions.
 
 ---
 
-## Key Takeaway
+## 5. Breadth-First Search (Level-Order)
 
-Trees are the master of **sorted, hierarchical data**. They provide a perfect compromise between the lightning-fast searching of a sorted array and the effortless insertion of a linked list.
+Unlike the "Depth-First" traversals above, **Level-Order** traversal visits nodes level by level. As discussed in Module 5, this is implemented using a **Queue**.
+
+---
+
+## Interview Pro-Tips: Binary Search Tree vs. Hash Table
+If an interviewer asks when to use a BST over a Hash Table:
+- **Hash Table**: Use when you only need O(1) lookups and don't care about the order of data.
+- **BST**: Use when you need to keep data in a **Sorted Order** or when you need to perform "Range Queries" (e.g., "Find all users between age 20 and 30").
+
+---
+
+## Technical Summary
+1. `Binary`: At most two children.
+2. `Logarithmic`: The target height for efficient operations.
+3. `Recursion`: Trees are inherently recursive—each child is the root of its own "Sub-tree."
+4. `Balance`: The key to maintaining O(log N) performance.

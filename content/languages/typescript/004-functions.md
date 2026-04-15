@@ -1,85 +1,87 @@
 ---
-title: Functions and Type Annotations
+title: Strongly Typed Functions
 order: 4
 ---
 
-Functions are the workhorses of JavaScript. In TypeScript, we add types to function **parameters** and **return values** to ensure they are used correctly throughout our application.
+# Functions in TypeScript: Type Safety and Signatures
 
-## Parameter Typing
+In JavaScript, functions are highly flexible but often unpredictable. TypeScript addresses this by allowing developers to define **Function Signatures**—explicit contracts that specify exactly what types of arguments a function accepts and what type of value it returns.
 
-In JavaScript, you can pass anything to a function. In TypeScript, you define exactly what is allowed.
+By enforcing these contracts at compile time, TypeScript eliminates a whole category of runtime "TypeError" bugs.
 
-```typescript
-function greet(name: string) {
-  return `Hello, ${name}!`;
-}
+---
 
-greet("Alice"); // OK
-greet(42); // ERROR: Argument of type 'number' is not assignable to parameter of type 'string'
-```
+## 1. Parameter and Return Type Annotations
 
-## Return Type Annotations
-
-While TypeScript can often infer what a function returns, it's a best practice to be explicit. It helps prevent accidental changes to a function's behavior.
+A basic function in TypeScript requires annotations for both its parameters and its intended return value.
 
 ```typescript
-function add(a: number, b: number): number {
-  return a + b;
+function calculateGrossPay(hourlyRate: number, hoursWorked: number): number {
+    return hourlyRate * hoursWorked;
 }
 ```
 
-If you try to return a string from the `add` function above, TypeScript will throw an error.
+- **Type Checking**: If you pass a string to `calculateGrossPay`, the TypeScript compiler will throw an error immediately.
+- **Inference**: If you omit the return type, TypeScript will attempt to infer it based on the `return` statement. However, explicitly defining it is considered a best practice for API documentation and reliability.
 
-### The `void` Type
+---
 
-If a function doesn't return anything (like a `console.log` helper), we use the `void` type.
+## 2. Specialized Return Types: `void`, `never`, and `any`
+
+### I. `void`
+Used for functions that do not return a value. This is common for side-effect-heavy functions like logging or DOM manipulation.
+```typescript
+function logTelemetry(data: string): void {
+    console.log(`[LOG]: ${data}`);
+}
+```
+
+### II. `never`
+Used for functions that **never finish**. This occurs if a function always throws an error or enters an infinite loop. It represents a value that will never occur.
+
+### III. `any`
+A "Bail-out" type that disables type checking. Avoid using this unless you are migrating a legacy codebase or working with extremely unpredictable third-party data.
+
+---
+
+## 3. Optional and Default Parameters
+
+TypeScript allows for flexible function signatures without sacrificing safety.
+
+- **Optional Parameters**: Marked with a `?`. They must come after all required parameters.
+- **Default Parameters**: Automatically inferred as the type of their default value.
 
 ```typescript
-function logMessage(message: string): void {
-  console.log(message);
+function greetUser(name: string, title?: string, greeting: string = "Hello"): string {
+    if (title) return `${greeting}, ${title} ${name}`;
+    return `${greeting}, ${name}`;
 }
 ```
 
 ---
 
-## Arrow Functions
+## 4. Function Overloads
 
-Typing arrow functions follows the same logic, but the syntax looks a bit different.
-
-```typescript
-const multiply = (x: number, y: number): number => {
-  return x * y;
-};
-```
-
-## Functions with Objects (Interfaces)
-
-This is where TypeScript really shines. You can pass objects that follow a specific interface to a function.
+Sometimes a function can be called in multiple ways with different types. TypeScript allows you to define multiple **Overload Signatures** for a single function implementation.
 
 ```typescript
-interface Product {
-  name: string;
-  price: number;
-}
-
-function displayPrice(product: Product) {
-  console.log(`${product.name} costs $${product.price}`);
+function formatData(data: string): string;
+function formatData(data: number): string;
+function formatData(data: any): string {
+    return data.toString();
 }
 ```
 
-## Optional and Default Parameters
+---
 
-Just like with interfaces, you can have optional parameters in functions.
+## Interview Pro-Tips: The Power of `readonly`
+When passing objects or arrays to functions, consider using `readonly` modifiers in the signature. This ensures that the function cannot mutate the input, upholding the principle of **Immutability**.
 
-```typescript
-function greet(name: string, greeting?: string) {
-  return `${greeting || "Hello"}, ${name}!`;
-}
+---
 
-// Or using ES6 default values (TS infers the type from the default value)
-function welcome(name: string, msg = "Welcome") {
-  return `${msg}, ${name}`;
-}
-```
+### Technical Summary
+1. `Signatures`: Define the contract for invocation.
+2. `Return Types`: Explicitly state the output expectation (`number`, `void`, `Promise<T>`).
+3. `Narrowing`: Use type guards within functions to handle `Union` types safely.
+4. `Validation`: Errors are caught at compile time, not at the user's browser.
 
-By adding types to your functions, you eliminate a massive category of "undefined" and "null" errors before your code even reaches the browser.

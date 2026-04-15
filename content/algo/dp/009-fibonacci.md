@@ -1,107 +1,93 @@
 ---
-title: Fibonacci (Dynamic Programming)
+title: Dynamic Programming: Fibonacci
 order: 9
 ---
 
-The **Fibonacci Sequence** is the classic "Hello World" of Dynamic Programming. It perfectly demonstrates how we can turn a slow, exponential recursive algorithm into a fast, linear one.
+# DP Fundamentals: The Fibonacci Sequence
+
+The Fibonacci sequence is the classic introduction to **Dynamic Programming (DP)**. It perfectly demonstrates how a problem can be broken down into over-lapping sub-problems, and how "Remembering" previous results can transform exponential time complexity into linear time.
 
 ---
 
-## 1. The Intuition: "Those who forget the past..."
+## 1. Top-Down Approach (Memoization)
 
-Imagine you are calculating the 5th Fibonacci number.
-To find $F(5)$, you need $F(4)$ and $F(3)$. 
-To find $F(4)$, you need $F(3)$ and $F(2)$. 
+In a naive recursive approach, calculating `fib(5)` requires calculating `fib(4)` and `fib(3)`. However, `fib(4)` *also* requires calculating `fib(3)`. This redundant work leads to an **O(2^N)** complexity.
 
-Notice that you are calculating **$F(3)$** multiple times! In fact, as $N$ grows, you end up recalculating the same "sub-problems" billions of times.
+**Memoization** solves this by storing the result of each calculation in a "Memo" (usually a hash map or array) and looking it up before performing any work.
 
-Dynamic Programming is simply **remembering** the answers to sub-problems so we never have to calculate them twice.
-
----
-
-## 2. Four Stages of Optimization
-
-### Stage 1: Naive (Slow)
-Pure recursion with no memory. 
-- **Time**: $O(2^N)$
-- **Issue**: Redundant work.
-
-### Stage 2: Memoization (Top-Down)
-Recursion + a "memo" (dictionary/array). 
-- **Check**: Before calculating $F(N)$, check if it's already in the memo.
-- **Time**: $O(N)$
-- **Issue**: Recursion stack depth.
-
-### Stage 3: Tabulation (Bottom-Up)
-Iterative approach. Fill an array from 0 up to $N$.
-- **Time**: $O(N)$
-- **Space**: $O(N)$
-
-### Stage 4: Space Optimized (Perfect)
-Only keep track of the **last two** numbers.
-- **Time**: $O(N)$
-- **Space**: $O(1)$
-
----
-
-## 3. Complexity Comparison
-
-| Method | Time | Space | Note |
-| :------- | :--- | :---- | :--- |
-| **Naive** | O(2^N) | O(N) | Practically unusable for N > 40 |
-| **Memoization**| O(N) | O(N) | Easy to implement via recursion |
-| **Tabulation** | O(N) | O(N) | Iterative, no stack overflow |
-| **Optimized** | O(N) | O(1) | **Industry Standard** |
-
----
-
-## 4. Multi-Language Implementation (Optimized)
-
-```language-code-tabs
-[
-  {
-    "label": "Javascript",
-    "language": "javascript",
-    "code": "function fib(n) {\n    if (n <= 1) return n;\n    let prev2 = 0, prev1 = 1;\n    \n    for (let i = 2; i <= n; i++) {\n        let current = prev1 + prev2;\n        prev2 = prev1;\n        prev1 = current;\n    }\n    return prev1;\n}"
-  },
-  {
-    "label": "Python",
-    "language": "python",
-    "code": "def fib(n):\n    if n <= 1: return n\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b"
-  },
-  {
-    "label": "Java",
-    "language": "java",
-    "code": "class Solution {\n    public int fib(int n) {\n        if (n <= 1) return n;\n        int prev2 = 0, prev1 = 1;\n        for (int i = 2; i <= n; i++) {\n            int curr = prev1 + prev2;\n            prev2 = prev1;\n            prev1 = curr;\n        }\n        return prev1;\n    }\n}"
-  }
-]
+```javascript
+function fib(n, memo = {}) {
+  if (n <= 1) return n;
+  if (memo[n]) return memo[n];
+  
+  memo[n] = fib(n - 1, memo) + fib(n - 2, memo);
+  return memo[n];
+}
 ```
+**Complexity**: O(N) Time, O(N) Space (Recursion Stack + Memo).
 
 ---
 
-## 5. Interview Pro-Tips
+## 2. Bottom-Up Approach (Tabulation)
 
-### Walk Through All Four Stages
-In an interview, start by acknowledging the naive recursive approach — then immediately say "this has overlapping subproblems, so let me add memoization." Then mention you can optimize to O(1) space with the rolling variable approach. Walking through this progression shows the interviewer you understand the full arc of optimization.
+Tabulation avoids recursion entirely. It starts from the smallest sub-problems (`fib(0)` and `fib(1)`) and "fills a table" until it reaches the target.
 
-### Don't Just Memorize the Code — Know *Why* Each Stage Works
-- **Naive**: O(2^N) because `fib(n)` branches into two, forming a binary tree of calls.
-- **Memoization**: O(N) because each unique value of n is computed exactly once.
-- **Tabulation**: Same O(N) time, eliminates recursion stack risk.
-- **Space Optimized**: We only need the last two values — all prior values can be discarded.
+```javascript
+function fib(n) {
+  if (n <= 1) return n;
+  let table = new Array(n + 1).fill(0);
+  table[1] = 1;
 
-### Fibonacci is the Gateway, Not the Destination
-Fibonacci is asked to test whether you understand the *principle*: memoize overlapping subproblems. Once you explain Fibonacci clearly, an interviewer will pivot to harder DP — Climbing Stairs, House Robber, Coin Change. They all follow the same "one or two previous states" pattern.
-
-### What Interviewers Are Testing
-- Can you give the O(2^N) → O(N) → O(1) space journey fluently?
-- Do you know what "overlapping subproblems" and "optimal substructure" mean and can you identify them here?
-- Can you generalize to problems like Climbing Stairs (k steps) or House Robber?
+  for (let i = 2; i <= n; i++) {
+    table[i] = table[i - 1] + table[i - 2];
+  }
+  return table[n];
+}
+```
+**Complexity**: O(N) Time, O(N) Space.
 
 ---
 
-## Key Takeaway
+## 3. Space Optimization (Iterative)
 
-Fibonacci illustrates the two core requirements for DP:
-1.  **Overlapping Subproblems**: You calculate the same thing many times.
-2.  **Optimal Substructure**: The answer to a big problem ($F(5)$) can be built from the answers to smaller ones ($F(4)$ and $F(3)$).
+Since we only ever need the **Last Two Values** to calculate the next Fibonacci number, we can reduce the space complexity from O(N) to O(1).
+
+```javascript
+function fib(n) {
+  if (n <= 1) return n;
+  let prev = 0, curr = 1;
+
+  for (let i = 2; i <= n; i++) {
+    let next = prev + curr;
+    prev = curr;
+    curr = next;
+  }
+  return curr;
+}
+```
+**Complexity**: O(N) Time, **O(1) Space**.
+
+---
+
+## 4. Complexity Comparison
+
+| Method | Time Complexity | Space Complexity |
+| :--- | :--- | :--- |
+| **Naive Recursion** | O(2^N) | O(N) |
+| **Memoization** | O(N) | O(N) |
+| **Tabulation** | O(N) | O(N) |
+| **Iterative** | O(N) | O(1) |
+
+---
+
+## Interview Pro-Tips: Identifying DP
+- **The Signal**: If a problem asks for "The number of ways..." or "The maximum/minimum of something," and you notice that solving a larger problem depends on the answers to smaller versions of the **same problem**, think DP.
+- **Overlapping Subproblems**: If you were to draw a recursion tree and see the same function call happening multiple times (e.g., `f(3)` appearing in multiple branches), Memoization will drastically improve your performance.
+
+---
+
+## Technical Summary
+1. `Overlap`: Reusing results of identical sub-problems.
+2. `Top-Down`: Solving from the target back to the base case (Memoization).
+3. `Bottom-Up`: Solving from the base case forward to the target (Tabulation).
+4. `Tabulation`: Generally preferred in performance-critical code to avoid recursion overhead.

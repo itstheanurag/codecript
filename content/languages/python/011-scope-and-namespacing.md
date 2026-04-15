@@ -3,93 +3,77 @@ title: Scope and Namespacing
 order: 11
 ---
 
-**Scope** defines where a variable can be seen and used in your code. Python manages these boundaries using **Namespaces**—essentially dictionaries that map names to objects.
+# Scope: The LEGB Hierarchy
+
+In Python, **Scope** determines the visibility of an identifier (variable) within different parts of your code. A **Namespace** is a mapping from names to objects—effectively, it’s where Python "looks up" your variables.
 
 ---
 
-## 1. The LEGB Rule
+## 1. The LEGB Resolution Rule
 
-When you look for a variable, Python searches in this strict order:
+When you access a variable, Python searches for it in a specific order:
 
-| Level | Name | Description |
-| :--- | :--- | :--- |
-| **L** | **Local** | Inside the current function. |
-| **E** | **Enclosing** | In the "parent" function (for nested functions). |
-| **G** | **Global** | At the top level of the module/file. |
-| **B** | **Built-in** | Predefined Python names (e.g., `len`, `print`). |
+1. **L (Local)**: Defined inside a function or a lambda.
+2. **E (Enclosing)**: Defined in the scope of a nested function.
+3. **G (Global)**: Defined at the top level of the module (file).
+4. **B (Built-in)**: Names pre-loaded into Python (e.g., `len`, `int`, `Exception`).
 
-```mermaid
-graph TD
-    B[1. Built-in] --> G[2. Global]
-    G --> E[3. Enclosing]
-    E --> L[4. Local]
-```
+If Python reaches the "Built-in" level and still hasn't found the name, it raises a `NameError`.
 
 ---
 
-## 2. Modifying Boundaries: `global` and `nonlocal`
+## 2. Modifying Global and Enclosing Variables
 
-By default, functions can **read** global variables but cannot **modify** them. If you try to change a global variable inside a function, Python will create a new *local* variable with the same name instead.
+By default, functions can **read** global variables but cannot **modify** them. If you try to assign a value to a global variable inside a function, Python creates a new *local* variable with that name.
 
-### The `global` Keyword
-To tell Python, "I want to change the variable that lives outside this function," use the `global` keyword.
+To modify a variable from a higher scope, you must use the `global` or `nonlocal` keywords.
 
 ```python
-x = 10
+count = 0
 
-def change():
-    global x
-    x = 20 # Modifies the x at the top level
+def increment():
+    global count # Tells Python to use the global 'count', not create a new local one
+    count += 1
 ```
-
-### The `nonlocal` Keyword (For Nested Functions)
-If you have a function inside a function, and the inner one needs to change a variable in the outer one, use `nonlocal`.
 
 ```python
 def outer():
-    count = 0
+    x = "outer"
     def inner():
-        nonlocal count
-        count += 1
+        nonlocal x # Targets the variable in the nearest enclosing scope
+        x = "inner"
     inner()
-    return count
 ```
-*This is the core foundation of **Closures**.*
 
 ---
 
-## 3. Shadows and Pitfalls
+## 3. The `globals()` and `locals()` Tools
 
-**Shadowing** occurs when a local variable has the same name as a global one. The local name "hides" the global one until the function finishes.
-
-> [!CAUTION]
-> Never name your variables after built-in functions! If you name a variable `list = [1, 2, 3]`, you will "shadow" the built-in `list()` function, and you won't be able to create new lists until that variable is gone.
-
----
-
-## 4. Interview Pro-Tips
-
-### The "Namespace" is just a Dictionary
-You can actually see Python's namespaces!
-- `locals()`: Returns a dictionary of the local namespace.
-- `globals()`: Returns a dictionary of the global namespace.
-Experienced developers use these for debugging or dynamic variable access.
-
-### Why avoid Global variables?
-Interviewers often ask why global variables are considered bad practice.
-- **Reason**: They create "Hidden Coupling." It's hard to tell which function changed a variable, leading to bugs that are nearly impossible to track down in large codebases.
-
-### The LEGB Search Speed
-Searching for a **Local** variable is faster than searching for a **Global** or **Built-in** one. In extreme performance optimization (like inside a tight loop with millions of iterations), developers sometimes "local-ize" a global function to save time:
-- `local_len = len; for ...: local_len(x)`
-
-### What Interviewers Are Testing
-- Can you explain the LEGB lookup order?
-- Do you know the difference between `global` and `nonlocal`?
-- Are you aware of the dangers of variable shadowing?
+You can actually inspect Python's internal mappings at any time.
+- **`globals()`**: Returns a dictionary of the current module's global namespace.
+- **`locals()`**: Returns a dictionary of the local namespace (useful for debugging inside functions).
 
 ---
 
-## Key Takeaway
+## 4. Name Masking (Shadowing)
 
-Scope is how Python keeps your code from becoming a messy tangle of variable names. By following the **LEGB rule** and minimizing your use of `global` keywords, you'll write code that is clean, predictable, and easy to scale.
+Shadowing occurs when a variable in a local scope has the same name as one in an outer scope. This "masks" the outer variable, making it inaccessible without special tools like `globals()`.
+
+**Worst Practice**: Shadowing built-in names. Never name a variable `list` or `str`, as it will break Python's ability to use the actual `list()` or `str()` constructors in that scope.
+
+---
+
+## Interview Pro-Tips: Why avoid `global`?
+While the `global` keyword exists, it is generally considered a "code smell" in professional software. Relying on global state makes code harder to:
+1. **Test**: Functions become dependent on outside state.
+2. **Debug**: Any part of the program can change the variable unexpectedly.
+3. **Parallelize**: Shared mutable state leads to race conditions.
+
+Prefer passing variables as **parameters** and returning the result.
+
+---
+
+## Technical Summary
+1. `Namespace`: A collection of names currently defined in the program.
+2. `Lifetime`: Local variables are destroyed when a function returns; global variables persist until the script ends.
+3. `Lookups`: Python lookups are "Static" (Lexical)—the scope is determined by where the code is written, not where it is called.

@@ -1,109 +1,89 @@
 ---
-title: Binary Search
+title: Logarithmic Search: Binary Search
 order: 1
 ---
 
-Binary Search is a highly efficient algorithm for finding an item from a **sorted** list of items. It works by repeatedly dividing in half the portion of the list that could contain the item.
+# Binary Search: Divide and Conquer Search
+
+**Binary Search** is an extremely efficient algorithm for finding an item from a **Sorted** dataset. It follows the Divide and Conquer strategy, repeatedly halving the search space by comparing the target value to the middle element of the array.
 
 ---
 
-## 1. The Intuition: "Guess the Number"
+## 1. Requirement: The Monotonic Property
 
-Imagine someone asks you to guess a number between **1 and 100**.
-- You guess **50**. They say, "The number is **higher**."
-- You now know the number is NOT between 1 and 50. You've eliminated half the search space in one go!
-- Next, you guess **75** (the middle of 51 and 100).
-
-This is exactly what Binary Search does. Instead of checking every single element (Linear Search), it checks the middle and throws away half of the options every time.
+For Binary Search to function, the input must be **Ordered** (Sorted). Without this property, it is impossible to determine whether the target resides in the left or right half of the current range.
 
 ---
 
-## 2. How we go about it
+## 2. The Core Mechanism
 
-1.  **Requirement**: The list MUST be **sorted**. Without order, we can't know which half to throw away.
-2.  **Pointers**: We maintain two pointers, `left` and `right`, representing the bounds of our current search space.
-3.  **Middle**: Calculate the middle index: `mid = left + (right - left) / 2`.
-4.  **Compare**:
-    - If `target == mid`, we are done!
-    - If `target < mid`, the number must be in the left half → Move `right` to `mid - 1`.
-    - If `target > mid`, the number must be in the right half → Move `left` to `mid + 1`.
-
-```mermaid
-graph TD
-    Start[Initial: Left=0, Right=N-1] --> Mid[Calculate Mid]
-    Mid --> Compare{"Mid == Target?"}
-    Compare -- Yes --> Success[Found! Return Index]
-    Compare -- No --> Higher{"Target > Mid?"}
-    Higher -- Yes --> Right["Search Right: Left = Mid+1"]
-    Higher -- No --> Left["Search Left: Right = Mid-1"]
-    Right --> Mid
-    Left --> Mid
-```
+1. **Initialize**: Set two pointers, `left` (index 0) and `right` (index N-1).
+2. **Calculate Mid**: Determine the middle index: `mid = left + (right - left) / 2`.
+3. **Evaluate**:
+    - If `target == arr[mid]`: Search is complete.
+    - If `target < arr[mid]`: The target must be in the left segment. Set `right = mid - 1`.
+    - If `target > arr[mid]`: The target must be in the right segment. Set `left = mid + 1`.
+4. **Repeat**: Continue until `left > right` (Target not found).
 
 ---
 
 ## 3. Complexity Analysis
 
 | Scenario | Time Complexity | Space Complexity |
-| :------- | :-------------- | :--------------- |
-| **Best Case** | O(1)            | O(1)             |
-| **Average Case** | O(log N)       | O(1)             |
-| **Worst Case** | O(log N)        | O(1)             |
+| :--- | :--- | :--- |
+| **Best Case** | O(1) | O(1) |
+| **Average Case** | O(log N) | O(1) |
+| **Worst Case** | O(log N) | O(1) |
 
-> **Why O(log N)?** Because we divide the input by 2 at every step. 2^10 is ~1,000. So even with 1,000 items, we only need ~10 steps to find anything!
+- **Logarithmic Advantage**: Binary search reduces the search space by half at every step. Even for a dataset of $2^{30}$ items (over 1 billion), Binary Search will find the target in at most 30 steps.
 
 ---
 
-## 4. Multi-Language Implementation
+## 4. Implementation
 
-```language-code-tabs
-[
-  {
-    "label": "Javascript",
-    "language": "javascript",
-    "code": "function binarySearch(nums, target) {\n  let left = 0;\n  let right = nums.length - 1;\n\n  while (left <= right) {\n    let mid = Math.floor(left + (right - left) / 2);\n    \n    if (nums[mid] === target) return mid;\n    \n    if (nums[mid] < target) {\n      left = mid + 1;\n    } else {\n      right = mid - 1;\n    }\n  }\n\n  return -1;\n}"
-  },
-  {
-    "label": "Python",
-    "language": "python",
-    "code": "def binary_search(nums, target):\n    left, right = 0, len(nums) - 1\n    \n    while left <= right:\n        mid = left + (right - left) // 2\n        \n        if nums[mid] == target:\n            return mid\n        \n        if nums[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n            \n    return -1"
-  },
-  {
-    "label": "Java",
-    "language": "java",
-    "code": "class Solution {\n    public int binarySearch(int[] nums, int target) {\n        int left = 0;\n        int right = nums.length - 1;\n        \n        while (left <= right) {\n            int mid = left + (right - left) / 2;\n            \n            if (nums[mid] == target) return mid;\n            \n            if (nums[mid] < target) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n        \n        return -1;\n    }\n}"
+```javascript
+function binarySearch(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left <= right) {
+    // Standard approach to prevent integer overflow
+    let mid = left + Math.floor((right - left) / 2);
+    
+    if (nums[mid] === target) return mid;
+    
+    if (nums[mid] < target) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
   }
-]
+
+  return -1;
+}
 ```
 
 ---
 
-## 5. Common Variations to Know
+## 5. Advanced Patterns
 
-### Find First / Last Occurrence
-When duplicates exist, the basic template returns *any* match. To find the **first occurrence**, when you find a match, record the index and keep searching **left** (`right = mid - 1`). For the **last occurrence**, keep searching **right** (`left = mid + 1`).
+### I. Find First / Last Occurrence
+In a sorted array with duplicates, finding the **First** occurrence requires an additional check: when `target == arr[mid]`, you must store the index and continue searching the **Left** half (`right = mid - 1`) to see if an even earlier match exists.
 
-### Find Insertion Point
-When the target isn't found, `left` ends up pointing to exactly where the target *should* be inserted to keep the array sorted. This is how `bisect_left` in Python works.
-
-### Binary Search on the Answer Space
-This is the most powerful pattern. Instead of searching an *array*, you binary search on a *range of possible answers*. You define a `canAchieve(mid)` function and find the minimum/maximum valid answer. Classic examples: "Minimum speed to finish tasks," "Capacity to ship packages in D days," "Koko eating bananas." If you ever see "minimize the maximum" or "maximize the minimum" in a problem, think binary search on the answer.
+### II. Binary Search on the Answer Space
+This is a critical interview pattern. Instead of searching an array, you binary search on a **Range of Possible Answers**. Example: "Finding the minimum weight capacity required to ship K items in D days."
 
 ---
 
-## 6. Interview Pro-Tips
+## 6. Interview Pro-Tips: Edge Cases
+- **The Overflow Trap**: In languages with fixed-size integers (Java/C++), `(left + right) / 2` can overflow. Always use `left + (right - left) / 2`.
+- **Termination Condition**: Ensure you use `left <= right` in the loop condition to avoid missing the middle element in a single-item range.
+- **Search Space Reduction**: If you are asked to find an element in a **Rotated Sorted Array**, you can still use Binary Search by determining at each step which half of the array is "Normal" (sorted) and which half contains the "Pivot."
 
-### Pattern Recognition Signal
-If a question mentions a **sorted array**, or if you can establish a **monotonic condition** (all values on one side are valid, all on the other are invalid), Binary Search is likely the right tool.
+---
 
-### The Overflow Edge Case
-In Java/C++, `(left + right) / 2` can silently overflow the `int` limit for large arrays. **Always use** `left + (right - left) / 2` — it's the production-safe way that interviewers expect you to know.
-
-### The `left < high` vs `left <= high` Trap
-The choice of `<` vs `<=` and whether boundaries move to `mid` or `mid ± 1` is the single most common source of bugs. A safe default: use `left <= right` with boundaries at `mid + 1` and `mid - 1`. Only deviate when you have a clear reason (e.g., finding a boundary condition).
-
-### What Interviewers Are Testing
-- Do you recognize that the input must be sorted?
-- Do you handle the overflow edge case for `mid`?
-- Can you adapt the template for "find first/last" and "insertion point"?
-- Can you apply binary search beyond arrays (i.e., on the answer space)?
+## Technical Summary
+1. `Sorted`: The immutable requirement for Binary Search.
+2. `Logarithmic`: Performance that scales incredibly well with data size.
+3. `Middle Index`: The point of deduction.
+4. `Pointers`: Dynamically shrinking the search boundaries.

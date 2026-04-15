@@ -1,93 +1,67 @@
 ---
-title: Strings
+title: String Manipulation Internals
 order: 11
 ---
 
-In most programming languages, a **String** is more than just a piece of text—it is a specialized data structure, often implemented as an **Array of Characters**. Understanding how strings are handled in memory is the key to passing many coding interviews.
+# Strings: The Sequence of Characters
+
+In most modern programming languages, a **String** is more than just an array of characters. It is an abstract data structure with specific memory and performance properties. Understanding these internals—especially **Immutability** and **Allocation**—is key to writing performant code for text processing.
 
 ---
 
-## 1. The Core Concept: "Immutability"
+## 1. Immutability and Memory
 
-In languages like **Java**, **Python**, and **Javascript**, strings are **Immutable**.
-- Once a string is created, it **cannot be changed**.
-- If you do something like `str = str + "!"`, you aren't changing the original string. Instead, the computer creates a **brand new string** in memory and points your variable to it.
-- Doing this inside a loop is a common way to accidentally create **O(n²)** performance bugs!
+In languages like **Java**, **Python**, and **JavaScript**, strings are **Immutable**. This means once a string is created, its content cannot be changed.
 
-```mermaid
-graph LR
-    subgraph StringMem ["String in Memory: 'HELLO'"]
-    H[H] --- E[E] --- L1[L] --- L2[L] --- O[O]
-    end
-    style StringMem fill:#1a1a1a,stroke:#333
-    style H fill:#8b5cf6,color:#fff
-    style E fill:#8b5cf6,color:#fff
-    style L1 fill:#8b5cf6,color:#fff
-    style L2 fill:#8b5cf6,color:#fff
-    style O fill:#8b5cf6,color:#fff
-```
+### Why Immutability?
+- **Security**: Strings are used for passwords, URLs, and file paths. If they were mutable, a malicious process could change them after they were validated.
+- **Caching (String Pooling)**: If two variables contain the same string `"Hello"`, they can both point to the same memory address in a "String Pool," saving RAM.
+- **Thread Safety**: Immutable objects are inherently thread-safe.
+
+### The Cost
+Every time you "Modify" a string (e.g., `s += "!"`), you are technically creating a **Brand New String** and copying the entire old string into it. In a loop, this leads to **O(N²)** performance.
+
+**The Solution**: Use a specialized mutable buffer, like `StringBuilder` (Java/C#) or a `[]byte` slice (Go).
 
 ---
 
-## 2. String Complexity
+## 2. Encoding: ASCII vs. UTF-8
 
-| Operation | Time Complexity | Note |
+- **ASCII**: Uses 7 bits to represent 128 characters. Only supports English and basic symbols.
+- **Unicode (UTF-8)**: A variable-width encoding that can represent characters from almost every language. A single "Character" (Grapheme) can be between 1 and 4 bytes long.
+
+**Interviewer Pro-Tip**: In Go or Rust, indices refer to **Bytes**, not characters. `s[0]` might only give you the first bit of a multi-byte emoji character.
+
+---
+
+## 3. String Matching Algorithms
+
+Finding a "Pattern" (P) inside a "Text" (T) is a classic problem.
+
+1. **Naive Approach (O(N*M))**: Slide the pattern across the text and check characters one-by-one.
+2. **KMP (Knuth-Morris-Pratt)**: Pre-processes the pattern to determine how much to "skip" when a mismatch occurs.
+    - **Complexity**: O(N + M)
+3. **Rabin-Karb**: Uses **Rolling Hashes** to compare segments of the text with the pattern hash.
+
+---
+
+## 4. Complexity of Operations
+
+| Operation | Complexity | Description |
 | :--- | :--- | :--- |
-| **Access Item** | O(1) | Just like an array. |
-| **Length** | O(1) | Usually stored as metadata. |
-| **Concatenation** | O(n + m) | Requires copying both strings into a new block. |
-| **Substring** | O(k) | Creating a new string of length k. |
+| **Random Access** | O(1) | Assuming fixed-width encoding (e.g. ASCII). |
+| **Concatenation** | O(N+M) | Requires creating a new string and copying both. |
+| **Sub-string** | O(K) | Depends on implementation (some copy, some share memory). |
 
 ---
 
-## 3. String Manipulation: The "Builder" Pattern
-
-Because of immutability, concatenating strings in a loop is slow. The solution is to use a **Mutable Buffer**.
-
-```language-code-tabs
-[
-  {
-    "label": "Javascript",
-    "language": "javascript",
-    "code": "// Use an Array and join at the end\nconst parts = [];\nfor (let i = 0; i < 100; i++) {\n  parts.push(i);\n}\nconst result = parts.join(\"\");"
-  },
-  {
-    "label": "Python",
-    "language": "python",
-    "code": "# Use a list and join\nparts = []\nfor i in range(100):\n    parts.append(str(i))\nresult = \"\".join(parts)"
-  },
-  {
-    "label": "Java",
-    "language": "java",
-    "code": "// Use StringBuilder\nStringBuilder sb = new StringBuilder();\nfor (int i = 0; i < 100; i++) {\n    sb.append(i);\n}\nString result = sb.toString();"
-  }
-]
-```
+## Interview Pro-Tips: Palindromes and Anagrams
+- **Anagrams**: Two strings are anagrams if they contain the same characters. To check this: Sort both (O(N log N)) or use a Frequency Map (O(N) time, O(1) space since there are only 256 ASCII chars).
+- **Palindromes**: Use **Two Pointers** (start and end) moving towards the middle.
 
 ---
 
-## 4. Interview Pro-Tips
-
-### The "Anaylsis" Pattern (Hash Maps)
-Almost every "Anagram" or "Frequency" problem is solved by counting string characters in a **Hash Map** (or an array of size 26 for alphabets).
-- "Are these two strings anagrams?" -> Do they have the same character counts?
-
-### The "Two Pointers" Strategy
-Problems like **Reverse a String** or **Check if Palindrome** are best solved with two pointers—one at the start and one at the end, moving towards the middle. This uses **O(1) extra space**.
-
-### String Searching Algorithms
-For basic interviews, knowing `indexOf()` is enough. For advanced roles, being aware of **KMP (Knuth-Morris-Pratt)** or **Rabin-Karp** (which uses hashing to find substrings) will set you apart.
-
-### Sliding Window
-If a problem asks for the "Longest substring without repeating characters," you should immediately think **Sliding Window**. You use two pointers to define a "window" of the string and grow/shrink it as you move along.
-
-### What Interviewers Are Testing
-- Do you understand the cost of string immutability?
-- Can you solve manipulation problems in-place (if the language allows, like C++)?
-- Do you know when to use a StringBuilder or a list join?
-
----
-
-## Key Takeaway
-
-Strings are the **interface** of software. While they look like simple text, treating them as immutable arrays will help you write code that is both clean and performant.
+## Technical Summary
+1. `Immutability`: The reason string concatenation in a loop is a performance "Antipattern."
+2. `Memory Pools`: Optimizing RAM usage by sharing identical string references.
+3. `Encodings`: The difference between a byte, a character, and a rune.

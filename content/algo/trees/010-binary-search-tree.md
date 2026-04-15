@@ -3,108 +3,83 @@ title: Binary Search Tree (BST)
 order: 10
 ---
 
-A **Binary Search Tree** is a special type of binary tree that maintains a specific order, making it incredibly fast for searching, addition, and removal.
+# BST: Ordered Binary Trees
+
+A **Binary Search Tree (BST)** is a node-based binary tree data structure which has the following properties:
+- The **Left Subtree** of a node contains only nodes with keys lesser than the node’s key.
+- The **Right Subtree** of a node contains only nodes with keys greater than the node’s key.
+- The left and right subtree each must also be a binary search tree.
 
 ---
 
-## 1. The Intuition: "Left is Less, Right is More"
+## 1. Core Operations
 
-Imagine you are a librarian with a shelf of books.
-- When you get a **new book**, you look at the middle of the shelf.
-- If the new book's title is alphabetically "smaller," you only look at the **left side**.
-- If it's "larger," you only look at the **right side**.
+### I. Search and Insert
+Both operations use the BST property to eliminate half of the tree at each step. 
+- **Search**: Start at the root and move left if target < current, or right if target > current.
+- **Insert**: Search for the target value; when you reach a `null` child that satisfies the ordering, attach the new node there.
 
-A BST is exactly this logic turned into a tree structure. It ensures that for every "Parent" node, everyone on the left is smaller and everyone on the right is larger.
-
----
-
-## 2. How we go about it: Core Logic
-
-1.  **Search**: Start at the root. If the target is smaller than the current node, go left. If it's larger, go right.
-2.  **Insert**: Search for the target value. When you hit a `null` spot where that value SHOULD have been, you place it there.
-3.  **Delete**: 
-    - If the node has **no children**, just delete it.
-    - If it has **one child**, swap it with its child.
-    - If it has **two children**, replace it with its **In-order Successor** (the smallest value in its right subtree).
-
-```mermaid
-graph TD
-    8((8)) --> 3((3))
-    8 --> 10((10))
-    3 --> 1((1))
-    3 --> 6((6))
-    10 --> 14((14))
-    
-    style 8 fill:#f9f
-    Note["Everything LEFT of 8 is < 8"]
-    Note2["Everything RIGHT of 8 is > 8"]
-```
+### II. Deletion
+Deletion is the most complex operation in a BST and involves three scenarios:
+1. **Node is a Leaf**: Simply remove the node.
+2. **Node has One Child**: Copy the child to the node and delete the child.
+3. **Node has Two Children**: Find the **In-order Successor** (the smallest node in the right subtree), copy its value to the current node, and delete the successor.
 
 ---
 
-## 3. Complexity Analysis
+## 2. Complexity Analysis
 
-| Operation | Average (Balanced) | Worst (Skewed / Linked-List) |
-| :------- | :----------------- | :--------------------------- |
-| **Search** | O(log N)           | O(N)                         |
-| **Insert** | O(log N)           | O(N)                         |
-| **Delete** | O(log N)           | O(N)                         |
+| Operation | Average Case | Worst Case (Skewed) |
+| :--- | :--- | :--- |
+| **Search** | O(log N) | O(N) |
+| **Insert** | O(log N) | O(N) |
+| **Delete** | O(log N) | O(N) |
 
-*Note: The Worst Case (O(N)) happens if the tree becomes a single line (i.e., you insert 1, 2, 3, 4 in order). Self-balancing trees like **AVL** or **Red-Black** trees solve this.*
+**The Skewed Case**: If items are inserted in sorted order (e.g., 1, 2, 3, 4, 5), the BST becomes a single line, essentially a Linked List. This is why **Self-Balancing Trees** (like AVL or Red-Black) are used in production.
 
 ---
 
-## 4. Multi-Language Implementation (Insert & Search)
+## 3. Implementation (Recursive)
 
-```language-code-tabs
-[
-  {
-    "label": "Javascript",
-    "language": "javascript",
-    "code": "class Node {\n  constructor(val) {\n    this.val = val;\n    this.left = null;\n    this.right = null;\n  }\n}\n\nclass BST {\n  insert(val, node = this.root) {\n    if (!this.root) { this.root = new Node(val); return; }\n    if (val < node.val) {\n      if (!node.left) node.left = new Node(val);\n      else this.insert(val, node.left);\n    } else {\n      if (!node.right) node.right = new Node(val);\n      else this.insert(val, node.right);\n    }\n  }\n\n  search(val, node = this.root) {\n    if (!node) return false;\n    if (node.val === val) return true;\n    return val < node.val \n      ? this.search(val, node.left) \n      : this.search(val, node.right);\n  }\n}"
-  },
-  {
-    "label": "Python",
-    "language": "python",
-    "code": "class Node:\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None\n\ndef search(root, val):\n    if not root or root.val == val:\n        return root\n    if root.val < val:\n        return search(root.right, val)\n    return search(root.left, val)\n\ndef insert(root, val):\n    if not root: return Node(val)\n    if root.val < val:\n        root.right = insert(root.right, val)\n    else:\n        root.left = insert(root.left, val)\n    return root"
-  },
-  {
-    "label": "Java",
-    "language": "java",
-    "code": "class Node {\n    int val; Node left, right;\n    public Node(int item) { val = item; }\n}\n\nclass BinarySearchTree {\n    Node root;\n    void insert(int val) { root = insertRec(root, val); }\n    Node insertRec(Node root, int val) {\n        if (root == null) return new Node(val);\n        if (val < root.val) root.left = insertRec(root.left, val);\n        else root.right = insertRec(root.right, val);\n        return root;\n    }\n}"
+```javascript
+class Node {
+  constructor(val) {
+    this.val = val;
+    this.left = null;
+    this.right = null;
   }
-]
+}
+
+function insert(root, val) {
+  if (!root) return new Node(val);
+  
+  if (val < root.val) {
+    root.left = insert(root.left, val);
+  } else {
+    root.right = insert(root.right, val);
+  }
+  return root;
+}
 ```
 
 ---
 
-## 5. Interview Pro-Tips
+## 4. Key Properties to Remember
 
-### The Worst Case Is a Linked List — Always Mention It
-If you insert values in sorted order (1, 2, 3, 4, 5...) into a plain BST, the tree degenerates into a linked list. Every operation becomes O(N). Interviewers love to ask "what's the worst case?" — the answer is O(N), and you should immediately follow up with "this is why self-balancing trees like AVL or Red-Black trees exist."
-
-### In-Order Traversal Gives Sorted Output
-A BST's in-order traversal (Left → Root → Right) always produces values in sorted ascending order. This is a frequently tested property. Any question like "find the kth smallest element in a BST" uses this.
-
-### AVL vs. Red-Black — Know the Trade-offs
-- **AVL Trees**: Strictly balanced (height differs by at most 1). Faster *lookups* but more rotations on insert/delete.
-- **Red-Black Trees**: Loosely balanced. Faster *insert/delete*. Used in Java's `TreeMap` and C++'s `std::map`.
-In interviews, knowing these exist and why is usually sufficient — you don't need to implement them from scratch.
-
-### Common BST Interview Problems
-- Validate BST (check that every node satisfies the BST property)
-- Lowest Common Ancestor in a BST (simpler than general trees — use BST property to navigate)
-- Kth Smallest Element
-- Convert Sorted Array to BST (height-balanced)
-
-### What Interviewers Are Testing
-- Do you know the O(log N) average vs O(N) worst case distinction?
-- Can you implement insert, search, and delete?
-- Do you know the in-order traversal property?
-- Are you aware of self-balancing trees and when they're needed?
+- **In-order Traversal**: Performing an in-order traversal (Left → Root → Right) on a BST always returns the elements in **Sorted Order**.
+- **Successor/Predecessor**: The in-order successor of a node is the node with the smallest key greater than the current node's key.
 
 ---
 
-## Key Takeaway
+## Interview Pro-Tips: Why use a BST?
+If an interviewer asks why we use BSTs instead of just sorting an array:
+- **Dynamic Data**: Unlike a sorted array, which requires O(N) time for every insertion (to shift elements), a balanced BST allows for O(log N) insertions. This makes BSTs superior for datasets that are frequently changing while needing to remain searchable.
+- **Complexity Progression**: Always start by mentioning the O(log N) average, but proactively mention the O(N) worst case and the solution (Self-Balancing Trees) to show seniority.
 
-A BST combines the flexibility of a Linked List with the search speed of a Sorted Array. It is the core reason why database indexes are so fast!
+---
+
+## Technical Summary
+1. `Binary Search Property`: The fundamental rule for navigation.
+2. `Logarithmic`: The target efficiency for a balanced tree.
+3. `In-order`: The mechanism for retrieving data in sorted order.
+4. `Balancing`: Necessary to prevent performance degradation in production.
