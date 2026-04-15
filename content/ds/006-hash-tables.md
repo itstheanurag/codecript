@@ -1,96 +1,70 @@
 ---
-title: Hash Tables
+title: Associative Arrays: Hash Tables
 order: 6
 ---
 
-A **Hash Table** (or Hash Map) is a data structure that stores data in **key-value pairs**. It uses a special function (the **Hash Function**) to map a key to a specific location in an array, allowing for incredibly fast data retrieval.
+# Hash Tables: Near-Instant Retrieval
+
+A **Hash Table** (or Hash Map) is a data structure that implements an associative array—a structure that maps individual **Keys** to **Values**. It is the most powerful tool in a developer's kit for achieving **O(1) Average Time** for search, insertion, and deletion.
 
 ---
 
-## 1. The Intuition: "The Post Office"
+## 1. The Hashing Mechanism
 
-Imagine a **Post Office** with 1,000 locked P.O. boxes.
-1. When you want to store a package, you give the clerk your **Key** (e.g., your name).
-2. The clerk runs your name through a formula (the **Hash Function**) that spits out a number, like `412`.
-3. Your package goes directly into **Box #412**.
-4. To get it back, you just give your name, the clerk calculates `412` again, and goes straight to that box. You don't have to check Box #1, #2, #3... (**O(1) Average Access**)
+The core of a hash table is the **Hash Function**.
+1. It takes a key of any size (like a string "Alice").
+2. It outputs a fixed-size integer (the "Hash").
+3. This integer is used as an index in an underlying array (the "Bucket").
 
-```mermaid
-graph LR
-    Key[Key: "Antigravity"] --> HashFunc[Hash Function]
-    HashFunc --> Index[Index: 412]
-    Index --> Bucket[Bucket 412: "Value"]
-    
-    subgraph HashArray ["Hash Table Array"]
-    B1[...] --- B412[Bucket 412] --- B999[...]
-    end
-    style HashArray fill:#1a1a1a,stroke:#333
-```
+**A Perfect Hash Function** would map every unique key to a unique index. In reality, multiple keys often map to the same index, causing a **Collision**.
 
 ---
 
-## 2. Key Operations & Complexity
+## 2. Collision Resolution Strategies
 
-| Operation | Average | Worst Case | Note |
-| :--- | :--- | :--- | :--- |
-| **Search** | O(1) | O(n) | Constant time on average. |
-| **Insert** | O(1) | O(n) | Instant unless a collision occurs. |
-| **Delete** | O(1) | O(n) | Instant search + deletion. |
+### I. Separate Chaining
+Each bucket in the underlying array is actually the head of a **Linked List**. If two keys collide, they are both stored in that list.
+- **Pros**: Simple to implement; table never "fills up."
+- **Cons**: Performance degrades to O(N) if many keys cluster in one bucket.
 
-> [!WARNING]
-> The **Worst Case O(n)** happens when every single key hashes to the same box (a **Collision**). Modern hash functions are designed to make this extremely rare.
-
----
-
-## 3. Multi-Language Implementation
-
-```language-code-tabs
-[
-  {
-    "label": "Javascript",
-    "language": "javascript",
-    "code": "const map = new Map();\nmap.set(\"name\", \"Antigravity\"); // Insert\nconst val = map.get(\"name\"); // Search"
-  },
-  {
-    "label": "Python",
-    "language": "python",
-    "code": "my_dict = {}\nmy_dict[\"name\"] = \"Antigravity\" # Insert\nval = my_dict.get(\"name\") # Search"
-  },
-  {
-    "label": "Java",
-    "language": "java",
-    "code": "HashMap<String, String> map = new HashMap<>();\nmap.put(\"name\", \"Antigravity\");\nString val = map.get(\"name\");"
-  },
-  {
-    "label": "C++",
-    "language": "cpp",
-    "code": "#include <unordered_map>\nstd::unordered_map<string, string> map;\nmap[\"name\"] = \"Antigravity\";\nstring val = map[\"name\"];"
-  }
-]
-```
+### II. Open Addressing (Probing)
+If a collision occurs, the engine looks for the **Next Available** empty slot in the array.
+- **Linear Probing**: Checks index+1, index+2, etc.
+- **Quadratic Probing**: Checks index+1², index+2², etc.
+- **Double Hashing**: Uses a second hash function to determine the step size.
 
 ---
 
-## 4. Interview Pro-Tips
+## 3. The Load Factor and Resizing
 
-### The "O(1) Solver"
-If you find yourself using a loop inside a loop to search for something (O(n²)), ask yourself: "Can I use a Hash Map to store this data and find it in O(1) instead?" This is the single most common way to optimize an algorithm during an interview.
+The **Load Factor (α)** is the ratio of stored items to the total number of buckets.
+`α = n / k` (where n = items, k = buckets).
 
-### Collisions: How to Handle Them
-Interviewers love to ask: "What happens if two different keys hash to the same index?"
-- **Chaining**: Every box in the array is actually a **Linked List**. Multiple items just hang off the same box.
-- **Open Addressing**: If Box #412 is full, look for the next empty box (#413, #414...).
-
-### The "Load Factor"
-Hash Tables need extra "breathing room" to stay fast. Most implementations will automatically resize (double in size) when they get about **70-75% full** (the "Load Factor").
-
-### What Interviewers Are Testing
-- Do you understand that O(1) is an **average**, not a guarantee?
-- Can you explain how a hash function works at a high level?
-- Do you know how to handle collisions?
+- **Performance**: As α increases, collisions become more frequent.
+- **Threshold**: Most professional implementations (like Java's HashMap or Python's Dict) trigger a **Resizing** operation when α reaches **0.75**. The table size is doubled, and every key is "Re-hashed" into its new position.
 
 ---
 
-## Key Takeaway
+## 4. Complexity Analysis
 
-Hash Tables are the **superpower** of data structures. They offer near-instant access to data, making them the first tool you should reach for when you need to optimize search-heavy code.
+| Operation | Average Case | Worst Case |
+| :--- | :--- | :--- |
+| **Search** | O(1) | O(N) |
+| **Insertion** | O(1)* | O(N) |
+| **Deletion** | O(1) | O(N) |
+
+*Worst case occurs when all keys collide into a single bucket or during a resize.*
+
+---
+
+## Interview Pro-Tips: Why use a prime number for table size?
+If an interviewer asks why hash tables often have a prime number of buckets:
+- **The Answer**: Using a prime number helps distribute keys more evenly, especially if the hash function is not perfect. It minimizes the risk of patterns in the data (like every key being an even number) resulting in all keys mapping to the same set of buckets.
+
+---
+
+## Technical Summary
+1. `O(1)`: The performance target for lookups.
+2. `Collision`: The inevitable phenomenon where keys overlap.
+3. `Hash Function`: Must be deterministic, fast, and uniform.
+4. `Memory`: Tradeoff—Hash tables use more memory than arrays to maintain a low Load Factor.
