@@ -1,5 +1,5 @@
 ---
-title: Introduction
+title: Welcome to Programming
 order: 1
 ---
 

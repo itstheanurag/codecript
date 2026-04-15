@@ -1,100 +1,83 @@
 ---
-title: Context Managers (with)
+title: Resource Management
 order: 21
 ---
 
-**Context Managers** are the standard way in Python to manage resources like files, database connections, and network sockets. They ensure that resources are properly cleaned up, even if an error occurs.
+# Context Managers: The "with" Statement
+
+In software development, managing external resources—such as file handles, database connections, or network sockets—is a critical task. If resources aren't closed properly, it can lead to memory leaks and system instability. 
+
+Python uses **Context Managers** to ensure that resources are automatically and reliably cleaned up.
 
 ---
 
-## 1. The Power of `with`
+## 1. The `with` Statement
 
-The most common use of a context manager is opening a file:
+The `with` statement simplifies resource management by wrapping the execution of a block of code with methods defined by a context manager.
 
 ```python
-with open("notes.txt", "w") as f:
-    f.write("Hello World")
-# File is automatically closed here!
-```
-
-Without `with`, you have to remember to call `f.close()`. If your program crashes *before* you reach that line, the file remains open, which can lead to data corruption or "Too many open files" errors.
-
----
-
-## 2. The Lifecycle
-
-Under the hood, any object usable with `with` must implement the **Context Manager Protocol**:
-
-1. **`__enter__`**: Setup logic (e.g., opening a file).
-2. **`__exit__`**: Teardown logic (e.g., closing a file).
-
-```mermaid
-graph TD
-    Start[with Statement Starts] --> Enter[1. __enter__ called]
-    Enter --> Logic[2. Your Code Runs]
-    Logic --> Error{Error?}
-    Error -- Yes --> Exit[3. __exit__ called with error info]
-    Error -- No --> Exit
-    Exit --> End[Resources Cleaned Up]
-    
-    style Enter fill:#3b82f6,color:#fff
-    style Exit fill:#ef4444,color:#fff
+# The standard way to open a file
+with open("data.txt", "r") as f:
+    content = f.read()
+# The file is AUTOMATICALLY closed here, even if an error occurs inside the block
 ```
 
 ---
 
-## 3. Creating Your Own
+## 2. The Context Manager Protocol
 
-### The Class Way
+An object becomes a context manager by implementing two magic methods:
+
+- **`__enter__(self)`**: This executes before the block starts. Its return value is bound to the variable after the `as` keyword.
+- **`__exit__(self, exc_type, exc_val, exc_tb)`**: This executes after the block finishes (or if an exception occurs). It receives information about any raised errors, allowing it to perform cleanup or suppress the error.
+
+---
+
+## 3. Creating Custom Context Managers
+
+You can build your own context managers to handle custom resources like database transactions or timing code execution.
+
 ```python
-class Database:
+class Timer:
     def __enter__(self):
-        print("Connecting to DB...")
+        self.start = time.time()
         return self
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        print("Closing connection.")
 
-with Database() as db:
-    print("Doing work...")
+    def __exit__(self, *args):
+        self.end = time.time()
+        print(f"Elapsed: {self.end - self.start}")
+
+with Timer():
+    # Code to measure
+    do_heavy_work()
 ```
 
-### The "Pythonic" Way (`contextlib`)
-For simple cases, you can use the `@contextmanager` decorator to turn a generator into a context manager. Everything before `yield` is setup, and everything after is teardown.
+---
+
+## 4. The `@contextmanager` Utility
+
+For simpler cases, you can use the `contextlib` module to create a context manager using a **Generator**. This is often more readable than a full class.
 
 ```python
 from contextlib import contextmanager
 
 @contextmanager
-def my_timer():
-    print("Timer started")
-    yield
-    print("Timer ended")
+def temporary_file():
+    f = open("temp.txt", "w")
+    try:
+        yield f # The code inside the "with" block executes here
+    finally:
+        f.close() # Cleanup logic
 ```
 
 ---
 
-## 4. Interview Pro-Tips
-
-### Suppressing Errors
-In the `__exit__` method, if you return `True`, Python will "swallow" any error that happened inside the code block. This is rarely used but good to know as a trivia point.
-
-### `contextlib.suppress`
-If you want to ignore a specific error without a bulky `try-except`, you can use:
-- `with suppress(FileNotFoundError): open("ghost.txt")`
-
-### Standard Library Examples
-When asked for examples, mention:
-- `open()`: Files.
-- `threading.Lock()`: Managing thread safety.
-- `unittest.mock.patch()`: Mocking in tests.
-
-### What Interviewers Are Testing
-- Do you understand **why** we use `with` (Resource Management)?
-- Can you explain the `__enter__` and `__exit__` methods?
-- Do you know how to use `@contextmanager` for cleaner code?
+## Interview Pro-Tips: RAII Pattern
+Context managers are Python's version of the **RAII (Resource Acquisition Is Initialization)** pattern from C++. They provide a deterministic way to manage the lifecycle of a resource, ensuring that the "release" logic is always coupled with the "acquisition" logic.
 
 ---
 
-## Key Takeaway
-
-Context managers make your code **safe by default**. By automating the "Cleanup" phase of your logic, you eliminate a whole class of resource-leak bugs and make your software much more robust.
+## Technical Summary
+1. `Deterministic Cleanup`: Guaranteed execution of the `__exit__` logic.
+2. `Error Handling`: `__exit__` can determine whether to suppress an exception by returning `True`.
+3. `Stackability`: You can use multiple context managers in a single `with` statement: `with A() as a, B() as b:`.

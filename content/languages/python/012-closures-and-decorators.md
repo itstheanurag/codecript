@@ -1,112 +1,88 @@
 ---
-title: Closures and Decorators
+title: Advanced Functions: Decorators
 order: 12
 ---
 
-**Decorators** are one of the most powerful and specialized features of Python. They allow you to "wrap" a function to add new behavior without permanently changing the original code.
+# Closures and Decorators: Metaprogramming in Python
+
+Python treats functions as **First-Class Citizens**, allowing them to be passed as arguments, returned from other functions, and nested inside one another. This flexibility leads to two powerful patterns: **Closures** and **Decorators**.
 
 ---
 
-## 1. Prerequisites: First-Class Functions
+## 1. Lexical Closures
 
-To understand decorators, you must remember:
-1. Functions can be assigned to **Variables**.
-2. Functions can be passed as **Arguments** to other functions.
-3. Functions can be **Defined inside** other functions.
-
----
-
-## 2. Closures: Functions that "Remember"
-
-A **Closure** is an inner function that remembers the variables in its outer (enclosing) scope, even after the outer function has finished executing.
+A **Closure** occurs when a nested function remembers and has access to the variables in its enclosing scope, even after the enclosing function has finished executing.
 
 ```python
-def make_multiplier(x):
-    def multiplier(n):
-        return n * x # Remembers 'x' from outer scope
+def make_multiplier(n):
+    def multiplier(x):
+        return x * n # 'n' is remembered from the outer scope
     return multiplier
 
 double = make_multiplier(2)
 print(double(5)) # 10
 ```
 
+- **Persistence**: The value `2` is stored in the `double` function's memory (specifically in the `__closure__` attribute).
+- **Use Case**: Closures are often used to replace simple classes with a single method, reducing overhead and improving readability.
+
 ---
 
-## 3. Decorators: The "Gift Wrapping" Pattern
+## 2. Introduction to Decorators
 
-A **Decorator** is just a function that takes another function as an argument and returns a modified version of it.
+A **Decorator** is a higher-order function that takes another function as an argument and extends its behavior without explicitly modifying it. 
 
-```mermaid
-graph TD
-    Input[Original Function] --> Wrapper[Decorator 'Wrapper']
-    Wrapper --> Logic[Add Logging/Timing/Auth]
-    Logic --> Output[Enhanced Function]
-    
-    style Wrapper fill:#8b5cf6,color:#fff
-```
+Think of it as **"Wrapping"** a function in extra logic—like adding logging, timing, or authentication.
 
-### The Manual Way
 ```python
-def my_decorator(func):
-    def wrapper():
-        print("Something is happening before.")
-        func()
-        print("Something is happening after.")
+def logger(func):
+    def wrapper(*args, **kwargs):
+        print(f"Calling function: {func.__name__}")
+        return func(*args, **kwargs)
     return wrapper
 
-def say_hello():
-    print("Hello!")
+@logger
+def say_hello(name):
+    print(f"Hello, {name}")
 
-# Enhancing the function manually
-enhanced_hello = my_decorator(say_hello)
-enhanced_hello()
+say_hello("Alice")
 ```
-
-### The "Pythonic" Way (`@`)
-Python provides the `@` symbol to make this beautiful and readable.
-
-```python
-@my_decorator
-def say_hello():
-    print("Hello!")
-
-say_hello()
-```
+The `@logger` syntax is "syntactic sugar" for `say_hello = logger(say_hello)`.
 
 ---
 
-## 4. Interview Pro-Tips
+## 3. Preserving Metadata with `functools.wraps`
 
-### Use `@wraps` from `functools`
-When you wrap a function, the original function's name and metadata are lost. To keep the metadata (like the function name and docstrings), always use `functools.wraps`.
+When you wrap a function, the original function's name and docstring are lost and replaced by the wrapper's metadata. In professional code, you must use `@functools.wraps` to preserve this identity.
 
 ```python
 from functools import wraps
 
-def my_decorator(func):
+def debug(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
     return wrapper
 ```
 
-### Real-World Use Cases
-When an interviewer asks, "When would you actually use a decorator?", give these examples:
-- **Logging**: Automatically log every time a function is called.
-- **Timing**: Measure how long a function takes to run.
-- **Authentication**: Check if a user is logged in before running an API function.
-- **Caching (`@lru_cache`)**: Store the result of expensive calculations.
+---
 
-### Decorators with Arguments
-If you see a decorator like `@repeat(3)`, it means the decorator itself was created by *another* function! This is called a **Decorator Factory**. It's three layers of nested functions.
+## 4. Decorators with Arguments
 
-### What Interviewers Are Testing
-- Do you understand how Closures work?
-- Can you explain the `@` syntax?
-- Do you know the importance of `functools.wraps`?
+To create a decorator that accepts its own parameters (e.g., `@retry(times=3)`), you need an extra layer of nesting. The outer function takes the arguments and returns the actual decorator.
 
 ---
 
-## Key Takeaway
+## Interview Pro-Tips: Common Decorator Use Cases
+If an interviewer asks where you've used decorators, mention these industry standards:
+1. **Authentication/Authorization**: Checking if a user is logged in before allowing access to a web route (`@login_required`).
+2. **Caching/Memoization**: Storing the results of expensive function calls to avoid recalculating them (`@functools.lru_cache`).
+3. **Logging**: Automatically tracking who called which function and when.
+4. **Rate Limiting**: Preventing an API from being called too many times in a short window.
 
-Decorators are the ultimate tool for **Clean Code**. By separating "What" a function does from "How" it's managed (logging, timing, auth), you can keep your core logic simple while adding powerful features across your entire codebase.
+---
+
+## Technical Summary
+1. `Higher-Order Functions`: Functions that operate on other functions.
+2. `Closure State`: Stored in `func.__closure__`.
+3. `Decorators`: A clean way to separate "Cross-Cutting Concerns" (like logging) from the core business logic.

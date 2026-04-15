@@ -3,71 +3,62 @@ title: Functional Programming
 order: 23
 ---
 
-While Python is not a "pure" functional language like Haskell, it provides several tools that allow you to write code in a **Functional Style**. This approach focuses on using functions as parameters and avoiding "Global State."
+# Functional Programming: Declarative Logic
+
+While Python is primarily an Object-Oriented language, it incorporates many features from **Functional Programming (FP)**. Functional programming treats computation as the evaluation of mathematical functions and avoids changing-state and mutable data.
 
 ---
 
-## 1. Map, Filter, and Reduce
+## 1. Core Principles of FP in Python
 
-The "Big Three" of functional programming are all present in Python:
-
-| Function | Purpose | Example |
-| :--- | :--- | :--- |
-| **`map(fn, iterable)`** | Apply a function to every item. | `map(abs, [-1, 2, -3])` |
-| **`filter(fn, iterable)`** | Keep only items where `fn` is True.| `filter(is_even, nums)` |
-| **`reduce(fn, iterable)`** | "Fold" a list into a single value. | `reduce(add, [1, 2, 3])` |
-
-> [!NOTE]
-> `reduce` is not a built-in function in Python 3; you must import it from the `functools` module. This was a deliberate choice by Python's creator to encourage more readable code.
+- **First-Class Functions**: Functions can be passed as arguments, returned as values, and stored in variables.
+- **Pure Functions**: A function that returns the same output for the same input and has no "side effects" (like modifying a global variable).
+- **Immutability**: Preferring data structures that cannot be changed once created (like `tuples` and `frozensets`).
 
 ---
 
-## 2. The Pythonic Way: Comprehensions
+## 2. The Power Trio: `map`, `filter`, and `reduce`
 
-In modern Python, we almost always use **List Comprehensions** instead of `map` or `filter`. They are more readable and often faster.
+- **`map(func, iterable)`**: Applies a function to every item in an iterable.
+- **`filter(func, iterable)`**: Returns items from an iterable for which the function returns `True`.
+- **`reduce(func, iterable)`**: Sequentially applies a function to items to reduce the iterable to a single cumulative value (found in `functools`).
 
-| Functional | List Comprehension (Preferred) |
-| :--- | :--- |
-| `map(str.upper, names)` | `[n.upper() for n in names]` |
-| `filter(bool, list)` | `[x for x in list if x]` |
-
----
-
-## 3. High-Order Functions in `functools`
-
-The `functools` module is the home for advanced functional tools:
-
-### `@lru_cache` (Memoization)
-Automatically caches the results of a function. If you call `fibonacci(10)` twice, the second time it returns the result instantly without recalculating.
-
-### `partial()`
-Allows you to "Freeze" برخی (some) arguments of a function to create a new, simpler function.
 ```python
-from functools import partial
-int2 = partial(int, base=2) # Creates a function that specifically parses binary
-print(int2('101')) # 5
+from functools import reduce
+
+nums = [1, 2, 3, 4, 5]
+
+squares = list(map(lambda x: x**2, nums))
+evens = list(filter(lambda x: x % 2 == 0, nums))
+total = reduce(lambda x, y: x + y, nums)
 ```
 
 ---
 
-## 4. Interview Pro-Tips
+## 3. High-Level Utilities: `itertools` and `functools`
 
-### Lambdas are local only
-Lambda functions are great but limited to a single expression. If you need logic that spans multiple lines, you **must** use a regular `def` function.
-
-### Immutability for Safety
-Functional programming encourages **Immutability**. Instead of changing a list, create a new one. This makes your code much easier to test and reason about in multi-threaded environments.
-
-### The "Readable" Functional Coder
-Interviewers check: "If a comprehension becomes longer than 80 characters or has more than two nested loops, convert it back into a regular `for` loop." Readability is the highest goal in Python.
-
-### What Interviewers Are Testing
-- Do you know how to use `map()` and `filter()`?
-- Can you reach for a List Comprehension over multiple nested loops?
-- Do you know how to use `lru_cache` to optimize performance?
+- **`itertools`**: Provides iterators for efficient looping (e.g., `chain`, `cycle`, `product`).
+- **`functools.partial`**: Allows you to "freeze" some of a function's arguments, creating a new, simpler function.
+- **`functools.lru_cache`**: A decorator that automatically caches function results (memoization), which is a classic FP optimization.
 
 ---
 
-## Key Takeaway
+## 4. Declarative vs. Imperative
 
-Functional programming in Python is about **purity and clarity**. By treating functions as objects and using comprehensions to transform data, you can write code that is concise, efficient, and free from the side effects that plague larger systems.
+- **Imperative (How)**: Using loops and state changes to calculate a result.
+- **Declarative (What)**: Using transformations and filters to describe the result you want.
+
+---
+
+## Interview Pro-Tips: Why use FP?
+If an interviewer asks about the benefits of a functional approach:
+1. **Concurrency**: Immutable data structures are inherently thread-safe because they cannot be modified.
+2. **Testability**: Pure functions are predictable and easy to unit test.
+3. **Brevity**: Logic that takes 10 lines in a nested loop can often be expressed in 1 line using `map` or a comprehension.
+
+---
+
+## Technical Summary
+1. `Lambdas`: Small, anonymous functions used for one-off logic.
+2. `Side Effects`: Avoiding modifications to external state improves reliability.
+3. `Pythonic Balance`: Python encourages a pragmatic mix of OOP and FP. Use comprehensions where possible, as they are often more readable than `map` and `filter`.

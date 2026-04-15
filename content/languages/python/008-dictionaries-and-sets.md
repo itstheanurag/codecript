@@ -1,86 +1,81 @@
 ---
-title: Dictionaries and Sets
+title: Unordered Collections: Dicts and Sets
 order: 8
 ---
 
-Dictionaries and Sets are Python's high-performance **Hash-Based** collections. They allow for near-instant (O(1)) data retrieval, making them essential for writing efficient algorithms.
+# Dictionaries and Sets: The Power of Hashing
+
+In Python, **Dictionaries** and **Sets** are high-performance collections built on **Hash Tables**. They provide near-instant data retrieval regardless of the collection's size.
 
 ---
 
-## 1. Dictionaries (The Key-Value Map)
+## 1. Dictionaries: Key-Value Mapping
 
-A **Dictionary** stores associations between "Keys" and "Values." Think of it like a real dictionary: you look up a "Word" (Key) to find its "Definition" (Value).
+A dictionary (`dict`) is a collection of key-value pairs. Since Python 3.7, dictionaries maintain the **Insertion Order** of their keys.
 
 ```python
-# Keys must be immutable (Strings, Numbers, Tuples)
 user = {
-    "name": "Antigravity",
-    "role": "Assistant",
-    "version": 1.0
+    "username": "jdoe",
+    "email": "john@example.com",
+    "is_active": True
 }
 
-print(user["name"]) # Antigravity
+# Accessing values
+print(user["username"])
+print(user.get("last_login", "Never")) # Using .get() prevents KeyErrors
 ```
 
-### The Hashing Mystery
-Under the hood, Python runs the key through a **Hash Function** to find its location in memory. This is why lookups are so fast!
-
-```mermaid
-graph LR
-    Key[Key: 'name'] --> HashFunc[Hash Function]
-    HashFunc --> Index[Index: 5]
-    Index --> Bucket[Bucket 5: 'Antigravity']
-    
-    style Bucket fill:#0369a1,color:#fff
-```
+- **Keys MUST be Hashable**: Only immutable types (strings, numbers, tuples) can be used as dictionary keys.
 
 ---
 
-## 2. Sets (The Unique Collection)
+## 2. Sets: The Mathematical Collection
 
-A **Set** is a collection of unique items. It's essentially a dictionary with only keys and no values.
+A `set` is an unordered collection of **Unique** items. It is ideal for removing duplicates and performing set operations like Union and Intersection.
 
 ```python
-langs = {"Python", "JS", "C++", "Python"}
-print(langs) # {'Python', 'JS', 'C++'} (Duplicates are gone!)
+ids = {101, 102, 103, 101}
+print(ids) # {101, 102, 103} (Duplicate 101 is automatically removed)
 ```
-*Sets are perfect for checking membership (`item in my_set`) or performing math-like operations (Union, Intersection).*
 
 ---
 
-## 3. Key Operations & Complexity
+## 3. Performance: The Hash Table Advantage
 
-| Operation | Average | Worst Case | Note |
+The primary reason to use a `dict` or `set` is **Speed**. Because they use hashing, searching for an item takes **O(1) (Constant Time)**, whereas searching a list takes **O(n) (Linear Time)**.
+
+| Collection | Add | Search | Delete |
 | :--- | :--- | :--- | :--- |
-| **Lookup** | O(1) | O(n) | Constant on average. |
-| **Insert** | O(1) | O(n) | Constant on average. |
-| **Delete** | O(1) | O(n) | Constant on average. |
+| **List** | O(1)* | O(n) | O(n) |
+| **Dict/Set** | O(1) | O(1) | O(1) |
 
 ---
 
-## 4. Interview Pro-Tips
+## 4. Set Mathematics
 
-### Use Dictionaries to avoid O(n²) loops
-If you find yourself searching through a list inside another loop, consider storing the list data in a Dictionary first. Converting a list to a dictionary takes O(n), but lookups then become O(1). This is the #1 optimization trick in coding interviews.
+Sets in Python map directly to mathematical set theory, providing built-in methods for complex comparisons.
 
-### Dictionary Order
-As of Python 3.7+, **dictionaries maintain insertion order**. This means when you iterate over a dict, it will return items in the same order they were added. (Sets, however, do NOT maintain order).
-
-### Missing Keys: `.get()` vs `[]`
-- `my_dict["color"]`: Throws a `KeyError` if the key is missing.
-- `my_dict.get("color")`: Returns `None` (or a default) if the key is missing.
-Use `.get()` when you aren't 100% sure the key exists to prevent your program from crashing.
-
-### Hashability
-A key must be **Hashable** (immutable). This is why you can use a Tuple as a dictionary key, but you **cannot** use a List.
-
-### What Interviewers Are Testing
-- Can you explain how a Hash Map works at a high level?
-- Do you know how to use Sets to remove duplicates efficiently?
-- Do you understand the performance difference between `item in list` (O(n)) and `item in set` (O(1))?
+- **Union (`|`)**: Items in either set.
+- **Intersection (`&`)**: Items in both sets.
+- **Difference (`-`)**: Items in the first set but not the second.
+- **Symmetric Difference (`^`)**: Items in either set, but not both.
 
 ---
 
-## Key Takeaway
+## Interview Pro-Tips: Dictionary Comprehensions
+Like list comprehensions, you can create dictionaries in a single, efficient line.
 
-Dictionaries and Sets are the **optimization backbone** of Python. By leveraging hashing, they turn slow search problems into instant lookups, allowing you to solve complex algorithmic puzzles with ease.
+```python
+users = ["Alice", "Bob"]
+user_ids = {u: i for i, u in enumerate(users)}
+# Result: {"Alice": 0, "Bob": 1}
+```
+
+This is often used in interview coding challenges to build frequency maps (e.g., counting the occurrences of characters in a string).
+
+---
+
+## Technical Summary
+1. `Hash Table`: Under the hood, Python uses the `hash()` value of the key to jump directly to the memory location of the value.
+2. `Membership Testing`: `x in my_set` is significantly faster than `x in my_list` for large datasets.
+3. `Uniqueness`: Use sets whenever you need to ensure data integrity by preventing duplicates.

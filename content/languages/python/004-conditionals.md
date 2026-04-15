@@ -1,15 +1,17 @@
 ---
-title: Conditionals
+title: Control Flow: Conditionals
 order: 4
 ---
 
-Conditionals allow your program to make decisions. In Python, this is done using the `if`, `elif`, and `else` keywords, relying on **Indentation** to define what code belongs to which block.
+# Conditionals: Decision Making in Python
+
+Control flow refers to the order in which individual statements, instructions, or function calls are executed. The most common way to branch the flow of execution is using **Conditional Statements**.
 
 ---
 
-## 1. The `if`, `elif`, and `else` Pattern
+## 1. If, Elif, and Else
 
-Python's decision logic is straightforward:
+Python uses `if`, `elif` (else if), and `else` to execute different blocks of code based on logical conditions.
 
 ```python
 score = 85
@@ -19,67 +21,59 @@ if score >= 90:
 elif score >= 80:
     print("Grade: B")
 else:
-    print("Grade: C/F")
+    print("Grade: C")
 ```
 
-- **if**: The first condition to check.
-- **elif**: (Short for else-if) Checked only if the previous conditions were False. You can have as many of these as you need.
-- **else**: The "catch-all" block if all previous conditions failed.
+- **Indentation**: Unlike languages that use curly braces `{}` (C++, Java, JS), Python uses **whitespace indentation** to define the scope of a block. This is enforced by the compiler and is central to Python's design philosophy.
 
 ---
 
-## 2. One-Line "Ternary" Conditional
+## 2. Truthiness and Falsiness
 
-For simple logic, Python allows you to write the conditional on a single line. This is often used for variable assignment.
+In Python, every object has an inherent Boolean value. This concept is called **Truthiness**.
+
+| Falsy Values | Everything Else (Truthy) |
+| :--- | :--- |
+| `None` | Any non-zero number |
+| `False` | Non-empty strings (`"Hello"`) |
+| `0` (and `0.0`) | Non-empty lists, dicts, sets |
+| `""` (Empty string) | |
+| `[]`, `{}`, `set()` (Empty collections) | |
+
+```python
+name = ""
+if not name:
+    print("Name is empty") # This will execute because "" is Falsy
+```
+
+---
+
+## 3. Structural Pattern Matching (Match-Case)
+
+Introduced in Python 3.10, the `match` statement is a powerful way to branch logic based on the structure of data—similar to `switch-case` in other languages but significantly more capable.
+
+```python
+status = 404
+
+match status:
+    case 200:
+        print("Success")
+    case 404:
+        print("Not Found")
+    case 500 | 501: # OR operator in cases
+        print("Server Error")
+    case _:
+        print("Unknown Status") # Default catch-all
+```
+
+---
+
+## Interview Pro-Tips: The Ternary Operator
+Python supports conditional expressions (often called the ternary operator) for simple one-line branches.
 
 ```python
 # Result = <Value if True> if <Condition> else <Value if False>
-status = "Adult" if age >= 18 else "Minor"
+access_allowed = True if age >= 18 else False
 ```
 
----
-
-## 3. Structural Pattern Matching (`match`)
-
-Added in **Python 3.10**, the `match` statement is Python's version of a "Switch" statement found in other languages, but with much more power.
-
-```python
-def http_status(code):
-    match code:
-        case 200:
-            return "OK"
-        case 404:
-            return "Not Found"
-        case 500:
-            return "Server Error"
-        case _:
-            return "Unknown Error" # Wildcard (_) matches anything
-```
-
----
-
-## 4. Interview Pro-Tips
-
-### Indentation is Syntax
-In languages like C++ or Java, indentation is for style. In Python, it is part of the language rules. One extra space or one missing tab will result in an `IndentationError`. In an interview, be very careful with your spacing on the whiteboard!
-
-### Guard Clauses
-Instead of nesting many `if` statements inside each other (which creates hard-to-read "Arrow Code"), use **Guard Clauses**. Check for error conditions early and return immediately.
-- `if not user: return False`
-
-### Boolean Short-Circuiting
-Python is lazy (in a good way).
-- If you use `A or B`, and `A` is True, Python won't even look at `B`.
-- If you use `A and B`, and `A` is False, Python won't even look at `B`.
-This is useful for avoiding errors, like: `if list and list[0] == "Target":`. If `list` is empty, the first part fails, and Python never tries to access `list[0]`, preventing an `IndexError`.
-
-### What Interviewers Are Testing
-- Can you use `elif` correctly (avoiding redundant `if` checks)?
-- Do you understand the Truthiness of empty collections?
-- Can you explain how the `match` statement differs from a simple `if` ladder?
-
----
-
-## Key Takeaway
-
-Conditional logic in Python is designed to read like a sequence of logical thoughts. By using clean `if/elif` structures and taking advantage of pattern matching, you can build programs that are easy for both computers and humans to understand.
+While efficient, be careful not to nest these too deeply, as it violates the principle of **Readability** (The Zen of Python).

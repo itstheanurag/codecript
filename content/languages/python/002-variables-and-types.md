@@ -3,77 +3,72 @@ title: Variables and Data Types
 order: 2
 ---
 
-In Python, everything is an **Object**. This means variables don't just "hold" values; they are names that **point** to objects in memory.
+# Variables: Memory Management and State
+
+In computer programming, a **Variable** is a reserved memory location to store values. This means that when you create a variable, you reserve some space in memory (`RAM`). Based on the data type of a variable, the interpreter allocates memory and decides what can be stored in the reserved memory.
 
 ---
 
-## 1. Dynamic Typing
+## 1. Dynamic Typing in Python
 
-Python is **dynamically typed**. You don't need to specify if a variable is a string or an integer; Python figures it out at runtime.
+Python is a **Dynamically Typed** language. Unlike languages such as C++ or Java, you do not need to declare the type of a variable when you create one. The type is determined during runtime based on the value assigned to the variable.
 
 ```python
-x = 5       # x is an int
-x = "Hello" # Now x is a str
+# The interpreter assigns the 'integer' type to 'age'
+age = 25
+
+# The same variable can later hold a different type
+age = "Twenty Five" 
 ```
 
-> [!IMPORTANT]
-> Because Python is dynamic, you must be careful not to accidentally change a variable's type in a way that breaks your logic later (e.g., trying to add a number to a string).
+---
+
+## 2. Fundamental Data Types
+
+Python provides several built-in data types that are used to define the operations possible on them and the storage method for each of them.
+
+### I. Numeric Types
+- **Integers (`int`)**: Whole numbers, positive or negative, without decimals, of unlimited length.
+- **Floating Point Numbers (`float`)**: Numbers with one or more decimals. Python also supports scientific notation with `e` to indicate the power of 10.
+- **Complex Numbers (`complex`)**: Written with a "j" as the imaginary part (e.g., `3+5j`).
+
+### II. Sequence Types
+- **Strings (`str`)**: Contiguous sets of characters represented in quotation marks. Python does NOT have a character type; a single character is simply a string of length 1.
+- **Lists & Tuples**: Ordered collections of items (covered in depth in future modules).
+
+### III. Boolean Type (`bool`)
+- Represents one of two values: `True` or `False`. Used extensively in conditional logic and flow control.
 
 ---
 
-## 2. Basic Data Types
+## 3. Variable Naming Conventions (PEP 8)
 
-Python has several built-in types that handle the most common data:
+To maintain a professional codebase, you should follow the **PEP 8** style guide for Python code.
 
-| Type | Name | Example |
-| :--- | :--- | :--- |
-| **int** | Integer | `42`, `-7` |
-| **float**| Floating Point | `3.14`, `-0.01` |
-| **str** | String | `"Python"`, `'Coding'` |
-| **bool** | Boolean | `True`, `False` |
-| **NoneType**| None | `None` (Null) |
+1. **Snake Case**: Separate words with underscores (e.g., `user_profile_id`).
+2. **Case Sensitivity**: `Value` and `value` are distinct variables.
+3. **No Keywords**: You cannot use reserved keywords (like `if`, `else`, `while`, `def`) as variable names.
+4. **Meaningful Identifiers**: Avoid abstract names like `temp` or `x`. Use names that describe the data's purpose.
 
 ---
 
-## 3. The "Identity" of a Variable
+## 4. Deep Dive: Everything is an Object
 
-Since everything is an object, every variable has:
-1. **Value**: The actual content (e.g., `5`).
-2. **Type**: The class it belongs to (e.g., `int`).
-3. **Identity**: The unique memory address where the object lives.
+In Python, **everything is an object**. When you assign `x = 10`, Python creates an integer object with the value `10` and makes the variable `x` a reference (pointer) to that object.
+
+### The `id()` and `type()` functions:
+- `id(variable)`: Returns the unique memory address of the object.
+- `type(variable)`: Returns the data type of the object.
 
 ```python
 x = 10
-print(type(x)) # <class 'int'>
-print(id(x))   # 1407... (Memory address)
+print(id(x))   # Prints the memory location
+print(type(x)) # Prints <class 'int'>
 ```
 
 ---
 
-## 4. Interview Pro-Tips
-
-### Immutable vs. Mutable
-This is a high-level interview concept.
-- **Immutable Types** (`int`, `float`, `str`, `tuple`, `bool`): Once created, the object's value cannot change. If you "change" a string, Python actually creates a new string object.
-- **Mutable Types** (`list`, `dict`, `set`): You can change the contents without creating a new object.
-
-### The "Interning" Optimization
-For small integers (usually -5 to 256) and certain strings, Python uses **Interning**. This means multiple variables pointing to the number `5` actually point to the *exact same* object in memory to save space.
-- `a = 5; b = 5; print(a is b)` -> `True` (Same object)
-- `a = 1000; b = 1000; print(a is b)` -> `False` (Different objects, same value)
-
-### `is` vs `==`
-- `==` checks for **Equality** (Are the values the same?).
-- `is` checks for **Identity** (Are they the exact same object in memory?).
-Always use `==` unless you are specifically checking for `None`.
-
-### What Interviewers Are Testing
-- Do you understand that Python variables are references?
-- Can you explain the difference between mutable and immutable types?
-- Do you know when to use `is` vs `==`?
-
----
-
-## Key Takeaway
-
-Python's type system is flexible and powerful. By treating everything as an object, it allows for a high level of abstraction, but it's crucial to understand when you are copying a reference versus creating a new value.
+## Interview Pro-Tips: Mutable vs. Immutable
+Interviewers frequently ask about the difference between **Mutable** and **Immutable** types.
+- **Immutable**: Types that cannot be changed after they are created (`int`, `float`, `str`, `tuple`). If you modify an immutable variable, Python creates a *new* object and updates the variable's reference.
+- **Mutable**: Types that can be changed in place (`list`, `dict`, `set`). Modifying them does not change their memory address.
