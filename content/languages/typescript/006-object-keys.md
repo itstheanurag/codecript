@@ -1,95 +1,75 @@
 ---
-title: Accessing Object Keys: keyof and Lookup Types
+title: Introspection and Mapped Types
 order: 6
 ---
 
-In dynamic JavaScript, we often access object properties using variables (e.g., `user[someKey]`). In TypeScript, we use the `keyof` operator to ensure these dynamic accesses are safe.
+# Object Keys: The `keyof` and Indexed Access
 
-## The `keyof` Operator
+One of TypeScript's most powerful features is its ability to perform **Type Introspection**—extracting type information from existing structures. This allows you to build highly dynamic yet completely type-safe code.
+
+---
+
+## 1. The `keyof` Type Operator
 
 The `keyof` operator takes an object type and produces a string or numeric literal union of its keys.
 
 ```typescript
 interface User {
-  id: number;
-  name: string;
-  email: string;
+    id: number;
+    name: string;
+    email: string;
 }
 
-// Key becomes: "id" | "name" | "email"
-type UserKey = keyof User;
-
-let myKey: UserKey = "name"; // OK
-myKey = "password"; // ERROR: Type '"password"' is not assignable to type 'UserKey'
+type UserKeys = keyof User; // "id" | "name" | "email"
 ```
 
-### Why is this useful?
+This is essential for functions that access properties dynamically. Instead of accepting any `string`, you can restrict the input to only valid keys of the object.
 
-Imagine a function that gets a property from an object. Without `keyof`, TypeScript wouldn't know if the key exists.
+---
+
+## 2. Indexed Access Types
+
+You can use an index access type to look up a specific property on another type. Think of this as "Reading" the type of a property from a template.
 
 ```typescript
-function getProperty<T, K extends keyof T>(obj: T, key: K) {
-  return obj[key];
-}
+type NameType = User["name"]; // string
+type IdOrName = User["id" | "name"]; // number | string
 ```
 
 ---
 
-## Indexed Access Types (Lookup Types)
+## 3. Mapped Types: Programmatic Transformation
 
-We can also use types to "look up" the type of a specific property in another type. This is similar to how you access a value in an object, but done at the **type level**.
-
-```typescript
-interface AppConfig {
-  db: {
-    host: string;
-    port: number;
-  };
-  server: {
-    port: number;
-  };
-}
-
-// DbConfig becomes: { host: string; port: number; }
-type DbConfig = AppConfig["db"];
-
-// PortType becomes: number
-type PortType = AppConfig["server"]["port"];
-```
-
-> [!TIP]
-> This is extremely powerful for maintaining a **single source of truth**. If you update the `AppConfig` interface, every lookup type that references it will update automatically.
-
-### Indexed Access for Arrays
-
-You can also get the type of elements in an array by using `[number]`.
+Mapped types allow you to create new types based on the properties of an existing type by "Mapping" over the keys. This is the foundation for many of TypeScript's built-in utility types (like `Partial` or `Readonly`).
 
 ```typescript
-const MyArray = [
-  { name: "Alice", age: 30 },
-  { name: "Bob", age: 25 },
-];
-
-// UserItem becomes: { name: string, age: number }
-type UserItem = (typeof MyArray)[number];
-```
-
-## Mapping over Keys (Basics)
-
-You can even create new types based on the keys of an existing one. This is called **Mapped Types**.
-
-```typescript
-interface User {
-  id: number;
-  name: string;
-}
-
-// Every property in User becomes optional
-type OptionalUser = {
-  [K in keyof User]?: User[K];
+type Optional<T> = {
+    [P in keyof T]?: T[P];
 };
+
+type OptionalUser = Optional<User>; // All properties of User are now optional
 ```
 
-_(Note: TypeScript actually provides a built-in for this called `Partial<User>`!)_
+---
 
-By mastering `keyof` and indexed access, you can write code that is dynamic like JavaScript but strictly checked like a typed language. In the final chapter, we'll bring it all together with **Generics**.
+## 4. Conditional Types (`extends ? :`)
+
+At the heart of advanced TypeScript is the conditional type, which allows you to choose a type based on a condition—similar to a ternary operator in JavaScript.
+
+```typescript
+type IsString<T> = T extends string ? "yes" : "no";
+```
+
+---
+
+## Interview Pro-Tips: Why use mapped types?
+If an interviewer asks about the benefits of mapped types:
+- **The Answer**: They ensure **Consistency**. Instead of manually updating a `PartialUser` interface every time you add a field to the `User` interface, a mapped type will automatically include the new field, making your codebase significantly more maintainable and less error-prone.
+
+---
+
+## Technical Summary
+1. `keyof`: Extracting keys as a union.
+2. `Indexed Access`: Querying the type of a specific property.
+3. `Mapped Types`: Iterating over keys to transform structures.
+4. `Scalability`: These tools prevent the need for redundant interface definitions.

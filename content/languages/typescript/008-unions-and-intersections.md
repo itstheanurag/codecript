@@ -1,84 +1,72 @@
 ---
-title: Unions and Intersections
+title: Utility Types and Templates
 order: 8
 ---
 
-In JavaScript, a value can be anything. In TypeScript, we can use **Union** and **Intersection** types to precisely define how multiple types should be combined.
+# Utility Types: Built-in Transformations
 
-## 1. Union Types (`|`)
+TypeScript provides several global utility types to facilitate common type transformations. These are implemented using the Mapped Types and Conditional Types we discussed in previous modules, allowing you to create variations of your existing interfaces without redundancy.
 
-A Union type describes a value that can be **one of several types**. Think of it as an "OR" relationship.
+---
 
-```typescript
-function printId(id: number | string) {
-  console.log(`Your ID is: ${id}`);
-}
+## 1. Partial and Required
 
-printId(101); // OK
-printId("202"); // OK
-printId(true); // ERROR: Argument of type 'boolean' is not assignable...
-```
-
-### Narrowing Unions
-
-When working with a union, you often need to "narrow" it down to a specific type before you can use type-specific methods.
+- **`Partial<T>`**: Constructs a type with all properties of `T` set to optional. This is essential for "Update" operations where you might only be sending a few fields.
+- **`Required<T>`**: The opposite of Partial; it makes all properties mandatory.
 
 ```typescript
-function getLength(id: string | number) {
-  if (typeof id === "string") {
-    return id.length; // OK: TypeScript knows id is a string here
-  }
-  return id.toString().length; // OK: TypeScript knows id is a number here
+interface User { id: number; name: string; }
+
+function updateUser(id: number, fields: Partial<User>) {
+    // fields can be { name: "Alice" } or even {}
 }
 ```
 
 ---
 
-## 2. Intersection Types (`&`)
+## 2. Readonly and Record
 
-An Intersection type combines multiple types into one. The resulting type has **all the properties** of the combined types. Think of it as an "AND" relationship.
+- **`Readonly<T>`**: Makes all properties of the type immutable. Attempting to reassign a property will result in a compile-time error.
+- **`Record<K, T>`**: Constructs an object type with properties of type `K` and values of type `T`. This is the professional way to define "Maps" or "Dictionaries."
 
 ```typescript
-interface ErrorHandling {
-  success: boolean;
-  error?: { message: string };
-}
-
-interface ArtistsData {
-  artists: { name: string }[];
-}
-
-// ArtistResponse has EVERY property from both interfaces
-type ArtistResponse = ErrorHandling & ArtistsData;
-
-const response: ArtistResponse = {
-  success: true,
-  artists: [{ name: "The Beatles" }],
+const roles: Record<number, string> = {
+    1: "Admin",
+    2: "Member"
 };
 ```
 
 ---
 
-## 3. Union vs. Intersection
+## 3. Pick and Omit
 
-For a JavaScript developer, these are the mental models:
+These are used to create "Subsets" of an existing interface by either choosing specific keys or excluding them.
 
-- **Union (`|`)**: "It's either a `User` or an `Admin`."
-- **Intersection (`&`)**: "It's a `User` **who is also** an `Admin`."
-
-## 4. Literal Unions
-
-Unions are extremely common for defining restricted sets of string or number values.
+- **`Pick<T, K>`**: Creates a type by picking a set of properties `K` from `T`.
+- **`Omit<T, K>`**: Creates a type by removing a set of properties `K` from `T`.
 
 ```typescript
-type ButtonSize = "small" | "medium" | "large";
-
-function createButton(size: ButtonSize) {
-  // ...
-}
-
-createButton("large"); // OK
-createButton("extra-large"); // ERROR
+type UserPreview = Pick<User, "name">; // Only contains 'name'
+type UserWithoutId = Omit<User, "id">; // Contains everything EXCEPT 'id'
 ```
 
-By combining these, you can create highly flexible yet strict type definitions that catch "impossible" states in your code before they ever happen.
+---
+
+## 4. ReturnType and Parameters
+
+For advanced meta-programming, you can extract types directly from functions.
+- **`ReturnType<T>`**: Obtains the return type of a function type.
+- **`Parameters<T>`**: Obtains the core parameter types of a function as a tuple.
+
+---
+
+## Interview Pro-Tips: Do Utility types affect runtime?
+If an interviewer asks about the performance impact of using `Partial` or `Omit`:
+- **The Answer**: No. Like all TypeScript types, Utility Types are strictly for **Compile-time safety**. They are completely erased during transpilation and have zero impact on the size or speed of the final JavaScript bundle.
+
+---
+
+## Technical Summary
+1. `Utility Types`: Standardized transformations for object shapes.
+2. `Consistency`: They allow you to maintain a "Single Source of Truth" for your data models.
+3. `Self-Documentation`: Using `Pick` or `Partial` clearly communicates to other developers how a function expects to interact with an object.

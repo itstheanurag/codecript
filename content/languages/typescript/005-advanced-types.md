@@ -1,78 +1,83 @@
 ---
-title: Advanced Types: Unknown and Never
+title: Advanced Type Patterns
 order: 5
 ---
 
-As you move beyond basic types, TypeScript provides tools to handle truly unpredictable or impossible situations. Two of the most important are `unknown` and `never`.
+# Advanced Types: Literal, Union, and Intersections
 
-## The `unknown` Type
-
-In the "Basic Types" chapter, we discussed the `any` type and how it essentially turns off TypeScript. The `unknown` type is its **safer sibling**.
-
-Like `any`, you can assign anything to an `unknown` variable. However, unlike `any`, you **cannot use it** until you prove what it is.
-
-```typescript
-let value: unknown = "Hello";
-
-// This will cause an error:
-// value.toUpperCase();
-
-// You must narrow the type first:
-if (typeof value === "string") {
-  console.log(value.toUpperCase()); // OK!
-}
-```
-
-> [!TIP]
-> Use `unknown` for data coming from outside your app (like API responses) where you want to force yourself to validate the data before using it.
+Once you master the basic types, you can combine them to create complex, highly specific type signatures. This allows you to model real-world data and logic with extreme precision.
 
 ---
 
-## The `never` Type
+## 1. Union Types (`|`)
 
-The `never` type represents values that **should never exist**. It is commonly used in two scenarios:
-
-### 1. Functions that never return
-
-A function that throws an error or has an infinite loop returns `never`.
+A union type allows a value to be one of several types. This is the most common way to handle variables that can take multiple forms (e.g., a function that accepts either a `string` or a `number`).
 
 ```typescript
-function throwError(msg: string): never {
-  throw new Error(msg);
+function printId(id: number | string) {
+    console.log("Your ID is: " + id);
 }
 ```
 
-### 2. Exhaustive Checking
+---
 
-`never` can be used to ensure you've handled every possible case in a union.
+## 2. Literal Types
+
+Literal types allow you to specify exact values that a variable must have—not just the "Type," but the **Specific Value**.
 
 ```typescript
-type Direction = "North" | "South";
+let alignment: "left" | "right" | "center";
+alignment = "left"; // Works
+// alignment = "top"; // Error: Type '"top"' is not assignable to type '"left" | "right" | "center"'
+```
 
-function move(dir: Direction) {
-  switch (dir) {
-    case "North":
-      return "Going North";
-    case "South":
-      return "Going South";
-    default:
-      // If we add "East" to Direction but forget to handle it here,
-      // TypeScript will flag this line as an error.
-      const _exhaustiveCheck: never = dir;
-      return _exhaustiveCheck;
-  }
+---
+
+## 3. Intersection Types (`&`)
+
+An intersection type creates a new type by combining multiple existing types. The new type will have **All** properties of all the intersected types.
+
+```typescript
+type Draggable = { drag: () => void };
+type Resizable = { resize: () => void };
+
+type UIComponent = Draggable & Resizable;
+```
+
+---
+
+## 4. Type Guards and Narrowing
+
+When using union types, you often need to "Narrow" the type to a specific one before you can perform operations on it. TypeScript uses **Type Guards** to do this safely.
+
+- **`typeof`**: Used for primitive types.
+- **`instanceof`**: Used for class instances.
+- **`in`**: Used to check for the existence of a property on an object.
+
+```typescript
+function process(val: string | number) {
+    if (typeof val === "string") {
+        console.log(val.toUpperCase()); // TS knows 'val' is definitely a string here
+    }
 }
 ```
 
-## Type Assertions
+---
 
-Sometimes you know more about a value's type than TypeScript does. In these cases, you can use a **Type Assertion** (often called "casting" in other languages).
+## Interview Pro-Tips: Discriminated Unions
+This is a core pattern in Redux and state management. You add a common property (a "Tag" or "Discriminant") to several related interfaces to make narrowing them extremely efficient and type-safe inside a `switch` statement.
 
 ```typescript
-const myCanvas = document.getElementById("main_canvas") as HTMLCanvasElement;
+interface Success { status: "success"; data: string; }
+interface Failure { status: "error"; message: string; }
+
+type Response = Success | Failure;
 ```
 
-> [!CAUTION]
-> Treat type assertions like `any`. Use them sparingly, as they are a way of telling the compiler "Trust me, I know what I'm doing," which can lead to runtime errors if you're wrong.
+---
 
-In the next chapter, we'll dive into how to dynamically extract and use keys from your objects using **keyof**.
+## Technical Summary
+1. `Unions`: "Either A or B."
+2. `Intersections`: "Both A and B."
+3. `Literals`: Precise values as types.
+4. `Narrowing`: Proving to the compiler which type you are currently working with.
