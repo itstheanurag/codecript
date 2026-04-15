@@ -1,107 +1,73 @@
 ---
-title: 0/1 Knapsack
+title: The 0/1 Knapsack Problem
 order: 18
 ---
 
-The **0/1 Knapsack Problem** is a classic optimization problem. Given a set of items, each with a weight and a value, determine the maximum value you can carry in a knapsack of a fixed capacity.
+# Combinatorial Optimization: 0/1 Knapsack
+
+The **0/1 Knapsack Problem** is a fundamental problem in combinatorial optimization. Given a set of items, each with a weight and a value, determine the number of each item to include in a collection so that the total weight is less than or equal to a given limit and the total value is as large as possible.
+
+The "0/1" indicates that you cannot break an item; you either take it in its entirety or leave it behind.
 
 ---
 
-## 1. The Intuition: "Limit of Value"
+## 1. Defining the State
 
-Imagine you are a treasure hunter who found a cave full of heavy gold artifacts.
-- You have a backpack that can only hold **50 kg**.
-- You can't break the artifacts into pieces (it's "0/1"—you either take it or leave it).
-- How do you pick the artifacts so that the total value in your backpack is the **absolute highest possible**?
-
-If you try to be "Greedy" and pick the most valuable item first, it might be so heavy that you can't fit anything else. 0/1 Knapsack uses DP to check every possible combination without recalculating the same sub-problems.
+To solve this using Dynamic Programming, we define a 2D table `dp[i][w]` where:
+- `i` represents the first `i` items considered.
+- `w` represents the maximum weight capacity of the knapsack.
+- `dp[i][w]` is the **Maximum Value** that can be achieved using a subset of the first `i` items with a total weight no greater than `w`.
 
 ---
 
-## 2. How we go about it: The Decision Table
+## 2. The Recurrence Relation
 
-We build a 2D table `dp[item][capacity]`.
-For every item `i` and every possible capacity `w`, we ask a simple question: **"Is it better to take this item or not?"**
+For each item `i` with weight `wi` and value `vi`:
 
-1.  **Exclude**: If we don't take the item, our profit is just whatever we could get from the *previous* items at that same capacity.
-2.  **Include**: If we take the item (and it fits!), our profit is the **value of this item** + whatever we could get from the *previous* items with the **remaining space**.
+1. **Option 1: Exclude the item**: The value remains the same as for the first `i-1` items at the same weight: `dp[i-1][w]`.
+2. **Option 2: Include the item**: Add its value to the maximum value possible for the remaining weight: `vi + dp[i-1][w - wi]`. (This is only possible if `wi <= w`).
 
-We pick the `max` of these two choices.
-
-```mermaid
-graph TD
-    A[Current Item] --> Choice{"Fits in Bag?"}
-    Choice -- No --> Ex[Exclude: Take Previous Best]
-    Choice -- Yes --> Max[Max of Exclude or Include]
-    Ex --> Out[Update DP Table]
-    Max --> Out
-```
+**The Decision**: `dp[i][w] = max(Option 1, Option 2)`
 
 ---
 
 ## 3. Complexity Analysis
 
-| Scenario | Time Complexity | Space Complexity |
-| :------- | :-------------- | :--------------- |
-| **DP** | O(N * W)        | O(W) (optimized) |
-
-- `N` = Number of items.
-- `W` = Capacity of the knapsack.
-- **Space**: A 2D table uses O(N * W), but because we only ever look at the "previous row," we can optimize this to a single O(W) array.
+| Metric | Complexity | Description |
+| :--- | :--- | :--- |
+| **Time** | O(N * W) | Where N is the number of items and W is the capacity. |
+| **Space** | O(N * W) | To store the 2D results table. |
+| **Space (Optimized)** | O(W) | Using a single 1D array by iterating backwards. |
 
 ---
 
-## 4. Multi-Language Implementation
+## 4. Implementation (Space Optimized)
 
-```language-code-tabs
-[
-  {
-    "label": "Javascript (Space Optimized)",
-    "language": "javascript",
-    "code": "function knapsack(values, weights, capacity) {\n  let n = values.length;\n  let dp = new Array(capacity + 1).fill(0);\n\n  for (let i = 0; i < n; i++) {\n    // Walk backwards so we don't use the same item twice\n    for (let w = capacity; w >= weights[i]; w--) {\n      dp[w] = Math.max(dp[w], values[i] + dp[w - weights[i]]);\n    }\n  }\n  return dp[capacity];\n}"
-  },
-  {
-    "label": "Python (Space Optimized)",
-    "language": "python",
-    "code": "def knapsack(values, weights, capacity):\n    dp = [0] * (capacity + 1)\n    \n    for i in range(len(values)):\n        for w in range(capacity, weights[i] - 1, -1):\n            dp[w] = max(dp[w], values[i] + dp[w - weights[i]])\n            \n    return dp[capacity]"
-  },
-  {
-    "label": "Java (Base Form)",
-    "language": "java",
-    "code": "public int knapsack(int[] values, int[] weights, int capacity) {\n    int n = values.length;\n    int[][] dp = new int[n + 1][capacity + 1];\n\n    for (int i = 1; i <= n; i++) {\n        for (int w = 1; w <= capacity; w++) {\n            if (weights[i - 1] <= w) {\n                dp[i][w] = Math.max(values[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]);\n            } else {\n                dp[i][w] = dp[i - 1][w];\n            }\n        }\n    }\n    return dp[n][capacity];\n}"
+```javascript
+function knapsack(weights, values, capacity) {
+  let n = weights.length;
+  let dp = new Array(capacity + 1).fill(0);
+
+  for (let i = 0; i < n; i++) {
+    // Iterate backwards to avoid using the same item multiple times
+    for (let w = capacity; w >= weights[i]; w--) {
+      dp[w] = Math.max(dp[w], values[i] + dp[w - weights[i]]);
+    }
   }
-]
+  return dp[capacity];
+}
 ```
 
 ---
 
-## 5. Interview Pro-Tips
-
-### The "Include or Exclude" Framing is Everything
-Every 0/1 Knapsack problem reduces to the same binary decision: for each item, do you take it or leave it? Framing it this way immediately gives you the recurrence:
-`dp[w] = max(dp[w], value[i] + dp[w - weight[i]])`
-
-### Walk Backwards When Space-Optimizing
-The crucial insight for the 1D space-optimized version: you must iterate `w` from **right to left** (from `capacity` down to `weight[i]`). If you go left to right, you'd be using the updated value of `dp[w - weight[i]]`, meaning you'd count the same item twice (turning it into the "Unbounded Knapsack" problem).
-
-### 0/1 vs. Unbounded Knapsack
-- **0/1 Knapsack**: Each item can only be used **once** → iterate capacity backwards.
-- **Unbounded Knapsack**: Each item can be used **unlimited times** → iterate capacity forwards.
-Coin Change (where you can reuse coins) is Unbounded Knapsack.
-
-### Common Problems Using This Pattern
-- Partition Equal Subset Sum
-- Target Sum
-- Last Stone Weight II
-- All of these reduce to "can we pick a subset that sums to X?"
-
-### What Interviewers Are Testing
-- Can you define the DP state and write the recurrence relation?
-- Do you know the backwards iteration trick for space optimization?
-- Can you distinguish 0/1 from Unbounded Knapsack?
+## 5. Interview Pro-Tips: Why iterate backwards?
+If an interviewer asks why the 1D space optimization requires iterating backwards through the weights:
+- **The Answer**: In 0/1 Knapsack, you can only use each item **once**. If you iterated forwards, you would calculate `dp[w]` using a value of `dp[w - weights[i]]` that has *already* been updated for the current item `i` in the same pass. This would accidentally model the **Unbounded Knapsack** problem (where you can take infinite copies of an item). Iterating backwards ensures you are always referencing results from the **Previous** item's pass.
 
 ---
 
-## Key Takeaway
-
-0/1 Knapsack is the foundation of **Resource Allocation**. Whether it's a computer deciding which processes to run within memory limits or a company deciding which projects to fund with a fixed budget, this algorithm is the definitive solution.
+## Technical Summary
+1. `Decision`: To take or not to take.
+2. `Pseudo-Polynomial`: The complexity O(N*W) depends on the numeric value of the capacity, not just the number of items.
+3. `Overlapping`: Many weight combinations lead to the same sub-problems.
+4. `Backwards Iteration`: The key to 1D space optimization.

@@ -1,84 +1,65 @@
 ---
-title: Divide and Conquer
+title: Recursion: Divide and Conquer
 order: 5
 ---
 
-**Divide and Conquer** is a powerful algorithmic paradigm based on multi-branched recursion. It works by breaking down a problem into two or more sub-problems of the same or related type, until these become simple enough to be solved directly.
+# Problem Decomposition: Divide and Conquer
+
+**Divide and Conquer (D&C)** is a fundamental algorithmic paradigm based on multi-branched recursion. It involves breaking a complex problem into two or more sub-problems of the same type, until these become simple enough to be solved directly (the base case). The solutions to the sub-problems are then combined to give a solution to the original problem.
 
 ---
 
-## 1. The Three Steps
+## 1. The Three Operational Phases
 
-1.  **Divide**: Break the problem into smaller sub-problems.
-2.  **Conquer**: Solve the sub-problems recursively. If they are small enough, solve them directly (Base Case).
-3.  **Combine**: Merge the solutions of the sub-problems to get the final solution to the original problem.
-
----
-
-## 2. Classic Examples
-
-### Sorting
-- **Merge Sort**: Divides the array into two halves, sorts them, and merges them.
-- **Quick Sort**: Partitions the array into two parts around a pivot and sorts them.
-
-### Searching
-- **Binary Search**: Divides the search range in half each time.
-
-### Mathematics
-- **Strassen’s Algorithm**: Complex matrix multiplication.
-- **Karatsuba Algorithm**: Fast multiplication of large integers.
+1. **Divide**: Partition the problem into a set of smaller, independent sub-problems.
+2. **Conquer**: Solve the sub-problems recursively. If the sub-problem size is small enough, apply the base case logic to solve it directly.
+3. **Combine**: Merge the results of the sub-problems into the final solution for the original input.
 
 ---
 
-## 3. Comparison with other Paradigms
+## 2. Theoretical Analysis: The Master Theorem
 
-| Paradigm | Strategy | When to use? |
-| :------- | :------- | :----------- |
-| **Divide & Conquer** | Solves independent sub-problems. | Sorting, Searching. |
-| **Dynamic Programming** | Solves overlapping sub-problems (memoization). | Optimization (Shortest path, Knapsack). |
-| **Greedy** | Makes the best local choice at each step. | Minimal Spanning Trees, Huffman coding. |
+The complexity of many D&C algorithms can be determined using the **Master Theorem**, which provides a template for solving recurrence relations of the form:
+$T(n) = aT(n/b) + f(n)$
 
----
+Where:
+- $a$: The number of sub-problems.
+- $n/b$: The size of each sub-problem.
+- $f(n)$: The time cost of the "Divide" and "Combine" steps.
 
-## 4. Why Use It?
-
--   **Parallelism**: Since sub-problems are often independent, they can be solved on different processors/cores simultaneously.
--   **Memory Access**: It often results in very "cache-friendly" code because it works on small segments of data that fit into the CPU cache.
-
----
-
-## 5. Master Theorem
-
-The **Master Theorem** is used to determine the time complexity of Divide and Conquer algorithms that follow this recurrence:
-`T(n) = aT(n/b) + f(n)`
-
--   **Merge Sort**: `T(n) = 2T(n/2) + O(n)` → Result: **O(N log N)**
--   **Binary Search**: `T(n) = T(n/2) + O(1)` → Result: **O(log N)**
+### Common Results:
+- **Binary Search**: $T(n) = T(n/2) + O(1) \rightarrow O(\log N)$
+- **Merge Sort**: $T(n) = 2T(n/2) + O(N) \rightarrow O(N \log N)$
+- **Matrix Multiply**: $T(n) = 8T(n/2) + O(N^2) \rightarrow O(N^3)$
 
 ---
 
-## 6. Interview Pro-Tips
+## 3. Paradigmatic Comparison
 
-### Recognise the Pattern — Not Just the Algorithm
-Divide and Conquer is a *paradigm*, not a single algorithm. When you see a problem that involves splitting input in half and combining results, your brain should immediately say "D&C." This applies to: sorting, binary search, closest pair of points, counting inversions in an array, and more.
-
-### The Master Theorem — Know the Big Three
-When asked for the time complexity of your D&C algorithm, apply the Master Theorem to `T(n) = aT(n/b) + f(n)`:
-- **Merge Sort**: `T(n) = 2T(n/2) + O(n)` → **O(N log N)**
-- **Binary Search**: `T(n) = T(n/2) + O(1)` → **O(log N)**
-- **Naive Matrix Multiply**: `T(n) = 8T(n/2) + O(n²)` → **O(N³)**
-
-### D&C vs. DP — The Key Distinction
-Both use recursion and break problems into subproblems. The difference: D&C subproblems are **independent** (results don't overlap). DP subproblems **overlap** (you'd recompute the same thing many times without memoization). If you find yourself recalculating the same subproblem, switch from D&C to DP.
-
-### What Interviewers Are Testing
-- Can you identify that a problem has independent sub-structure?
-- Can you write the recurrence relation and derive the complexity?
-- Do you understand the Divide, Conquer, and Combine steps clearly?
-- Can you distinguish D&C from DP?
+| Paradigm | Interaction of Sub-problems | Strategy |
+| :--- | :--- | :--- |
+| **Divide & Conquer** | Independent | Top-down decomposition. |
+| **Dynamic Programming** | Overlapping | Memoization or Tabulation of shared states. |
+| **Greedy** | Not calculated | Locally optimal choice at each step. |
 
 ---
 
-## Key Takeaway
+## 4. Hardware and Performance
 
-Divide and Conquer is about **Simplification**. By turning one large, scary problem into ten tiny, manageable ones, we can solve complex tasks with elegant recursive code.
+D&C algorithms are often highly efficient on modern hardware for two reasons:
+1. **Parallelism**: Since sub-problems are independent, they can be distributed across multiple CPU cores without complex synchronization.
+2. **Cache Locality**: By working on smaller and smaller segments of data, D&C algorithms eventually process chunks that fit entirely within the CPU's L1/L2 cache, drastically reducing slow memory fetches.
+
+---
+
+## 5. Interview Pro-Tips: D&C vs. DP
+If an interviewer asks why a certain recursive problem isn't D&C:
+- **The Answer**: Look for **Overlapping Sub-problems**. If the sub-problems are independent (like in Merge Sort, where the left half doesn't depend on the right half), it is D&C. If the sub-problems overlap (like in the Fibonacci sequence, where `f(5)` and `f(4)` both need `f(3)`), it must be optimized using **Dynamic Programming**.
+
+---
+
+## Technical Summary
+1. `Decomposition`: Reducing problem size via recursion.
+2. `Base Case`: The critical condition that stops the recursion.
+3. `Independence`: Sub-problems do not share state.
+4. `Recursion Stack`: The primary space overhead ($O(\log N)$ in balanced cases).
