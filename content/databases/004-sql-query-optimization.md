@@ -3,8 +3,6 @@ title: SQL Query Optimization
 order: 4
 ---
 
-# SQL Query Optimization
-
 Writing SQL that returns the correct result is only step one. Writing SQL that executes *efficiently* under load is what separates junior engineers from seniors. 
 
 ## 1. Indexing Strategy

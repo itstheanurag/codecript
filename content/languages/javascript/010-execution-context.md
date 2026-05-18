@@ -3,8 +3,6 @@ title: The Execution Context
 order: 10
 ---
 
-# Execution Context: How Code is Evaluated
-
 In JavaScript, the **Execution Context** is the environment in which the code is evaluated and executed. Understanding how these contexts are created and managed by the engine is essential for mastering scoping, hoisting, and closures.
 
 ---

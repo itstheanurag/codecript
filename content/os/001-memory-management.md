@@ -3,8 +3,6 @@ title: Memory Management
 order: 1
 ---
 
-# Memory Management
-
 Memory (RAM) is a finite and critical resource. If processes had to manage physical RAM addresses directly, modern multitasking would be impossible (and highly insecure).
 
 ## 1. Virtual Memory

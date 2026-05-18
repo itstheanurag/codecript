@@ -3,8 +3,6 @@ title: Retrieval: Tries
 order: 19
 ---
 
-# Prefix Trees: Tries
-
 A **Trie** (derived from "Retrieval") is a specialized tree-based data structure used to store and search strings in a space-efficient and time-efficient manner. It is also known as a **Prefix Tree** because every node represents a common prefix of the strings stored within it.
 
 ---

@@ -3,8 +3,6 @@ title: Selection Sort with Heaps: Heap Sort
 order: 7
 ---
 
-# Heap Sort: Comparison via Binary Heap
-
 **Heap Sort** is a comparison-based sorting algorithm that can be thought of as an improvement over Selection Sort. Instead of scanning the entire unsorted section to find the maximum element (O(N)), it uses a **Binary Heap** data structure to find and extract the maximum in O(log N) time.
 
 ---

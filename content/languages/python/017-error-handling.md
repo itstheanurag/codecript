@@ -3,8 +3,6 @@ title: Exception Handling
 order: 17
 ---
 
-# Error Handling: Robustness and Propagation
-
 Errors in Python are managed through **Exceptions**. An exception is a signal that an error has occurred during the execution of a program. If not handled correctly, an exception will propagate up the call stack and eventually terminate the program.
 
 ---

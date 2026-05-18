@@ -3,8 +3,6 @@ title: Prototypal Inheritance
 order: 19
 ---
 
-# Prototypes: The Engine of Inheritance
-
 In JavaScript, inheritance is not class-based as it is in Java or C++. Instead, it is **Prototype-based**. Objects can inherit properties and methods directly from other objects through an internal link known as the **Prototype Chain**.
 
 ---

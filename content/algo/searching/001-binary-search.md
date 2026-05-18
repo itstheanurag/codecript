@@ -3,8 +3,6 @@ title: Logarithmic Search: Binary Search
 order: 1
 ---
 
-# Binary Search: Divide and Conquer Search
-
 **Binary Search** is an extremely efficient algorithm for finding an item from a **Sorted** dataset. It follows the Divide and Conquer strategy, repeatedly halving the search space by comparing the target value to the middle element of the array.
 
 ---

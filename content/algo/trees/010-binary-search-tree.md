@@ -3,8 +3,6 @@ title: Binary Search Tree (BST)
 order: 10
 ---
 
-# BST: Ordered Binary Trees
-
 A **Binary Search Tree (BST)** is a node-based binary tree data structure which has the following properties:
 - The **Left Subtree** of a node contains only nodes with keys lesser than the node’s key.
 - The **Right Subtree** of a node contains only nodes with keys greater than the node’s key.

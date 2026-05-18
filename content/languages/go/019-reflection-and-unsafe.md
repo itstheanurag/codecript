@@ -3,8 +3,6 @@ title: Reflection and Unsafe
 order: 19
 ---
 
-# Metaprogramming: The reflect Package
-
 In Go, **Reflection** is the ability of a program to examine its own structure, notably types and values, at runtime. This powers many core features of the language (like the `encoding/json` package) but should be used sparingly in your own code due to its complexity and performance cost.
 
 ---

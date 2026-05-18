@@ -3,8 +3,6 @@ title: Infrastructure as Code (IaC)
 order: 4
 ---
 
-# Infrastructure as Code (IaC)
-
 Historically, infrastructure was provisioned manually. Sysadmins would click through AWS consoles or run imperative bash scripts to spin up servers, configure networks, and attach databases. This approach is slow, error-prone, untrackable, and impossible to replicate perfectly (the "Snowflake Server" problem).
 
 Infrastructure as Code (IaC) solves this by treating your infrastructure configuration exactly like application code.

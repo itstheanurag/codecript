@@ -3,8 +3,6 @@ title: Database Indexing
 order: 4
 ---
 
-# Database Indexing Internals
-
 An index is a data structure that improves the speed of data retrieval operations on a database table at the cost of additional storage and slower writes.
 
 ## 1. B-Tree (Balanced Tree)

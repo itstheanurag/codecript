@@ -3,8 +3,6 @@ title: Database Paradigms
 order: 1
 ---
 
-# Database Paradigms: The Foundation
-
 Before diving into specific database technologies (SQL, NoSQL, In-Memory), it's crucial to understand the foundational paradigms that dictate how data is stored, processed, and maintained in distributed systems.
 
 ## 1. OLTP vs. OLAP

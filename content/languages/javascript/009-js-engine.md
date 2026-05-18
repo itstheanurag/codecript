@@ -3,8 +3,6 @@ title: The V8 Engine Architecture
 order: 9
 ---
 
-# The JavaScript Engine: Compilation and Optimization
-
 Highly optimized JavaScript execution is the result of sophisticated software engineering. Modern engines, such as Google's **V8** (Chrome/Node.js), SpiderMonkey (Firefox), and JavaScriptCore (Safari), are responsible for transforming high-level JavaScript code into optimized machine code.
 
 Understanding these internals is critical for optimizing performance-sensitive applications.

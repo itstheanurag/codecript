@@ -3,8 +3,6 @@ title: Activity Selection
 order: 21
 ---
 
-# Greedy Strategy: Activity Selection
-
 **Activity Selection** is a foundational greedy problem. Given a set of activities, each with a start and finish time, the objective is to find the maximum number of non-overlapping activities that can be performed by a single resource (e.g., one person or one machine).
 
 ---

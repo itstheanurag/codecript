@@ -3,8 +3,6 @@ title: Databases & Storage
 order: 6
 ---
 
-# Databases & Storage
-
 Data is the lifeblood of modern applications. A professional engineer must not only know how to write code, but also how to persist, query, and manage state efficiently at scale. Selecting the right database is one of the most critical architectural decisions you will make.
 
 In this section, we cover everything from the internal mechanics of relational systems to advanced SQL query optimization, NoSQL architectures, and specialized data stores.

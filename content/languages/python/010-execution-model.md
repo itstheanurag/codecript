@@ -3,8 +3,6 @@ title: The Python Execution Model
 order: 10
 ---
 
-# Execution Model: Names and Objects
-
 To understand Python deeply, you must understand how it handles data in memory. Unlike "Value-based" languages (like C), Python uses a "Reference-based" model. 
 
 In Python, **Variables are not boxes; they are names (Labels) attached to Objects.**

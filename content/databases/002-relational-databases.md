@@ -3,8 +3,6 @@ title: Relational Databases
 order: 2
 ---
 
-# Relational Databases (RDBMS)
-
 Relational Database Management Systems (RDBMS) have been the industry standard for decades. They store data in highly structured tables comprised of rows and columns, with strict relationships defined between these tables.
 
 Examples: **PostgreSQL, MySQL, Oracle, SQL Server.**

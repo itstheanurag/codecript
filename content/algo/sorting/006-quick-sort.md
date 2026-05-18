@@ -3,8 +3,6 @@ title: Partition Sort: Quick Sort
 order: 6
 ---
 
-# Quick Sort: In-Place Partitioning
-
 **Quick Sort** is a highly efficient, comparison-based sorting algorithm that uses a Divide and Conquer strategy. While it has a worse theoretical worst-case performance than Merge Sort, in practice it is often **faster** due to its low constant factors and superior cache locality.
 
 ---

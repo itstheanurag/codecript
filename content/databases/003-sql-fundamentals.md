@@ -3,8 +3,6 @@ title: SQL Fundamentals
 order: 3
 ---
 
-# SQL Fundamentals
-
 Structured Query Language (SQL) is the standard language for communicating with Relational Databases.
 
 ## 1. Core DML Statements

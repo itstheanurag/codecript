@@ -3,8 +3,6 @@ title: The Testing Pyramid
 order: 1
 ---
 
-# The Testing Pyramid
-
 You cannot and should not test every single aspect of your application with the same type of test. Different tests have different costs regarding execution time, maintenance, and setup complexity.
 
 The **Testing Pyramid** is a framework that dictates the proportion of different tests you should write.

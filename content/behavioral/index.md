@@ -3,8 +3,6 @@ title: Behavioral Interview Prep
 order: 0
 ---
 
-# Behavioral Interview Preparation
-
 Technical skills might get you the interview, but behavioral skills get you the job. Most top-tier tech companies (Google, Amazon, Meta, etc.) place a high weight on behavioral rounds to assess culture fit, leadership, and conflict resolution.
 
 This section provides a structured approach to mastering behavioral interviews using industry-standard frameworks and detailed preparation strategies.

@@ -3,8 +3,6 @@ title: Functional Programming
 order: 23
 ---
 
-# Functional Programming: Declarative Logic
-
 While Python is primarily an Object-Oriented language, it incorporates many features from **Functional Programming (FP)**. Functional programming treats computation as the evaluation of mathematical functions and avoids changing-state and mutable data.
 
 ---

@@ -3,8 +3,6 @@ title: The CAP Theorem
 order: 3
 ---
 
-# The CAP Theorem
-
 When building distributed systems (where data is stored across multiple independent servers), network failures are not a possibility; they are a mathematical certainty. The CAP Theorem dictates the hard limits of what you can achieve when those network failures happen.
 
 ```mermaid

@@ -3,8 +3,6 @@ title: Interfaces and Duck Typing
 order: 4
 ---
 
-# Interfaces: Decoupling and Polymorphism
-
 In Go, an **Interface** is a set of method signatures. Unlike languages like Java or C#, where a class must explicitly declare that it "implements" an interface, Go uses **Implicit Implementation**. 
 
 If a type defines all the methods required by an interface, it satisfies that interface automatically.

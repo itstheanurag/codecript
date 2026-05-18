@@ -3,8 +3,6 @@ title: Dunder Methods
 order: 19
 ---
 
-# Magic Methods: Customizing Object Behavior
-
 In Python, **Magic Methods** (also called **Dunder Methods** because they start and end with "Double Underscores") are special functions that allow your custom objects to interact with Python's built-in operators and syntax.
 
 They are the mechanism behind **Operator Overloading**.

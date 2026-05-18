@@ -3,8 +3,6 @@ title: API Security & OAuth 2.0
 order: 3
 ---
 
-# API Security, JWTs, & OAuth 2.0
-
 Securing APIs is paramount. A single misconfigured authorization check can lead to massive data breaches.
 
 ## 1. Authentication vs. Authorization

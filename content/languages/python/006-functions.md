@@ -3,8 +3,6 @@ title: Modular Code: Functions
 order: 6
 ---
 
-# Functions: Abstraction and Reusability
-
 Functions are the primary building blocks of modular programming. They allow you to encapsulate a block of code into a single, named unit that can be executed from anywhere in your program.
 
 ---

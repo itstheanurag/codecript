@@ -3,8 +3,6 @@ title: Exception Handling
 order: 17
 ---
 
-# Error Handling: Robustness and Propagation
-
 Errors are an inevitable part of software development. In JavaScript, we manage errors through **Exceptions**. An uncaught exception will "Bubble Up" the call stack and eventually terminate the script if it reaches the global scope without being handled.
 
 ---

@@ -3,8 +3,6 @@ title: Advanced API Design
 order: 13
 ---
 
-# Advanced API Design
-
 APIs are the contracts that bind distributed systems together. While building a basic CRUD REST API is straightforward, designing an API that is secure, backwards-compatible, highly performant, and delightful for other developers to use is a complex engineering challenge.
 
 ## What's Inside?

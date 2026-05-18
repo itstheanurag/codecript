@@ -3,8 +3,6 @@ title: Mocking & Stubbing
 order: 3
 ---
 
-# Mocking and Stubbing
-
 When writing Unit Tests, the code under test must be completely isolated from external dependencies (databases, APIs, time, random number generators). To achieve this isolation, we use "Test Doubles"—objects that look and behave like their production counterparts but are strictly controlled by the test.
 
 ## 1. Stubs

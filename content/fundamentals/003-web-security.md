@@ -3,8 +3,6 @@ title: Web Security
 order: 3
 ---
 
-# Web Security Fundamentals
-
 To be an enterprise-ready engineer, you must understand the common vulnerabilities that put user data at risk. The **OWASP Top 10** is the industry standard list for these risks.
 
 ## 1. Cross-Site Scripting (XSS)

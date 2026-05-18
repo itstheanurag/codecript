@@ -3,8 +3,6 @@ title: The Standard Library
 order: 14
 ---
 
-# Batteries Included: The Standard Library
-
 Python's "Batteries Included" philosophy means that the core distribution comes with a vast collection of modules that handle everything from file I/O to advanced cryptography. Mastering the standard library is what separates a proficient developer from a novice.
 
 ---

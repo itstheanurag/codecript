@@ -3,8 +3,6 @@ title: Modern Test Runners
 order: 5
 ---
 
-# Modern Test Runners & Ecosystem
-
 The JavaScript/TypeScript ecosystem evolves at a breakneck pace. The tool you use to actually run your tests (the "Test Runner") heavily influences developer experience, CI/CD speed, and testing capabilities. 
 
 Here is how the landscape of modern testing frameworks looks today.

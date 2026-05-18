@@ -3,8 +3,6 @@ title: Mocking and Interfaces
 order: 17
 ---
 
-# Testable Code: Interfaces and Mocks
-
 To write effective unit tests, you must be able to isolate the code you are testing from its dependencies (like a database or an external API). In Go, we achieve this "Isolation" through the use of **Interfaces** and **Mocking**.
 
 ---

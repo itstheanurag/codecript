@@ -3,8 +3,6 @@ title: Concurrency & Multithreading
 order: 10
 ---
 
-# Concurrency & Multithreading
-
 Modern backend engineering relies heavily on concurrent processing. Whether you are handling thousands of web requests, processing large data streams, or optimizing computational workloads, understanding how to manage multiple tasks simultaneously is essential.
 
 In this section, we cover the fundamentals of concurrency, the pitfalls of shared state, and modern patterns for building highly concurrent applications safely.

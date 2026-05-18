@@ -3,8 +3,6 @@ title: Efficient Iteration
 order: 20
 ---
 
-# Iterators and Generators: Lazy Evaluation
-
 In Python, efficient memory usage is often achieved through **Lazy Evaluation**—the practice of calculating values only when they are needed. This is implemented via the **Iteration Protocol** and **Generators**.
 
 ---

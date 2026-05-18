@@ -3,8 +3,6 @@ title: Pub/Sub Systems
 order: 19
 ---
 
-# Publish/Subscribe (Pub/Sub) Systems
-
 In a microservice architecture, services need to talk to each other. If the `OrderService` synchronously calls the `EmailService` and the `InventoryService` over HTTP REST every time an order is placed, the system becomes tightly coupled and fragile.
 
 Pub/Sub is an asynchronous messaging pattern that completely decouples the sender (Publisher) from the receivers (Subscribers).

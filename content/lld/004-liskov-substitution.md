@@ -3,8 +3,6 @@ title: Liskov Substitution Principle (LSP)
 order: 4
 ---
 
-# Liskov Substitution Principle (LSP)
-
 The "L" in SOLID. Coined by Barbara Liskov. It states: **"Objects in a program should be replaceable with instances of their subtypes without altering the correctness of that program."**
 
 In simpler terms: A subclass must strictly honor the contract established by its parent class. If you override a method, you cannot change its fundamental behavior or throw unexpected errors.

@@ -3,8 +3,6 @@ title: Monoliths vs. Microservices
 order: 16
 ---
 
-# Monoliths vs. Microservices
-
 This is one of the most hotly debated architectural decisions in software engineering. How should you structure your application as it grows from a small startup to a massive enterprise?
 
 > [!TIP]

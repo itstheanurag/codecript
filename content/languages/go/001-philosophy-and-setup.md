@@ -3,8 +3,6 @@ title: Introduction to Go
 order: 1
 ---
 
-# Go: Systems Programming for the Modern Era
-
 **Go** (often referred to as **Golang**) is an open-source programming language developed at Google by Robert Griesemer, Rob Pike, and Ken Thompson. It was designed to address the challenges of massive-scale software development: slow builds, complex dependency management, and the difficulty of concurrent programming.
 
 Go combines the performance and safety of a compiled language like C++ with the simplicity and productivity of a dynamic language like Python.

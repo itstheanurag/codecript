@@ -3,8 +3,6 @@ title: Exchange Sort: Bubble Sort
 order: 2
 ---
 
-# Bubble Sort: Sequential Exchange
-
 **Bubble Sort** is a basic comparison-based sorting algorithm. It operates by repeatedly stepping through the list, comparing adjacent elements, and swapping them if they are in the incorrect order. This process is repeated until the entire list is sorted.
 
 ---

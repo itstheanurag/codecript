@@ -3,8 +3,6 @@ title: Functional Closures
 order: 12
 ---
 
-# Closures: Persistence and Memory
-
 A **Closure** is arguably the most powerful feature of JavaScript. It is the combination of a function and the **Lexical Environment** in which that function was declared. 
 
 Simply put: A closure allows a function to "Remember" the variables from its parent scope, even after the parent function has finished executing.

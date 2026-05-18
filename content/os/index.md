@@ -3,8 +3,6 @@ title: Operating System Fundamentals
 order: 14
 ---
 
-# Operating System Fundamentals
-
 For most high-level backend engineering, the operating system is heavily abstracted. However, when performance degrades, memory leaks occur, or you are designing low-latency, high-throughput systems, understanding how the OS manages hardware resources becomes critical.
 
 Top-tier companies (especially those dealing with massive scale or systems-level engineering) frequently test OS fundamentals to ensure candidates understand what happens "under the hood."

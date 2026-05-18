@@ -3,8 +3,6 @@ title: Generics and Type Parameters
 order: 20
 ---
 
-# Generics: Flexible and Safe Code
-
 Introduced in Go 1.18, **Generics** (Parametric Polymorphism) allows you to write functions and data structures that work with multiple types while maintaining full compile-time type safety. Before generics, Go developers had to use interfaces or code duplication to achieve similar results.
 
 ---

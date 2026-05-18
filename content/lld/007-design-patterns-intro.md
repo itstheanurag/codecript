@@ -3,8 +3,6 @@ title: Introduction to Design Patterns
 order: 7
 ---
 
-# Introduction to Design Patterns
-
 Design patterns are typical solutions to common problems in software design. They are like pre-made blueprints that you can customize to solve a recurring design problem in your code.
 
 ## Why use Design Patterns?

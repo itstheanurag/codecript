@@ -3,8 +3,6 @@ title: Divide and Conquer: Merge Sort
 order: 5
 ---
 
-# Merge Sort: Recursive Parallelism
-
 **Merge Sort** is an efficient, general-purpose, and comparison-based sorting algorithm. It is based on the **Divide and Conquer** paradigm, where the main problem is recursively broken down into smaller sub-problems until they are simple enough to solve directly.
 
 ---

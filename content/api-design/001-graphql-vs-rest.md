@@ -3,8 +3,6 @@ title: GraphQL vs. REST
 order: 1
 ---
 
-# GraphQL vs. REST
-
 While REST has been the dominant architectural style for APIs for over a decade, GraphQL has emerged as a powerful alternative, specifically designed to solve the inefficiencies of REST in modern, complex web and mobile applications.
 
 ## 1. The REST Approach

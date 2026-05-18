@@ -3,8 +3,6 @@ title: Load & Performance Testing
 order: 4
 ---
 
-# Load & Performance Testing
-
 Unit and integration tests prove that your code works for *one* user. Performance testing proves that your code works for *ten thousand* users simultaneously. 
 
 Without performance testing, a minor inefficiency (like an N+1 database query or a slow Regex) might go unnoticed in development but will completely crash the server in production.

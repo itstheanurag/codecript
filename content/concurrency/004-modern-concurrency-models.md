@@ -3,8 +3,6 @@ title: Modern Concurrency Models
 order: 4
 ---
 
-# Modern Concurrency Models
-
 Manually managing mutexes and threads is error-prone and leads to the deadlocks we discussed in the previous section. Modern languages have abstracted these concepts into higher-level concurrency models to make writing concurrent code safer and significantly more efficient.
 
 ## 1. The Event Loop (Node.js / Python Asyncio)

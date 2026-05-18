@@ -3,8 +3,6 @@ title: Generators and Iteration
 order: 23
 ---
 
-# Generators: Pausable Execution
-
 A **Generator** is a special type of function that can be paused and resumed, allowing for the creation of memory-efficient iterators and complex asynchronous flows. Unlike a regular function that runs to completion, a generator "Yields" values one at a time.
 
 ---

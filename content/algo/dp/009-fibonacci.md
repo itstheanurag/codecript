@@ -3,8 +3,6 @@ title: Dynamic Programming: Fibonacci
 order: 9
 ---
 
-# DP Fundamentals: The Fibonacci Sequence
-
 The Fibonacci sequence is the classic introduction to **Dynamic Programming (DP)**. It perfectly demonstrates how a problem can be broken down into over-lapping sub-problems, and how "Remembering" previous results can transform exponential time complexity into linear time.
 
 ---

@@ -3,8 +3,6 @@ title: The Event Loop
 order: 15
 ---
 
-# The JavaScript Event Loop: Concurrency in a Single-Threaded World
-
 One of the most important concepts to master as a JavaScript developer is the **Event Loop**. It is the mechanism that allows JavaScript to perform non-blocking I/O operations—like handling user clicks, fetching data, and playing media—despite being a **single-threaded** language.
 
 Understanding the Event Loop is key to writing high-performance, responsive web applications.

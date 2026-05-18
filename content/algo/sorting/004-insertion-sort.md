@@ -3,8 +3,6 @@ title: Insertion Sort
 order: 4
 ---
 
-# Insertion Sort: Incremental Ordering
-
 **Insertion Sort** is a simple, comparison-based sorting algorithm that builds the final sorted array one item at a time. It is much less efficient on large lists than more advanced algorithms like QuickSort or MergeSort, but it excels at sorting small datasets or partially sorted arrays.
 
 ---

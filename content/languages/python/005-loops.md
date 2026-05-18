@@ -3,8 +3,6 @@ title: Iteration and Loops
 order: 5
 ---
 
-# Loops: Mastering Iteration
-
 Iteration is the process of executing a block of code multiple times. Python provides two primary loop structures: `for` and `while`. Understanding these, along with Python's iteration protocol, is essential for writing efficient code.
 
 ---

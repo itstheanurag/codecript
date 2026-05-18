@@ -3,8 +3,6 @@ title: Memory Management Internals
 order: 13
 ---
 
-# Garbage Collection and Memory Lifecycle
-
 Memory management in JavaScript is automated, but it is not magic. Developers who understand how the engine allocates and reclaims memory are better equipped to build high-performance, leak-free applications.
 
 ---

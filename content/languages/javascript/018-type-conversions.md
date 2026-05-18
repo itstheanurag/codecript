@@ -3,8 +3,6 @@ title: Coercion and Type Conversion
 order: 18
 ---
 
-# Type Conversion: Implicit and Explicit
-
 JavaScript is a **Dynamically and Weakly Typed** language. This means variables are not bound to a specific type, and the engine will perform implicit type conversion (Coercion) to satisfy the needs of an operator or statement.
 
 ---

@@ -3,8 +3,6 @@ title: ES6 Classes and OOP
 order: 22
 ---
 
-# Classes: Syntactic Sugar for Prototypes
-
 Introduced in ES6 (ES2015), the `class` keyword provides a much cleaner and more familiar syntax for implementing Object-Oriented Programming (OOP) in JavaScript. However, it is important to remember that it does NOT introduce a new object model—it is purely **Syntactic Sugar** over the existing Prototypal Inheritance model.
 
 ---

@@ -3,8 +3,6 @@ title: Advanced Functions: Decorators
 order: 12
 ---
 
-# Closures and Decorators: Metaprogramming in Python
-
 Python treats functions as **First-Class Citizens**, allowing them to be passed as arguments, returned from other functions, and nested inside one another. This flexibility leads to two powerful patterns: **Closures** and **Decorators**.
 
 ---

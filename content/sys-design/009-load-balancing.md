@@ -3,8 +3,6 @@ title: Load Balancing
 order: 9
 ---
 
-# Load Balancing
-
 When an application becomes too popular for a single server to handle, you must scale horizontally by adding more servers. But how do the users know which server to talk to? A Load Balancer acts as the traffic cop sitting in front of your servers.
 
 > [!TIP]

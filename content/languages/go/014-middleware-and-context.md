@@ -3,8 +3,6 @@ title: Middleware and Context
 order: 14
 ---
 
-# Middleware: The Decorator Pattern
-
 Middleware is a design pattern used to execute code before or after a request reaches its primary handler. It is the professional way to handle cross-cutting concerns like logging, authentication, rate limiting, and performance tracking.
 
 ---

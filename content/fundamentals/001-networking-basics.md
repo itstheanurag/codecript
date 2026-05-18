@@ -3,8 +3,6 @@ title: Networking Basics
 order: 1
 ---
 
-# Networking Basics: The OSI Model
-
 Computer networking is a multi-layered system of protocols that allow different machines to talk to each other. The industry standard tool for understanding this is the **OSI (Open Systems Interconnection) Model**.
 
 ## The 7 Layers of OSI

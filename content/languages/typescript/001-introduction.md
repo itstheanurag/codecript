@@ -3,8 +3,6 @@ title: The Type-Safe Superset
 order: 1
 ---
 
-# TypeScript: Introduction and Philosophy
-
 **TypeScript** is a strongly typed, open-source programming language developed by Microsoft that builds on JavaScript by adding optional static type definitions. It is a **Superset** of JavaScript, meaning any valid JavaScript code is also valid TypeScript code.
 
 The primary goal of TypeScript is to provide developer-friendly tools and safety mechanisms for building large-scale, enterprise-ready applications.

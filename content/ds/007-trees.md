@@ -3,8 +3,6 @@ title: Hierarchical Models: Trees
 order: 7
 ---
 
-# Trees: Non-Linear Hierarchical Structures
-
 A **Tree** is a non-linear data structure used to represent hierarchical relationships. Unlike arrays or linked lists, which are linear sequences, a tree organizes data into **Nodes** connected by **Edges**, starting from a single **Root** node.
 
 ---

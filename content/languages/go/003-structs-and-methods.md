@@ -3,8 +3,6 @@ title: Structs and Methods
 order: 3
 ---
 
-# Composition over Inheritance: Structs
-
 Go is not a "Class-based" language. It does not support traditional class hierarchies. Instead, it uses **Structs** for data encapsulation and **Composition** (embedding) for code reuse. This leads to flatter, more modular architectures.
 
 ---

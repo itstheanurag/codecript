@@ -3,8 +3,6 @@ title: Advanced Type Patterns
 order: 5
 ---
 
-# Advanced Types: Literal, Union, and Intersections
-
 Once you master the basic types, you can combine them to create complex, highly specific type signatures. This allows you to model real-world data and logic with extreme precision.
 
 ---

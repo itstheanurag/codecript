@@ -3,8 +3,6 @@ title: OAuth 2.0 & JWT (System Design)
 order: 37
 ---
 
-# Identity: OAuth 2.0 & JWT
-
 In a distributed microservices system, handling user identity securely and efficiently is a massive challenge. If every microservice has to query a central "Users Database" to check if a session is valid, that database will quickly become a crippling bottleneck.
 
 The modern standard to solve this is using stateless JSON Web Tokens (JWTs) in combination with an Identity Provider (OAuth 2.0).

@@ -3,8 +3,6 @@ title: Open/Closed Principle (OCP)
 order: 3
 ---
 
-# Open/Closed Principle (OCP)
-
 The "O" in SOLID. It states: **"Software entities (classes, modules, functions) should be open for extension, but closed for modification."**
 
 This means you should be able to add new functionality to an existing system *without* changing the existing, already-tested code.

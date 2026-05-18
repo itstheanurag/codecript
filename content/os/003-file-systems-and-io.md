@@ -3,8 +3,6 @@ title: File Systems & I/O
 order: 3
 ---
 
-# File Systems & I/O
-
 The hard drive is just a massive array of physical blocks holding 1s and 0s. The File System is the OS abstraction that organizes these blocks into the recognizable structure of files and directories.
 
 ## 1. Inodes (Index Nodes)

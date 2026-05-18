@@ -3,8 +3,6 @@ title: Interface Segregation Principle (ISP)
 order: 5
 ---
 
-# Interface Segregation Principle (ISP)
-
 The "I" in SOLID. It states: **"No code should be forced to depend on methods it does not use."**
 
 Instead of creating one massive, "fat" interface that tries to cover every possible behavior, you should break it down into smaller, highly specific interfaces.

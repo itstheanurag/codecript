@@ -3,8 +3,6 @@ title: Unique Mathematical Models: Sets
 order: 12
 ---
 
-# Sets: Managing Unique Collections
-
 A **Set** is an abstract data structure that stores unique values without a specific order. It is modeled after the mathematical concept of a Finite Set and is one of the most efficient tools for deduplication and member testing.
 
 ---

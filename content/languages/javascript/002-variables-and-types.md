@@ -3,8 +3,6 @@ title: Declarations and Types
 order: 2
 ---
 
-# Variables: Scope and Type System
-
 In JavaScript, variable declaration has evolved significantly. Understanding the differences between `var`, `let`, and `const`—and how the engine handles memory for different types—is fundamental to technical excellence.
 
 ---

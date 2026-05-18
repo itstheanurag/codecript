@@ -3,8 +3,6 @@ title: Deadlocks & Race Conditions
 order: 3
 ---
 
-# Deadlocks & Race Conditions
-
 Concurrency brings massive performance gains, but it also introduces notoriously difficult bugs that often only appear intermittently in production under high load. The two most common enemies of a concurrent system are Race Conditions and Deadlocks.
 
 ## 1. Race Conditions

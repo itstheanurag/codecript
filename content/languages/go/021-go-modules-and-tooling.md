@@ -3,8 +3,6 @@ title: Go Modules and Tooling
 order: 21
 ---
 
-# Dependency Management: Go Modules
-
 Go Modules are the standard way for Go to manage dependencies and versions. Introduced in 2018, it replaced the older `GOPATH` system and allowed developers to build projects outside of a specific magic directory.
 
 ---

@@ -3,8 +3,6 @@ title: Single Responsibility Principle (SRP)
 order: 2
 ---
 
-# Single Responsibility Principle (SRP)
-
 The first letter in SOLID. It states: **"A class should have one, and only one, reason to change."**
 
 In simpler terms, every module or class should have responsibility over a single part of the functionality provided by the software, and that responsibility should be entirely encapsulated by the class.

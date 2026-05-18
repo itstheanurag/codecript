@@ -3,8 +3,6 @@ title: Caching Strategies
 order: 12
 ---
 
-# Caching Strategies
-
 A cache is a temporary storage layer (usually entirely in RAM) that stores a subset of data so that future requests for that data are served much faster than accessing the primary storage location (like a database or a 3rd-party API).
 
 Caching is the single most effective way to improve system performance, but as the old programming proverb goes: *"There are only two hard things in Computer Science: cache invalidation and naming things."*

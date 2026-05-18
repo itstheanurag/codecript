@@ -3,8 +3,6 @@ title: Data Types and Slices
 order: 2
 ---
 
-# Go Type System: Arrays and Slices
-
 Go is a **Statically Typed** language, which means the type of every variable must be known at compile time. While its basic types (strings, ints, booleans) are standard, its approach to collections—specifically the distinction between **Arrays** and **Slices**—is a core part of its performance model.
 
 ---

@@ -3,8 +3,6 @@ title: Introspection and Mapped Types
 order: 6
 ---
 
-# Object Keys: The `keyof` and Indexed Access
-
 One of TypeScript's most powerful features is its ability to perform **Type Introspection**—extracting type information from existing structures. This allows you to build highly dynamic yet completely type-safe code.
 
 ---

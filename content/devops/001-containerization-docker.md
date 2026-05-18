@@ -3,8 +3,6 @@ title: Containerization (Docker)
 order: 1
 ---
 
-# Containerization (Docker)
-
 The phrase "It works on my machine" is the historical bane of software engineering. Containerization solves this by packaging the application and all its dependencies into a standardized, isolated unit.
 
 ## 1. Virtual Machines vs. Containers

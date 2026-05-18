@@ -3,8 +3,6 @@ title: Versioning & Pagination
 order: 4
 ---
 
-# API Versioning & Pagination
-
 APIs are meant to be consumed by clients you do not control. Once you publish an API, changing the structure of the data or the URL paths will break those clients. 
 
 ## 1. API Versioning

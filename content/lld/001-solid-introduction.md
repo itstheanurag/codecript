@@ -3,8 +3,6 @@ title: Introduction to SOLID
 order: 1
 ---
 
-# Introduction to SOLID Principles
-
 The SOLID principles are a collection of five design principles intended to make software designs more understandable, flexible, and maintainable. They were introduced by Robert C. Martin (Uncle Bob) in 2000.
 
 ## Why SOLID?

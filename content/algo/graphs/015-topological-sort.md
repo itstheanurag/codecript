@@ -3,8 +3,6 @@ title: Logical Ordering: Topological Sort
 order: 15
 ---
 
-# Dependency Resolution: Topological Sort
-
 **Topological Sort** is a linear ordering of vertices in a **Directed Acyclic Graph (DAG)** such that for every directed edge $uv$, vertex $u$ comes before $v$ in the ordering. This is the foundational algorithm for dependency resolution in build systems (like Make or Webpack) and task scheduling.
 
 ---

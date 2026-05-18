@@ -3,8 +3,6 @@ title: Document & Key-Value Stores
 order: 5
 ---
 
-# NoSQL: Document and Key-Value Stores
-
 The term "NoSQL" (Not Only SQL) encompasses a wide variety of database architectures designed to address the limitations of relational databases—specifically around flexible schemas and horizontal scalability.
 
 ## 1. Key-Value Stores

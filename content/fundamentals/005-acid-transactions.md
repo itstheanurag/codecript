@@ -3,8 +3,6 @@ title: ACID & Transactions
 order: 5
 ---
 
-# ACID and Database Transactions
-
 A transaction is a single logical unit of work that accesses and possibly modifies the contents of a database. To ensure data integrity, every transaction must follow the **ACID** properties.
 
 ## 1. Atomicity (All or Nothing)

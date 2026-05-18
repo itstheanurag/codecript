@@ -3,8 +3,6 @@ title: Dependency Inversion Principle (DIP)
 order: 6
 ---
 
-# Dependency Inversion Principle (DIP)
-
 The "D" in SOLID. It states:
 1. **High-level modules should not depend on low-level modules. Both should depend on abstractions.**
 2. **Abstractions should not depend on details. Details should depend on abstractions.**

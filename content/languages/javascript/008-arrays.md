@@ -3,8 +3,6 @@ title: Ordered Collections: Arrays
 order: 8
 ---
 
-# Arrays: Data Structures and High-Order Methods
-
 In JavaScript, **Arrays** are list-like objects whose prototype has methods to perform traversal and mutation operations. Unlike arrays in many other languages, JavaScript arrays are **Dynamic**, meaning they can store mixed types and grow/shrink automatically in memory.
 
 ---

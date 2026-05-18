@@ -3,8 +3,6 @@ title: Testing Methodologies
 order: 12
 ---
 
-# Testing Methodologies
-
 Writing code that works once is easy. Writing code that continues to work after 100 other developers have touched the codebase over two years is incredibly difficult. That is why automated testing is a mandatory skill for senior engineers.
 
 "How would you test this?" is a standard follow-up question for almost every architecture, API design, or algorithmic problem in a technical interview.

@@ -3,8 +3,6 @@ title: Strategy Pattern
 order: 10
 ---
 
-# Strategy Pattern
-
 The Strategy Pattern is a behavioral design pattern that allows you to define a family of algorithms, encapsulate each one as a separate class, and make them interchangeable at runtime.
 
 It heavily leverages the **Open/Closed Principle (OCP)** and **Dependency Inversion Principle (DIP)**.

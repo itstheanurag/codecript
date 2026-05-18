@@ -3,8 +3,6 @@ title: Best Practices: Effective Go
 order: 24
 ---
 
-# Idiomatic Go: Writing Clean and Scalable Code
-
 In Go, there is often only "One Way" to do things. Following the core conventions and idioms of the language—often referred to as being **Gopher-like**—ensures that your code is readable by any Go developer and performs optimally.
 
 ---

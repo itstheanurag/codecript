@@ -3,8 +3,6 @@ title: Backward Compatibility
 order: 24
 ---
 
-# Polyfills: Bridging Environment Gaps
-
 JavaScript evolves much faster than the browsers people use. When you use a modern feature like `Array.prototype.flat()` or `Promise.allSettled()`, it will work in Chrome 120 but crash in older versions. 
 
 **Polyfilling** is the practice of providing modern functionality on older browsers that do not natively support it.

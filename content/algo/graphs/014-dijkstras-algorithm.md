@@ -3,8 +3,6 @@ title: Shortest Path: Dijkstra's Algorithm
 order: 14
 ---
 
-# Optimal Pathfinding: Dijkstra's Algorithm
-
 **Dijkstra's Algorithm** is a greedy algorithm used to find the shortest path from a single source vertex to all other vertices in a **Weighted Graph**. It is the foundation for network routing protocols (OSI Layer 3) and map-based navigation systems.
 
 ---

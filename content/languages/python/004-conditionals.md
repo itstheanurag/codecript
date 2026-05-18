@@ -3,8 +3,6 @@ title: Control Flow: Conditionals
 order: 4
 ---
 
-# Conditionals: Decision Making in Python
-
 Control flow refers to the order in which individual statements, instructions, or function calls are executed. The most common way to branch the flow of execution is using **Conditional Statements**.
 
 ---

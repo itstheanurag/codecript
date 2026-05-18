@@ -3,8 +3,6 @@ title: TCP, UDP & DNS
 order: 2
 ---
 
-# TCP, UDP, and DNS
-
 These are the three most important protocols at the heart of the modern internet.
 
 ## 1. TCP (Transmission Control Protocol)

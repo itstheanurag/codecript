@@ -3,8 +3,6 @@ title: Orchestration (Kubernetes)
 order: 2
 ---
 
-# Orchestration (Kubernetes)
-
 Docker is great for running a few containers on a single machine. But what happens when you need to run thousands of containers across a cluster of hundreds of servers? 
 
 This is where Container Orchestration is required, and **Kubernetes (K8s)** is the undisputed king.

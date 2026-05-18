@@ -3,8 +3,6 @@ title: The Language of the Web
 order: 1
 ---
 
-# JavaScript: An Overview and Philosophy
-
 **JavaScript** (JS) is a high-level, interpreted programming language that conforms to the **ECMAScript** specification. Originally created by Brendan Eich in 1995 to add interactivity to web pages, it has evolved into a versatile, multi-paradigm language that powers everything from client-side browsers to high-performance servers (Node.js).
 
 ---

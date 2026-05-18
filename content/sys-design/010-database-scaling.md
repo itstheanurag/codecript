@@ -3,8 +3,6 @@ title: Database Scaling
 order: 10
 ---
 
-# Database Scaling
-
 As your application grows, the database will almost always become the bottleneck before your web servers do. Web servers are stateless and easily scaled horizontally. Databases store state, making them notoriously difficult to scale.
 
 ## 1. Vertical Scaling (Scaling Up)

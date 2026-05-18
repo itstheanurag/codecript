@@ -3,8 +3,6 @@ title: Strongly Typed Functions
 order: 4
 ---
 
-# Functions in TypeScript: Type Safety and Signatures
-
 In JavaScript, functions are highly flexible but often unpredictable. TypeScript addresses this by allowing developers to define **Function Signatures**—explicit contracts that specify exactly what types of arguments a function accepts and what type of value it returns.
 
 By enforcing these contracts at compile time, TypeScript eliminates a whole category of runtime "TypeError" bugs.

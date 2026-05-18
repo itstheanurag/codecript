@@ -3,8 +3,6 @@ title: Processes vs. Threads
 order: 1
 ---
 
-# Processes vs. Threads
-
 Before diving into synchronization, you must understand the basic units of execution provided by the operating system: Processes and Threads.
 
 > [!TIP]

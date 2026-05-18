@@ -3,8 +3,6 @@ title: Search & Time-Series
 order: 8
 ---
 
-# Specialized Stores: Search and Time-Series
-
 While relational and general-purpose NoSQL databases are versatile, certain workloads—specifically full-text search and metric ingestion—require highly specialized database architectures.
 
 ## 1. Search Engines

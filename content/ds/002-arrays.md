@@ -3,8 +3,6 @@ title: Contiguous Memory: Arrays
 order: 2
 ---
 
-# Arrays: Static and Dynamic
-
 An **Array** is a collection of elements of the same type stored in **Contiguous Memory** locations. It is the most fundamental data structure, providing the building blocks for more complex structures like Hash Tables and Heaps.
 
 ---

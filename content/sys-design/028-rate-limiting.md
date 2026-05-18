@@ -3,8 +3,6 @@ title: Rate Limiting
 order: 28
 ---
 
-# Rate Limiting
-
 Rate limiting is the process of controlling the number of requests a user or client can make to an API within a specified timeframe. 
 
 Without it, a single malicious user (or a poorly written loop in a client application) could overwhelm your servers, drain your database connections, and cause a total outage for all other users (a Denial of Service).

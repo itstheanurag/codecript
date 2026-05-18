@@ -3,8 +3,6 @@ title: Synchronization & Locks
 order: 2
 ---
 
-# Synchronization and Locks
-
 Because threads share memory (the kitchen in our house analogy), accessing shared resources (like updating a single bank account balance) must be strictly coordinated. This coordination is called synchronization.
 
 > [!TIP]

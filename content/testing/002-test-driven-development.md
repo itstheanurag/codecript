@@ -3,8 +3,6 @@ title: Test-Driven Development (TDD)
 order: 2
 ---
 
-# Test-Driven Development (TDD)
-
 Test-Driven Development is a software engineering practice where you write the tests *before* you write the actual production code. 
 
 ## 1. The Red-Green-Refactor Cycle

@@ -3,8 +3,6 @@ title: Control Flow: Defer and Panic
 order: 6
 ---
 
-# Resource Cleanup: Defer, Panic, and Recover
-
 Go provides a unique set of control flow keywords for handling resource cleanup and unexpected runtime failures. While `defer` is a core part of daily Go programming, `panic` and `recover` are reserved for exceptional circumstances.
 
 ---

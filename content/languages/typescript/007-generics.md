@@ -3,8 +3,6 @@ title: Reusable Components: Generics
 order: 7
 ---
 
-# Generics: Parametric Polymorphism
-
 **Generics** are one of the most powerful features of TypeScript. They allow you to create components that are reusable across a variety of types while still maintaining full type safety. Instead of working with a fixed type, you work with a **Type Variable**.
 
 ---

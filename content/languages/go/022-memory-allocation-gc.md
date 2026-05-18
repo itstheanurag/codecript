@@ -3,8 +3,6 @@ title: Memory Allocation and GC
 order: 22
 ---
 
-# Internals: How Go Manages Memory
-
 Understanding Go's memory management is the key to writing truly high-performance applications. Go handles memory automatically through a **Garbage Collector (GC)**, but a developer's choices in data structure and function design significantly impact how hard the GC has to work.
 
 ---

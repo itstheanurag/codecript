@@ -3,8 +3,6 @@ title: Logical and Mathematical Operators
 order: 3
 ---
 
-# Operators: Expressions and Evaluation
-
 Operators in JavaScript are used to transform data and evaluate logic. Beyond basic arithmetic, JavaScript's operator set includes powerful tools for handling null values and managing complex conditional logic.
 
 ---

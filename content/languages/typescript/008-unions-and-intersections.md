@@ -3,8 +3,6 @@ title: Utility Types and Templates
 order: 8
 ---
 
-# Utility Types: Built-in Transformations
-
 TypeScript provides several global utility types to facilitate common type transformations. These are implemented using the Mapped Types and Conditional Types we discussed in previous modules, allowing you to create variations of your existing interfaces without redundancy.
 
 ---

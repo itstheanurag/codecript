@@ -3,8 +3,6 @@ title: Engineering Fundamentals
 order: 0
 ---
 
-# Engineering Fundamentals
-
 Beyond coding and system design, a professional engineer must understand the core principles that govern the web and data storage. These are the "First Principles" of computer science.
 
 In this section, we cover networking, web security, and database internals—topics that distinguish a senior engineer from a practitioner.

@@ -3,8 +3,6 @@ title: Unit Testing Fundamentals
 order: 16
 ---
 
-# Testing: The Standard Library Approach
-
 In Go, testing is a first-class citizen. You don't need external libraries or assertion frameworks to write robust tests. The standard library `testing` package, combined with the `go test` command, provides everything needed to build production-grade test suites.
 
 ---

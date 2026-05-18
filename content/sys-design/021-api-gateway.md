@@ -3,8 +3,6 @@ title: API Gateway
 order: 21
 ---
 
-# API Gateway
-
 In a microservices architecture, a single frontend application (like a mobile app) might need data from 5 different backend services to render a single page. If the mobile app communicates directly with all 5 microservices, chaos ensues.
 
 An API Gateway solves this by acting as the single, unified entry point for all external traffic.

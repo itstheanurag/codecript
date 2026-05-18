@@ -3,8 +3,6 @@ title: String Manipulation Internals
 order: 11
 ---
 
-# Strings: The Sequence of Characters
-
 In most modern programming languages, a **String** is more than just an array of characters. It is an abstract data structure with specific memory and performance properties. Understanding these internals—especially **Immutability** and **Allocation**—is key to writing performant code for text processing.
 
 ---

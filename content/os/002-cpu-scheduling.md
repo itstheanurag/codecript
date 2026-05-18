@@ -3,8 +3,6 @@ title: CPU Scheduling
 order: 2
 ---
 
-# CPU Scheduling
-
 At any given moment, a modern computer might have hundreds of processes "running." However, a single CPU core can only execute one instruction at a time. The **CPU Scheduler** is responsible for deciding which process gets to use the CPU next.
 
 ## 1. Preemptive vs. Non-Preemptive Scheduling

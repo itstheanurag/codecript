@@ -3,8 +3,6 @@ title: Python Internals: How Code Runs
 order: 9
 ---
 
-# The Python Engine: Compilation and Execution
-
 Python is often described as an **Interpreted Language**, but the reality is more nuanced. Understanding the path from source code to execution is critical for optimizing performance and debugging complex issues.
 
 Under the hood, Python utilizes a two-step process: **Compilation to Bytecode** and **Execution via Virtual Machine**.

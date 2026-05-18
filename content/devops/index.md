@@ -3,8 +3,6 @@ title: DevOps & Infrastructure
 order: 11
 ---
 
-# DevOps, Deployment & Infrastructure
-
 Writing code is only half the battle. A senior engineer must understand how that code is packaged, deployed, monitored, and scaled in a production environment. 
 
 This section covers the essential infrastructure concepts that bridge the gap between "it works on my machine" and "it works in production for millions of users."

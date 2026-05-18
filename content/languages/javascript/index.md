@@ -3,8 +3,6 @@ title: JavaScript (The Language of the Web)
 order: 1
 ---
 
-# JavaScript: Your Journey Begins!
-
 Welcome to the **JavaScript (JS)** learning path! If you want to build websites, apps, or even interactive games in the browser, you have come to the right place.
 
 JavaScript is the "Brain" of the internet. It turns static, boring pages into interactive experiences.

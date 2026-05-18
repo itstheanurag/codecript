@@ -3,8 +3,6 @@ title: CI/CD Pipelines
 order: 3
 ---
 
-# CI/CD Pipelines
-
 Continuous Integration and Continuous Deployment (CI/CD) is the automated process that takes code from a developer's laptop to running reliably in production.
 
 > [!TIP]

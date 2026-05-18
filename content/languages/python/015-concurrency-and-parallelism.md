@@ -3,8 +3,6 @@ title: Concurrency and Parallelism
 order: 15
 ---
 
-# Threads and Processes: Handling Multiple Tasks
-
 Concurrency and Parallelism are often used interchangeably, but they represent different technical approaches to handling multiple tasks.
 - **Concurrency**: Dealing with many things at once (e.g., managing multiple network requests).
 - **Parallelism**: Doing many things at once (e.g., performing calculation on multiple CPU cores).

@@ -3,8 +3,6 @@ title: Webhooks & Events
 order: 2
 ---
 
-# Webhooks & Asynchronous Events
-
 REST and GraphQL are synchronous, request-response protocols. The client asks a question, and the server answers. But what happens when the client needs to know when something happens *in the future* (e.g., "Tell me when this Stripe payment succeeds")?
 
 Repeatedly asking the server "Is it done yet?" (Polling) is highly inefficient and strains infrastructure. The solution is push-based asynchronous communication via Webhooks.
