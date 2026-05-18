@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import { Menu as MenuIcon, X } from "lucide-react";
 import Navbar from "../components/Navbar";
@@ -22,6 +22,10 @@ export const DocLayout = () => {
 
   const slug = params["*"];
   const currentItem = slug ? section?.items.find((i) => i.slug === slug) : null;
+
+  useEffect(() => {
+    mainRef.current?.scrollTo(0, 0);
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen h-dvh flex flex-col overflow-hidden">

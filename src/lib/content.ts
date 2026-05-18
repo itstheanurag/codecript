@@ -27,7 +27,7 @@ export interface DocSection {
 }
 
 const docModules = import.meta.glob<string>(
-  "/content/{languages,ds,algo,sys-design,building,behavioral,lld,fundamentals,databases,api-design,concurrency,devops,testing,os}/**/*.md",
+  "/content/{languages,ds,algo,sys-design,building,behavioral,lld,fundamentals,databases,api-design,concurrency,devops,testing}/**/*.md",
   {
     query: "?raw",
     import: "default",
@@ -45,7 +45,11 @@ function loadDocSection(section: string): DocItem[] {
       const { data, content } = parseFrontmatter<DocMeta>(raw);
       return { slug, meta: data, content };
     })
-    .sort((a, b) => (a.meta.order ?? 0) - (b.meta.order ?? 0));
+    .sort((a, b) => {
+      if (a.slug === "index") return -1;
+      if (b.slug === "index") return 1;
+      return (a.meta.order ?? 0) - (b.meta.order ?? 0);
+    });
 }
 
 function loadGroupedDocSection(section: string): DocGroup[] {
@@ -157,12 +161,6 @@ export function getDocSections(): Record<string, DocSection> {
       description: "TDD, mocking, load testing, and modern runners.",
       basePath: "/testing",
       items: loadDocSection("testing"),
-    },
-    "/os": {
-      title: "Operating Systems",
-      description: "Memory management, CPU scheduling, and file systems.",
-      basePath: "/os",
-      items: loadDocSection("os"),
     },
   };
 
