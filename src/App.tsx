@@ -33,6 +33,16 @@ function App() {
             <Route path="/lld/*" element={<DocContentPage />} />
             <Route path="/fundamentals" element={<DocContentPage />} />
             <Route path="/fundamentals/*" element={<DocContentPage />} />
+            <Route path="/databases" element={<DocContentPage />} />
+            <Route path="/databases/*" element={<DocContentPage />} />
+            <Route path="/api-design" element={<DocContentPage />} />
+            <Route path="/api-design/*" element={<DocContentPage />} />
+            <Route path="/concurrency" element={<DocContentPage />} />
+            <Route path="/concurrency/*" element={<DocContentPage />} />
+            <Route path="/devops" element={<DocContentPage />} />
+            <Route path="/devops/*" element={<DocContentPage />} />
+            <Route path="/testing" element={<DocContentPage />} />
+            <Route path="/testing/*" element={<DocContentPage />} />
           </Route>
         </Routes>
       </div>

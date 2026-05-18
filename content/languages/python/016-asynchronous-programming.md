@@ -3,8 +3,6 @@ title: Asynchronous Programming
 order: 16
 ---
 
-# Async/Await: Efficient I/O
-
 Asynchronous programming is a concurrency model that allows a single thread to handle thousands of concurrent tasks by "awaiting" I/O operations instead of blocking. In Python, this is achieved via the `asyncio` library and the `async` / `await` syntax.
 
 ---

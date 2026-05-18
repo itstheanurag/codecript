@@ -3,8 +3,6 @@ title: OS and File Operations
 order: 10
 ---
 
-# The Operating System: Files and Environment
-
 Go's `os` package provides a platform-independent interface to operating system functionality. Whether you are managing files, reading environment variables, or handling signals, the `os` package is your primary gateway to the host machine.
 
 ---

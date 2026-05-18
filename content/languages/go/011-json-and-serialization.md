@@ -3,8 +3,6 @@ title: JSON and Serialization
 order: 11
 ---
 
-# Serialization: Data Exchange in Go
-
 In modern backend development, communicating with other services usually happens via JSON (JavaScript Object Notation). Go's standard library provides a robust `encoding/json` package that uses reflection to transform Go structs into JSON strings and vice-versa.
 
 ---

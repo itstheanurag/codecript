@@ -3,8 +3,6 @@ title: Recursion: Divide and Conquer
 order: 5
 ---
 
-# Problem Decomposition: Divide and Conquer
-
 **Divide and Conquer (D&C)** is a fundamental algorithmic paradigm based on multi-branched recursion. It involves breaking a complex problem into two or more sub-problems of the same type, until these become simple enough to be solved directly (the base case). The solutions to the sub-problems are then combined to give a solution to the original problem.
 
 ---

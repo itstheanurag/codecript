@@ -3,8 +3,6 @@ title: Linear Search
 order: 0
 ---
 
-# Linear Search: Sequential Verification
-
 **Linear Search** is the most basic search algorithm. It works by checking every element of a list sequentially until the target element is found or the end of the list is reached.
 
 ---

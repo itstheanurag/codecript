@@ -3,8 +3,6 @@ title: Selection Sort
 order: 3
 ---
 
-# Selection Sort: Minimum Extraction
-
 **Selection Sort** is a simple, comparison-based sorting algorithm. It works by dividing the input list into two parts: a sorted sublist which is built up from left to right, and a remaining unsorted sublist. In each iteration, the algorithm finds the **Minimum** element from the unsorted part and swaps it with the first element of that part.
 
 ---

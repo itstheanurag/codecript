@@ -3,8 +3,6 @@ title: Goroutines and Channels
 order: 7
 ---
 
-# Concurrency: The CSP Model
-
 Go's primary selling point is its built-in support for high-performance concurrency. Instead of the complex, memory-heavy threads found in other languages, Go uses **Goroutines** and **Channels** based on the **Communicating Sequential Processes (CSP)** model.
 
 The core philosophy is: *"Do not communicate by sharing memory; instead, share memory by communicating."*

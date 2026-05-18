@@ -32,15 +32,19 @@ const Sidebar = ({ basePath, items, groups, onItemClick }: SidebarProps) => {
         <nav className="flex flex-col gap-1">
           {items
             .filter((item) => !item.slug.includes("/"))
-            .map((item) => (
-              <SidebarLink
-                key={item.slug}
-                to={`${basePath}/${item.slug}`}
-                title={item.meta.title}
-                isActive={location.pathname === `${basePath}/${item.slug}`}
-                onClick={onItemClick}
-              />
-            ))}
+            .map((item) => {
+              const to = item.slug === "index" ? basePath : `${basePath}/${item.slug}`;
+              const isActive = location.pathname === to || location.pathname === `${basePath}/${item.slug}`;
+              return (
+                <SidebarLink
+                  key={item.slug}
+                  to={to}
+                  title={item.meta.title}
+                  isActive={isActive}
+                  onClick={onItemClick}
+                />
+              );
+            })}
 
           {visibleGroups?.map((group) => (
             <SidebarGroup

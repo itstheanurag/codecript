@@ -27,7 +27,7 @@ export interface DocSection {
 }
 
 const docModules = import.meta.glob<string>(
-  "/content/{languages,ds,algo,sys-design,building,behavioral,lld,fundamentals}/**/*.md",
+  "/content/{languages,ds,algo,sys-design,building,behavioral,lld,fundamentals,databases,api-design,concurrency,devops,testing}/**/*.md",
   {
     query: "?raw",
     import: "default",
@@ -45,7 +45,11 @@ function loadDocSection(section: string): DocItem[] {
       const { data, content } = parseFrontmatter<DocMeta>(raw);
       return { slug, meta: data, content };
     })
-    .sort((a, b) => (a.meta.order ?? 0) - (b.meta.order ?? 0));
+    .sort((a, b) => {
+      if (a.slug === "index") return -1;
+      if (b.slug === "index") return 1;
+      return (a.meta.order ?? 0) - (b.meta.order ?? 0);
+    });
 }
 
 function loadGroupedDocSection(section: string): DocGroup[] {
@@ -127,6 +131,36 @@ export function getDocSections(): Record<string, DocSection> {
       description: "Core computer science concepts for senior engineers.",
       basePath: "/fundamentals",
       items: loadDocSection("fundamentals"),
+    },
+    "/databases": {
+      title: "Databases & Storage",
+      description: "Relational, NoSQL, caching, and data modeling.",
+      basePath: "/databases",
+      items: loadDocSection("databases"),
+    },
+    "/api-design": {
+      title: "API Design",
+      description: "REST, GraphQL, Webhooks, and API Security.",
+      basePath: "/api-design",
+      items: loadDocSection("api-design"),
+    },
+    "/concurrency": {
+      title: "Concurrency",
+      description: "Threads, processes, locks, and modern models.",
+      basePath: "/concurrency",
+      items: loadDocSection("concurrency"),
+    },
+    "/devops": {
+      title: "DevOps & Infra",
+      description: "Docker, Kubernetes, and CI/CD pipelines.",
+      basePath: "/devops",
+      items: loadDocSection("devops"),
+    },
+    "/testing": {
+      title: "Testing Methodologies",
+      description: "TDD, mocking, load testing, and modern runners.",
+      basePath: "/testing",
+      items: loadDocSection("testing"),
     },
   };
 

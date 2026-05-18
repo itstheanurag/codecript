@@ -3,8 +3,6 @@ title: Iteration and Control Flow
 order: 5
 ---
 
-# Loops: Mastering Iteration Patterns
-
 Iteration is the repeated execution of a set of statements. JavaScript offers multiple ways to loop through data, each suited for different data structures and performance requirements.
 
 ---

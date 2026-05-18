@@ -3,8 +3,6 @@ title: The Execution Context: this
 order: 20
 ---
 
-# The "this" Keyword: Determining Context
-
 The `this` keyword is one of the most powerful and often misunderstood concepts in JavaScript. Unlike variable scope, which is determined where the code is **Written** (Lexical), the value of `this` is primarily determined by **How** a function is **Invoked** (Contextual).
 
 ---

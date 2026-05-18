@@ -3,8 +3,6 @@ title: Relational Models: Graphs
 order: 9
 ---
 
-# Graphs: Modeling Complex Relationships
-
 A **Graph** is a non-linear data structure consisting of **Vertices** (Nodes) and **Edges** (Connections between nodes). Graphs are the most versatile data structure, capable of modeling everything from social networks and maps to dependency trees and recommendation engines.
 
 ---

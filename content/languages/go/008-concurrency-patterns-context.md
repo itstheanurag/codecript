@@ -3,8 +3,6 @@ title: Advanced Concurrency Patterns
 order: 8
 ---
 
-# Scaling Concurrency: Patterns and Context
-
 Writing a goroutine is easy; coordinating thousands of them is the real challenge. Go provides several patterns and a specialized `context` package to manage the lifecycle, cancellation, and metadata of concurrent operations.
 
 ---

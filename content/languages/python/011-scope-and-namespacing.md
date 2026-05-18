@@ -3,8 +3,6 @@ title: Scope and Namespacing
 order: 11
 ---
 
-# Scope: The LEGB Hierarchy
-
 In Python, **Scope** determines the visibility of an identifier (variable) within different parts of your code. A **Namespace** is a mapping from names to objects—effectively, it’s where Python "looks up" your variables.
 
 ---

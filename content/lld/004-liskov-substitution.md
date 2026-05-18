@@ -1,80 +1,91 @@
 ---
-title: Liskov Substitution Principle
+title: Liskov Substitution Principle (LSP)
 order: 4
 ---
 
-# Liskov Substitution Principle (LSP)
+The "L" in SOLID. Coined by Barbara Liskov. It states: **"Objects in a program should be replaceable with instances of their subtypes without altering the correctness of that program."**
 
-> "Objects in a program should be replaceable with instances of their subtypes without altering the correctness of that program."
+In simpler terms: A subclass must strictly honor the contract established by its parent class. If you override a method, you cannot change its fundamental behavior or throw unexpected errors.
 
-In simpler terms: A child class should be able to do everything the parent class can do, without breaking the application logic or throwing unexpected exceptions.
+> [!TIP]
+> **ELI5: The Coffee Maker**
+> Imagine you buy a standard `CoffeeMaker`. It has a button `brew()`. When you press it, hot coffee comes out.
+> 
+> You later upgrade to an `EspressoMachine` (a child class of `CoffeeMaker`). It also has a `brew()` button. If you press it and it dispenses hot espresso, LSP is maintained. But if you press `brew()` and the machine explodes, or it requires you to manually grind beans *before* pressing the button (changing the rules), LSP is violated. You cannot substitute the old machine for the new one seamlessly.
 
-## The Problem: Breaking the Contract
-LSP is often violated when a subclass throws an "Not Implemented" exception or changes the behavior of a method in a way that the caller doesn't expect.
+## The Problem (Violating LSP)
 
-###  Before LSP (Violation)
-
-The classic "Square vs Rectangle" problem.
+The classic "Square-Rectangle" problem.
 
 ```typescript
-class Rectangle {
-  constructor(protected width: number, protected height: number) {}
+// BAD: A Square is mathematically a Rectangle, but behaviorally it is not!
 
-  setWidth(w: number) { this.width = w; }
-  setHeight(h: number) { this.height = h; }
-  getArea() { return this.width * this.height; }
+class Rectangle {
+    protected width: number = 0;
+    protected height: number = 0;
+
+    setWidth(w: number) { this.width = w; }
+    setHeight(h: number) { this.height = h; }
+    getArea() { return this.width * this.height; }
 }
 
 class Square extends Rectangle {
-  // Violation: To keep it a square, we force both dimensions same.
-  setWidth(w: number) {
-    this.width = w;
-    this.height = w;
-  }
-  setHeight(h: number) {
-    this.width = h;
-    this.height = h;
-  }
+    // Overriding behavior to enforce Square rules
+    setWidth(w: number) {
+        this.width = w;
+        this.height = w; // Changing height implicitly!
+    }
+
+    setHeight(h: number) {
+        this.width = h; // Changing width implicitly!
+        this.height = h;
+    }
 }
 
-function processRectangle(rect: Rectangle) {
-  rect.setWidth(10);
-  rect.setHeight(5);
-  // Expectation: 10 * 5 = 50
-  // Reality for Square: 5 * 5 = 25
-  console.log(rect.getArea()); 
+// THE CATASTROPHE:
+function printArea(rect: Rectangle) {
+    rect.setWidth(4);
+    rect.setHeight(5);
+    // If it's a true rectangle, area should be 20.
+    console.log(`Area is: ${rect.getArea()}`); 
 }
+
+const myRect = new Rectangle();
+printArea(myRect); // Prints 20 (Correct)
+
+const mySquare = new Square();
+// The function expects a Rectangle, so we pass a Square (Subtype).
+printArea(mySquare); // Prints 25! LSP is violated. The program behavior broke.
 ```
 
-In this case, `Square` is not a proper substitution for `Rectangle` because it breaks the fundamental assumption that setting width doesn't affect height.
+## The Solution (Refactoring to LSP)
 
-###  After LSP (Correct)
-
-Instead of using inheritance where it doesn't fit, use a more general abstraction.
+If a subtype changes the underlying expectations of the parent, it shouldn't be a subtype. We break the inheritance and use a more generic interface.
 
 ```typescript
+// GOOD: Use a common interface that doesn't dictate specific mutable behavior.
+
 interface Shape {
-  getArea(): number;
+    getArea(): number;
 }
 
 class Rectangle implements Shape {
-  constructor(private width: number, private height: number) {}
-  getArea() { return this.width * this.height; }
+    constructor(private width: number, private height: number) {}
+    getArea() { return this.width * this.height; }
 }
 
 class Square implements Shape {
-  constructor(private side: number) {}
-  getArea() { return this.side * this.side; }
+    constructor(private sideLength: number) {}
+    getArea() { return this.sideLength * this.sideLength; }
 }
 
 function printArea(shape: Shape) {
-  console.log(shape.getArea()); // Works correctly for both!
+    console.log(`Area is: ${shape.getArea()}`);
 }
+
+printArea(new Rectangle(4, 5)); // 20
+printArea(new Square(5));       // 25
 ```
 
-## Why it matters
-1. **Predictability**: You can use a subclass without knowing its exact implementation.
-2. **Robustness**: Prevents subtle bugs that occur when polymorphic behavior unexpectedely changes logic.
-3. **Hierarchy Integrity**: Forces you to think if "Inheritance" is really the right choice (Is-A relationship).
- flagship
- flagship
+## Why does this matter?
+Violating LSP leads to code littered with `if (obj instanceof Square)` checks to handle exceptions, entirely defeating the purpose of polymorphism and clean inheritance.

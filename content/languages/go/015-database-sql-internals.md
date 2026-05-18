@@ -3,8 +3,6 @@ title: Database SQL Internals
 order: 15
 ---
 
-# SQL: The database/sql Package
-
 Go’s `database/sql` package provides a generic interface around SQL (or SQL-like) databases. It handles the complexities of connection pooling and thread safety, allowing you to focus on writing queries. To use it, you also need a specific **Driver** for your database (e.g., PostgreSQL, MySQL, SQLite).
 
 ---

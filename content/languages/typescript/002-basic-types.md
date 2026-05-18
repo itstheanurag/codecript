@@ -3,8 +3,6 @@ title: The Core Type System
 order: 2
 ---
 
-# Basic Types: Annotations and Inference
-
 The foundation of TypeScript is its ability to define the **Type** of data a variable or constant can hold. This prevents logical errors where an application might try to treat a string like a number or an object like an array.
 
 ---

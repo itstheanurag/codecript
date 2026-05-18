@@ -3,8 +3,6 @@ title: Key-Value Storage: Objects
 order: 7
 ---
 
-# Objects: The Foundation of JavaScript
-
 In JavaScript, almost everything is an **Object** (or behaves like one). An object is a standalone entity with properties and type. A property is an association between a name (or key) and a value.
 
 ---

@@ -3,8 +3,6 @@ title: Asynchronous Programming
 order: 16
 ---
 
-# Promises and Async/Await: Managing Time
-
 Asynchronous programming is the cornerstone of responsive JavaScript applications. It allows the engine to initiate long-running operations—like network requests or file reads—and continue executing other code while waiting for the result.
 
 ---

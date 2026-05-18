@@ -3,8 +3,6 @@ title: LIFO: Stacks
 order: 4
 ---
 
-# Stacks: Last-In, First-Out (LIFO)
-
 A **Stack** is a linear data structure that follows a specific order in which operations are performed. The order is **LIFO** (Last-In, First-Out)—meaning the last element added to the stack is the first one to be removed.
 
 ---

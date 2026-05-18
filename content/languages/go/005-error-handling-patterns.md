@@ -3,8 +3,6 @@ title: Error Handling Patterns
 order: 5
 ---
 
-# Errors as Values: The Go Philosophy
-
 One of the most defining characteristics of Go is its approach to error handling. Go does not use `try/catch` exceptions. Instead, it treats **Errors as Values**. This design forces developers to deal with errors as part of the normal execution flow, leading to more robust and predictable code.
 
 ---

@@ -3,8 +3,6 @@ title: Resource Management
 order: 21
 ---
 
-# Context Managers: The "with" Statement
-
 In software development, managing external resources—such as file handles, database connections, or network sockets—is a critical task. If resources aren't closed properly, it can lead to memory leaks and system instability. 
 
 Python uses **Context Managers** to ensure that resources are automatically and reliably cleaned up.

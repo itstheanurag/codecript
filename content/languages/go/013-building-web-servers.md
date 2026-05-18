@@ -3,8 +3,6 @@ title: Building Web Servers
 order: 13
 ---
 
-# Web Servers: Serving Content with net/http
-
 Go’s standard library provides everything you need to build high-performance web servers without needing external frameworks like Express or Django. The `net/http` package is production-ready and used by massive services at Google, Netflix, and Uber.
 
 ---

@@ -7,7 +7,7 @@ import SEO from "../components/SEO";
 
 const DocContentPage = () => {
   const params = useParams();
-  const slug = params["*"];
+  const slug = params["*"] || "index";
   const location = useLocation();
 
   const sectionKey = "/" + location.pathname.split("/")[1];
@@ -15,16 +15,11 @@ const DocContentPage = () => {
   const section = sections[sectionKey];
 
   const item = useMemo(() => {
-    if (slug) {
-      return section?.items.find((i) => i.slug === slug) ?? null;
-    }
-    // If no slug, look for 'index'
-    return section?.items.find((i) => i.slug === "index") ?? null;
+    return section?.items.find((i) => i.slug === slug) ?? null;
   }, [section, slug]);
 
   const { prev, next } = useMemo(
-    () =>
-      slug ? getAdjacentDocItems(sectionKey, slug) : { prev: null, next: null },
+    () => getAdjacentDocItems(sectionKey, slug),
     [sectionKey, slug],
   );
 

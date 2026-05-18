@@ -3,8 +3,6 @@ title: Host Environment APIs
 order: 14
 ---
 
-# Web APIs: Interacting with the Browser
-
 JavaScript's power in the browser comes from its ability to interact with the **Host Environment**. While the JS engine handles the logic, the browser provides a set of **Web APIs** that allow you to manipulate the page, handle events, and communicate with servers.
 
 ---

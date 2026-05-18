@@ -3,8 +3,6 @@ title: Priority Managed Trees: Heaps
 order: 8
 ---
 
-# Heaps: Efficient Priority Management
-
 A **Heap** is a specialized **Complete Binary Tree** that satisfies the **Heap Property**. It is the industry-standard structure for implementing **Priority Queues**, where you need to quickly retrieve the element with the highest (or lowest) priority.
 
 ---

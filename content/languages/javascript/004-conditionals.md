@@ -3,8 +3,6 @@ title: Control Flow: Conditionals
 order: 4
 ---
 
-# Conditionals: Logic and Decision Branches
-
 Control flow determines the order in which statements are executed in a script. JavaScript provides several structures for branching execution based on the evaluation of expressions.
 
 ---

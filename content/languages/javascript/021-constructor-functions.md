@@ -3,8 +3,6 @@ title: Constructor Functions
 order: 21
 ---
 
-# Constructor Patterns: Building Objects
-
 Before the introduction of ES6 classes, **Constructor Functions** were the primary pattern for implementing Object-Oriented Programming (OOP) and code reuse in JavaScript. They act as blueprints for creating multiple objects of the same type.
 
 ---

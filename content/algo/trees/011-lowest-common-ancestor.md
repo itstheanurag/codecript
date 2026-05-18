@@ -3,8 +3,6 @@ title: Lowest Common Ancestor (LCA)
 order: 11
 ---
 
-# Tree Connectivity: Lowest Common Ancestor
-
 The **Lowest Common Ancestor (LCA)** of two nodes $P$ and $Q$ in a tree is defined as the deepest node $A$ that has both $P$ and $Q$ as descendants (where we allow a node to be a descendant of itself). Finding the LCA is a fundamental operation in genealogical modeling, version control systems, and inheritance hierarchies.
 
 ---

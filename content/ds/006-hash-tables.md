@@ -3,8 +3,6 @@ title: Associative Arrays: Hash Tables
 order: 6
 ---
 
-# Hash Tables: Near-Instant Retrieval
-
 A **Hash Table** (or Hash Map) is a data structure that implements an associative array—a structure that maps individual **Keys** to **Values**. It is the most powerful tool in a developer's kit for achieving **O(1) Average Time** for search, insertion, and deletion.
 
 ---

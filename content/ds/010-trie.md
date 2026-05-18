@@ -3,8 +3,6 @@ title: Prefix Trees: Tries
 order: 10
 ---
 
-# Tries: Efficient String Retrieval
-
 A **Trie** (derived from "Retrieval") is a specialized tree-based data structure used to store and search strings in a space-efficient and time-efficient manner. It is also known as a **Prefix Tree**.
 
 ---

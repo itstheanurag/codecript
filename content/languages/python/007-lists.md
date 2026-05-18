@@ -3,8 +3,6 @@ title: Ordered Collections: Lists
 order: 7
 ---
 
-# Lists: The Dynamic Array of Python
-
 A **List** is Python's most versatile collection type. It is an ordered, mutable sequence of items. Under the hood, Python lists are implemented as **Dynamic Arrays**, meaning they can grow and shrink in memory automatically.
 
 ---

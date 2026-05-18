@@ -3,8 +3,6 @@ title: Unordered Collections: Dicts and Sets
 order: 8
 ---
 
-# Dictionaries and Sets: The Power of Hashing
-
 In Python, **Dictionaries** and **Sets** are high-performance collections built on **Hash Tables**. They provide near-instant data retrieval regardless of the collection's size.
 
 ---

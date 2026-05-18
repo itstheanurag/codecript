@@ -3,8 +3,6 @@ title: Defining Shapes: Interfaces and Types
 order: 3
 ---
 
-# Objects: Interfaces vs. Type Aliases
-
 In TypeScript, there are two primary ways to define the "Shape" of an object: **Interfaces** and **Type Aliases**. While they are very similar, they have distinct behaviors that make them better suited for different architectural scenarios.
 
 ---

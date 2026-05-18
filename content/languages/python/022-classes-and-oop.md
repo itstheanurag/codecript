@@ -3,8 +3,6 @@ title: Object-Oriented Programming (OOP)
 order: 22
 ---
 
-# Classes and Objects: The Blueprints of Software
-
 Object-Oriented Programming (OOP) is a paradigm that allows us to represent complex entities—like a **Car**, a **User**, or a **Transaction**—by grouping related data (attributes) and behaviors (methods) together.
 
 Instead of managing a scattered collection of variables and functions, OOP provides a structured way to model the "Actors" in your system.

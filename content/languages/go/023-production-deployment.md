@@ -3,8 +3,6 @@ title: Production Deployment
 order: 23
 ---
 
-# Shipping Go: From Code to Production
-
 One of Go's greatest practical advantages is its simplicity in deployment. Because Go compiles into a single static binary with no external runtime dependencies (unlike Java, Python, or Node.js), deploying a Go application is often as simple as copying a single file to a server.
 
 ---

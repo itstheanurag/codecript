@@ -3,8 +3,6 @@ title: Scope and Hoisting
 order: 11
 ---
 
-# Scope: The Accessibility of Variables
-
 **Scope** determines where variables and functions are accessible within your code. In JavaScript, scope is **Lexical** (Static)—it is defined by where the code is written, not where it is executed.
 
 ---

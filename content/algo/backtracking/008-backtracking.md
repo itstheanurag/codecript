@@ -3,8 +3,6 @@ title: Combinatorial Search: Backtracking
 order: 8
 ---
 
-# Backtracking: Refined Brute Force
-
 **Backtracking** is a general algorithmic technique for finding solutions to problems by exploring all possible candidates incrementally. It builds a **State Space Tree** and uses depth-first search (DFS) to traverse it. If a partial candidate is determined to be invalid (it cannot possibly lead to a valid solution), the algorithm "Backtracks" by undoing its last move and trying a different branch.
 
 ---

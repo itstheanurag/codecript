@@ -3,8 +3,6 @@ title: Connectivity: Disjoint Set Union (DSU)
 order: 13
 ---
 
-# DSU: Efficient Connectivity Detection
-
 A **Disjoint Set Union (DSU)**, also known as **Union-Find**, is a specialized data structure that tracks a set of elements partitioned into several non-overlapping (disjoint) subsets. It is most famous for its ability to handle "Connectivity" queries in near-constant time.
 
 ---

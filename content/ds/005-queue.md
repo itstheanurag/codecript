@@ -3,8 +3,6 @@ title: FIFO: Queues
 order: 5
 ---
 
-# Queues: First-In, First-Out (FIFO)
-
 A **Queue** is a linear data structure that follows the **FIFO** (First-In, First-Out) principle. This means the first element added to the queue will be the first one to be removed, similar to a line of people waiting for service.
 
 ---

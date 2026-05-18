@@ -14,23 +14,28 @@ const navGroups = [
   {
     label: "Core CS",
     children: [
+      { label: "Fundamentals", href: "/fundamentals" },
       { label: "Data Structures", href: "/ds" },
       { label: "Algorithms", href: "/algo" },
-      { label: "Building", href: "/building" },
+      { label: "Databases", href: "/databases" },
+      { label: "Concurrency", href: "/concurrency" },
     ],
   },
   {
     label: "Design",
     children: [
-      { label: "System Design", href: "/sys-design" },
+      { label: "API Design", href: "/api-design" },
       { label: "LLD", href: "/lld" },
+      { label: "System Design", href: "/sys-design" },
+      { label: "Building", href: "/building" },
     ],
   },
   {
-    label: "Interview Prep",
+    label: "Engineering",
     children: [
+      { label: "Testing", href: "/testing" },
+      { label: "DevOps", href: "/devops" },
       { label: "Behavioral", href: "/behavioral" },
-      { label: "Fundamentals", href: "/fundamentals" },
     ],
   },
 ];
@@ -39,7 +44,9 @@ const Navbar = React.memo(() => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeHoverMenu, setActiveHoverMenu] = useState<string | null>(null);
-  const [openMobileGroups, setOpenMobileGroups] = useState<Record<string, boolean>>({});
+  const [openMobileGroups, setOpenMobileGroups] = useState<
+    Record<string, boolean>
+  >({});
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -69,7 +76,7 @@ const Navbar = React.memo(() => {
   }, []);
 
   const toggleMobileGroup = (label: string) => {
-    setOpenMobileGroups(prev => ({ ...prev, [label]: !prev[label] }));
+    setOpenMobileGroups((prev) => ({ ...prev, [label]: !prev[label] }));
   };
 
   return (
@@ -88,10 +95,15 @@ const Navbar = React.memo(() => {
           </Link>
           <ul className="hidden md:flex items-center gap-4 text-sm text-neutral-400 font-semibold tracking-wider">
             {navGroups.map((group) => {
-              const children = group.isDynamic ? languageMenuItems : group.children;
+              const children = group.isDynamic
+                ? languageMenuItems
+                : group.children;
               const hasChildren = !!children?.length;
-              const isGroupActive = group.href && location.pathname.startsWith(group.href) || 
-                                   children?.some(child => location.pathname.startsWith(child.href));
+              const isGroupActive =
+                (group.href && location.pathname.startsWith(group.href)) ||
+                children?.some((child) =>
+                  location.pathname.startsWith(child.href),
+                );
               const isDropdownOpen = activeHoverMenu === group.label;
 
               return (
@@ -131,9 +143,9 @@ const Navbar = React.memo(() => {
                               <Link
                                 to={child.href}
                                 className={`block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                                  location.pathname.startsWith(child.href) 
-                                  ? "text-neutral-50 bg-white/5" 
-                                  : "text-neutral-400 hover:text-neutral-50 hover:bg-neutral-900"
+                                  location.pathname.startsWith(child.href)
+                                    ? "text-neutral-50 bg-white/5"
+                                    : "text-neutral-400 hover:text-neutral-50 hover:bg-neutral-900"
                                 }`}
                                 onClick={() => setActiveHoverMenu(null)}
                               >
@@ -194,9 +206,14 @@ const Navbar = React.memo(() => {
         <div className="md:hidden absolute top-full left-0 right-0 border-t border-neutral-800 bg-neutral-950/95 backdrop-blur-md px-6 py-4 animate-in fade-in slide-in-from-top-4 duration-200 shadow-2xl overflow-y-auto max-h-[80vh]">
           <ul className="flex flex-col gap-4 text-base text-neutral-400 font-medium">
             {navGroups.map((group) => {
-              const children = group.isDynamic ? languageMenuItems : group.children;
-              const isGroupActive = group.href && location.pathname.startsWith(group.href) || 
-                                   children?.some(child => location.pathname.startsWith(child.href));
+              const children = group.isDynamic
+                ? languageMenuItems
+                : group.children;
+              const isGroupActive =
+                (group.href && location.pathname.startsWith(group.href)) ||
+                children?.some((child) =>
+                  location.pathname.startsWith(child.href),
+                );
               const isOpen = openMobileGroups[group.label];
 
               return (
@@ -209,7 +226,11 @@ const Navbar = React.memo(() => {
                     onClick={() => toggleMobileGroup(group.label)}
                   >
                     <span>{group.label}</span>
-                    {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    {isOpen ? (
+                      <ChevronUp size={16} />
+                    ) : (
+                      <ChevronDown size={16} />
+                    )}
                   </button>
 
                   {isOpen && (
@@ -220,8 +241,8 @@ const Navbar = React.memo(() => {
                             to={child.href}
                             className={`block rounded-md px-2 py-2 text-sm transition-colors ${
                               location.pathname.startsWith(child.href)
-                              ? "text-neutral-50 bg-white/5"
-                              : "text-neutral-400 hover:text-neutral-50 hover:bg-neutral-900/70"
+                                ? "text-neutral-50 bg-white/5"
+                                : "text-neutral-400 hover:text-neutral-50 hover:bg-neutral-900/70"
                             }`}
                             onClick={() => {
                               setIsMenuOpen(false);
@@ -241,7 +262,10 @@ const Navbar = React.memo(() => {
         </div>
       )}
 
-      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchOverlay
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </nav>
   );
 });

@@ -1,229 +1,62 @@
 ---
-title: CAP Theorem
+title: The CAP Theorem
 order: 3
 ---
 
-If you’ve ever worked with distributed systems, you’ll eventually run into the CAP theorem. It is one of the most important concepts to understand before designing scalable systems.
-
-At a high level, the CAP theorem states:
-
-A distributed system cannot guarantee Consistency, Availability, and Partition Tolerance all at the same time.
-
-However, the real meaning is more practical:
-
-When a network partition happens, you must choose between Consistency and Availability.
-
----
-
-## Building Intuition
-
-Imagine you have two servers:
-
-- Server A (Mumbai)
-- Server B (Frankfurt)
-
-Both store the same data.
-
-Now suppose the network between them breaks.
-
-This is called a network partition.
-
-Mermaid diagram:
+When building distributed systems (where data is stored across multiple independent servers), network failures are not a possibility; they are a mathematical certainty. The CAP Theorem dictates the hard limits of what you can achieve when those network failures happen.
 
 ```mermaid
-graph LR
-    A[Mumbai Server] ---X--- B[Frankfurt Server]
+architecture-beta
+    group cap(cloud)[The CAP Theorem]
+    
+    service c(database)[Consistency (C)] in cap
+    service a(database)[Availability (A)] in cap
+    service p(database)[Partition Tolerance (P)] in cap
+    
+    c:R -- L:a
+    a:B -- T:p
+    p:L -- R:c
 ```
 
-Now:
+The theorem states that a distributed data store can guarantee at most **two** of the following three properties simultaneously:
 
-- A user updates data on Mumbai
-- Another user reads from Frankfurt
+## 1. The Three Properties
 
-Frankfurt does not have the latest data.
+### Consistency (C)
+Every read receives the most recent write, or an error. If a user updates their password on Server A, and immediately requests to log in on Server B, Server B *must* know about the new password. 
 
-So what should it do?
+### Availability (A)
+Every request receives a (non-error) response, without the guarantee that it contains the most recent write. The system will always give you data, even if it might be slightly stale.
 
----
+### Partition Tolerance (P)
+The system continues to operate despite an arbitrary number of messages being dropped (or delayed) by the network connecting the nodes.
 
-## The Three Guarantees
+> [!WARNING]
+> You cannot choose to ignore Partition Tolerance. In the real world, network cables get cut, routers fail, and packets drop. Therefore, your system *must* be Partition Tolerant. **This means the CAP theorem is actually a choice between Consistency and Availability during a network failure.**
 
-### Consistency
+## 2. CP vs. AP Systems
 
-Consistency means every read returns the latest write.
+> [!TIP]
+> **ELI5: The Twin Telemarketers**
+> Imagine two identical twins, Alice and Bob, acting as your "database" taking phone orders.
+> *   **Network Partition (P):** A storm hits, and the phones between Alice and Bob go down. They can't talk to each other to sync their order books.
+> *   **CP (Choosing Consistency):** A customer calls Alice to buy the last pair of shoes. Alice knows Bob might have just sold them 5 seconds ago. Because she cannot check with Bob, she tells the customer, "Sorry, our system is down, please call back later." She guarantees no overselling (Consistency), but sacrifices Availability.
+> *   **AP (Choosing Availability):** A customer calls Alice. She accepts the order, assuming it's fine. Bob also accepts an order for the same shoes. They remain Available, but when the storm passes and they sync books, they realize they oversold the shoes (Inconsistent). 
 
-If data is updated anywhere, all future reads must reflect it immediately.
+### CP Systems (Consistency & Partition Tolerance)
+*   **When to use:** When inaccurate data is catastrophic. (e.g., Financial transactions, bank account balances).
+*   **Examples:** Traditional relational databases (PostgreSQL, MySQL) configured for synchronous replication; MongoDB, HBase.
 
-Example:
-If your bank balance is updated, every system must show the exact same value.
+### AP Systems (Availability & Partition Tolerance)
+*   **When to use:** When it's better to show slightly outdated data than to show an error page. (e.g., Social media feeds, YouTube like counts, product reviews).
+*   **Examples:** Cassandra, DynamoDB, CouchDB.
 
----
+## 3. PACELC: The Modern Extension
 
-### Availability
+The CAP theorem only describes what happens *during a network failure*. PACELC extends this to describe what happens during normal operation.
 
-Availability means every request gets a response.
+**PACELC** stands for:
+If there is a **P**artition, how does the system trade off **A**vailability and **C**onsistency?
+**E**lse (during normal operation), how does the system trade off **L**atency and **C**onsistency?
 
-The system never rejects a request, even if the response is not perfectly up to date.
-
-Example:
-A social media app loads instantly, even if some posts are slightly outdated.
-
----
-
-### Partition Tolerance
-
-Partition tolerance means the system continues to operate even when network communication fails.
-
-This is unavoidable in real systems:
-
-- Networks fail
-- Messages drop
-- Data centers disconnect
-
----
-
-## The Core Trade-off
-
-When a partition occurs, the system must choose:
-
-```mermaid
-graph TD
-    P[Partition Happens] --> Decision{Choose One}
-    Decision --> C[Consistency]
-    Decision --> A[Availability]
-    C --> Reject[Reject Request]
-    A --> Serve[Serve Stale Data]
-```
-
----
-
-## Scenario Walkthrough
-
-Let’s walk through what happens during a partition:
-
-1. Data is updated on Mumbai server
-2. Frankfurt cannot receive the update
-3. A user queries Frankfurt
-
-Now the system must decide:
-
----
-
-### Option 1: Choose Consistency (CP)
-
-- Frankfurt refuses to respond
-- It waits for correct data
-
-Result:
-
-- Data is always correct
-- Some requests fail
-
----
-
-### Option 2: Choose Availability (AP)
-
-- Frankfurt responds immediately
-- It may return outdated data
-
-Result:
-
-- System stays responsive
-- Data may be temporarily inconsistent
-
----
-
-## CP Systems
-
-These systems prioritize correctness.
-
-They would rather fail than return wrong data.
-
-Use cases:
-
-- Banking
-- Payments
-- Inventory
-
-Examples:
-
-- ZooKeeper
-- etcd
-- HBase
-
----
-
-## AP Systems
-
-These systems prioritize availability.
-
-They always respond, even if data is slightly stale.
-
-Use cases:
-
-- Social media
-- Search
-- Recommendation systems
-
-Examples:
-
-- Cassandra
-- DynamoDB
-- CouchDB
-
----
-
-## Important Clarification
-
-CA systems assume no partition happens.
-
-But in real distributed systems, partitions always happen.
-
-So:
-
-- CA is not realistic for distributed systems
-
----
-
-## What Happens After Partition?
-
-In AP systems:
-
-- Data becomes inconsistent temporarily
-- Background processes sync it later
-
-This is called eventual consistency.
-
----
-
-## PACELC Theorem
-
-CAP only talks about failure scenarios.
-
-PACELC extends it:
-
-If Partition → choose Availability or Consistency  
-Else → choose Latency or Consistency
-
-Example:
-
-| System    | Partition Choice | Normal Choice |
-| --------- | ---------------- | ------------- |
-| DynamoDB  | Availability     | Low latency   |
-| Cassandra | Availability     | Low latency   |
-| BigTable  | Consistency      | Consistency   |
-
----
-
-## Final Takeaway
-
-CAP is about trade-offs.
-
-You cannot avoid partitions.
-
-So you must choose:
-
-- Correctness (Consistency)
-- Responsiveness (Availability)
-
-The right choice depends on your system.
+For example, DynamoDB is a **PA/EL** system. During a partition, it chooses Availability. During normal operation, it chooses low Latency (by not forcing every read to instantly sync across all nodes, accepting Eventual Consistency).

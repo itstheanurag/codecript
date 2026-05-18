@@ -3,8 +3,6 @@ title: Arithmetic and Logical Operators
 order: 3
 ---
 
-# Operators: Performing Computations
-
 Operators are specific symbols used to perform operations on variables and values. In Python, operators are categorized based on the type of operation they perform: arithmetic, comparison, logical, and assignment.
 
 ---

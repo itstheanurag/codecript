@@ -3,8 +3,6 @@ title: Maximum Subarray: Kadane's Algorithm
 order: 6
 ---
 
-# Optimal Subarray Sum: Kadane's Algorithm
-
 **Kadane's Algorithm** is an efficient dynamic programming technique used to solve the **Maximum Subarray Sum** problem. Given a one-dimensional array of numbers, the goal is to find the contiguous subarray that has the largest sum.
 
 ---

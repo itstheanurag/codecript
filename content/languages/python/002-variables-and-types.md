@@ -3,8 +3,6 @@ title: Variables and Data Types
 order: 2
 ---
 
-# Variables: Memory Management and State
-
 In computer programming, a **Variable** is a reserved memory location to store values. This means that when you create a variable, you reserve some space in memory (`RAM`). Based on the data type of a variable, the interpreter allocates memory and decides what can be stored in the reserved memory.
 
 ---

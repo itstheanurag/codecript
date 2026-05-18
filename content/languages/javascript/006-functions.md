@@ -3,8 +3,6 @@ title: Modular Code: Functions
 order: 6
 ---
 
-# Functions: Execution and Scope
-
 Functions are the building blocks of any JavaScript application. They are first-class objects, meaning they can be passed as arguments, returned as values, and assigned to variables.
 
 ---

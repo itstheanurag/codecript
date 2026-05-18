@@ -3,8 +3,6 @@ title: Static Typing in Python
 order: 18
 ---
 
-# Type Hinting: Gradual Typing
-
 Python is a **Dynamically Typed** language, meaning variable types are determined at runtime. However, as codebases grow, the lack of explicit types can lead to confusion and bugs. **Type Hinting** (introduced in PEP 484) allows developers to add optional type annotations to their code.
 
 ---

@@ -1,5 +1,6 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
+import { Link } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import { slugify } from "../lib/slugify";
 import CodeBlock from "./CodeBlock";
@@ -277,16 +278,31 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             {children}
           </td>
         ),
-        a: ({ children, href }) => (
-          <a
-            href={href}
-            className="text-blue-400 hover:text-blue-300 underline transition-colors"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {children}
-          </a>
-        ),
+        a: ({ children, href }) => {
+          const isExternal = href?.startsWith("http") || href?.startsWith("mailto:");
+          if (isExternal) {
+            return (
+              <a
+                href={href}
+                className="text-blue-400 hover:text-blue-300 underline transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {children}
+              </a>
+            );
+          }
+          // Safely strip .md if it exists so internal routing works correctly
+          const toPath = href ? href.replace(/\.md(#.*)?$/, "$1") : "";
+          return (
+            <Link
+              to={toPath}
+              className="text-blue-400 hover:text-blue-300 underline transition-colors"
+            >
+              {children}
+            </Link>
+          );
+        },
         blockquote: ({ children }) => {
           const { content, type } = processAlertContent(children);
 

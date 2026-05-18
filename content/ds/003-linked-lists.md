@@ -3,8 +3,6 @@ title: Linked Memory: Linked Lists
 order: 3
 ---
 
-# Linked Lists: Dynamic Node Management
-
 A **Linked List** is a linear data structure where elements are not stored in contiguous memory. Instead, each element (a **Node**) contains the data and a **Pointer** (reference) to the next node in the sequence.
 
 ---

@@ -3,8 +3,6 @@ title: Dependency Management
 order: 24
 ---
 
-# Virtual Environments: Isolating Dependencies
-
 One of the challenges of Python development is managing "Dependency Conflicts." If Project A requires `Requests v2.0` and Project B requires `Requests v1.0`, installing them into your global Python system will break one of the projects.
 
 **Virtual Environments** solve this by creating isolated, standalone directory trees that contain a specific Python installation and a distinct set of libraries.

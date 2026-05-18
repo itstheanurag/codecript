@@ -3,8 +3,6 @@ title: Benchmarking and Profiling
 order: 18
 ---
 
-# Performance: Measuring and Optimizing
-
 Go is a performance-oriented language. While writing fast code is important, **measuring** it is even more critical. The Go toolchain provides built-in support for benchmarking and profiling, allowing you to identify bottlenecks using data rather than intuition.
 
 ---

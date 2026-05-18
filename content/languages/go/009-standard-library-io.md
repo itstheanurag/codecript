@@ -3,8 +3,6 @@ title: Standard Library I/O
 order: 9
 ---
 
-# I/O: The Power of Interfaces
-
 Go's input and output (I/O) system is primarily built on two simple but powerful interfaces: `io.Reader` and `io.Writer`. These interfaces allow you to abstract away the source of data—whether it's a file, a network socket, or a simple memory buffer—and write generic, reusable code.
 
 ---

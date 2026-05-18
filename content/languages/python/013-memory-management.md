@@ -3,8 +3,6 @@ title: Memory Management Internals
 order: 13
 ---
 
-# Garbage Collection and Memory Management
-
 In Python, memory management is automated. Unlike languages like C or C++, where developers must manually allocate and free memory, Python uses a combination of **Reference Counting** and an **Automatic Garbage Collector** to handle the lifecycle of objects.
 
 ---

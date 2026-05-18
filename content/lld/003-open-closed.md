@@ -1,71 +1,82 @@
 ---
-title: Open/Closed Principle
+title: Open/Closed Principle (OCP)
 order: 3
 ---
 
-# Open/Closed Principle (OCP)
+The "O" in SOLID. It states: **"Software entities (classes, modules, functions) should be open for extension, but closed for modification."**
 
-> "Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification."
+This means you should be able to add new functionality to an existing system *without* changing the existing, already-tested code.
 
-OCP means you should be able to add new functionality without changing the existing code. This prevents regressions and makes the system more stable.
+> [!TIP]
+> **ELI5: The Power Strip**
+> Think of a wall outlet. It is **closed for modification**; you don't need to rip open the wall, expose the wires, and solder a new appliance directly to the mains every time you buy a new lamp. 
+> 
+> However, it is **open for extension**. You can simply plug a power strip into the outlet, and then plug 5 different appliances into the power strip. You extended the system's capabilities without modifying the core wall wiring.
 
-## The Problem: The "Switch" Nightmare
-Usually, OCP violations happen when you use long `if-else` or `switch` statements to handle different types of behavior. When a new type is added, you have to modify the core logic.
+## The Problem (Violating OCP)
 
-###  Before OCP (Violation)
+Imagine a payment processing system.
 
 ```typescript
-class DiscountCalculator {
-  calculate(amount: number, type: string): number {
-    if (type === "FIXED") {
-      return amount - 10;
-    } else if (type === "PERCENTAGE") {
-      return amount * 0.9;
+// BAD: We must MODIFY this class every time we add a new payment method.
+class PaymentProcessor {
+    processPayment(amount: number, method: string) {
+        if (method === "credit_card") {
+            console.log(`Processing $${amount} via Credit Card API...`);
+        } else if (method === "paypal") {
+            console.log(`Processing $${amount} via PayPal API...`);
+        }
+        // If we want to add Apple Pay, we have to open this file,
+        // write another 'else if', and risk breaking existing logic.
     }
-    // If we want to add 'VIP' discount, we HAVE TO modify this class.
-    return amount;
-  }
 }
 ```
 
-###  After OCP (Correct)
+## The Solution (Refactoring to OCP)
 
-Instead of modifying the class, we use **Interfaces** or **Abstract Classes** to extend behavior.
+We solve this using **Polymorphism** (Interfaces/Abstract Classes). We define a contract, and let specific classes implement that contract.
 
 ```typescript
-interface DiscountStrategy {
-  apply(amount: number): number;
+// GOOD: Open for extension, closed for modification.
+
+// 1. The Contract (The Outlet)
+interface PaymentMethod {
+    pay(amount: number): void;
 }
 
-class FixedDiscount implements DiscountStrategy {
-  apply(amount: number) {
-    return amount - 10;
-  }
+// 2. The Implementations (The Plugs)
+class CreditCardPayment implements PaymentMethod {
+    pay(amount: number) {
+        console.log(`Processing $${amount} via Stripe API...`);
+    }
 }
 
-class PercentageDiscount implements DiscountStrategy {
-  apply(amount: number) {
-    return amount * 0.9;
-  }
+class PayPalPayment implements PaymentMethod {
+    pay(amount: number) {
+        console.log(`Processing $${amount} via PayPal API...`);
+    }
 }
 
-// Extension: We add a new discount without touching existing code.
-class VIPDiscount implements DiscountStrategy {
-  apply(amount: number) {
-    return amount * 0.5;
-  }
+// 3. New Implementation! (Extending the system without touching old code)
+class ApplePayPayment implements PaymentMethod {
+    pay(amount: number) {
+        console.log(`Processing $${amount} via Apple Pay API...`);
+    }
 }
 
-class DiscountCalculator {
-  calculate(amount: number, discount: DiscountStrategy): number {
-    return discount.apply(amount);
-  }
+// 4. The Processor (Closed for modification)
+class PaymentProcessor {
+    // It accepts ANY class that implements PaymentMethod
+    processPayment(amount: number, method: PaymentMethod) {
+        method.pay(amount);
+    }
 }
+
+// Usage:
+const processor = new PaymentProcessor();
+processor.processPayment(100, new CreditCardPayment());
+processor.processPayment(50, new ApplePayPayment()); // Works seamlessly!
 ```
 
-Now, the `DiscountCalculator` is "Closed for modification" (you never have to touch its logic again) but "Open for extension" (you can add a hundred new discount types by just implementing the interface).
-
-## Why it matters
-1. **Stability**: Existing, tested code remains untouched.
-2. **Plugins**: This is how plugin architectures work (e.g., VS Code extensions).
-3. **Decoupling**: The calculator doesn't need to know about specific discount logic.
+## Why does this matter?
+If you have a massive `if/else` or `switch` statement that grows every time a new feature is requested, you are violating OCP. By relying on interfaces, you isolate new code in new files, ensuring you never introduce a regression bug into the old, stable code.

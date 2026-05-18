@@ -3,87 +3,92 @@ title: Strategy Pattern
 order: 10
 ---
 
-# Strategy Pattern
+The Strategy Pattern is a behavioral design pattern that allows you to define a family of algorithms, encapsulate each one as a separate class, and make them interchangeable at runtime.
 
-Strategy is a behavioral design pattern that lets you define a family of algorithms, put each of them into a separate class, and make their objects interchangeable.
+It heavily leverages the **Open/Closed Principle (OCP)** and **Dependency Inversion Principle (DIP)**.
 
-## The Problem
-Suppose you're building a navigation app for travelers. The app initially could only show walking routes.
-Soon, you add cycling routes, then a car option, and finally public transport.
+> [!TIP]
+> **ELI5: Maps and Transportation**
+> You are building a GPS navigation app. A user needs directions from Point A to Point B.
+> 
+> *   **Without Strategy:** The app has a massive `calculateRoute()` function with endless `if (mode == 'car') ... else if (mode == 'walking') ... else if (mode == 'bike')` statements.
+> *   **With Strategy:** You create a `RouteStrategy` interface. Then you create distinct classes: `CarStrategy`, `WalkStrategy`, `BikeStrategy`. The app simply asks the currently selected strategy to calculate the route. If you want to add a `BusStrategy` later, you just create a new class without touching the core app.
 
-Each time you add a new routing algorithm, the main `Navigator` class doubles in size. The class becomes massive and hard to maintain. A change in the "Walking" logic might accidentally break the "Cycling" logic.
+## The Problem (The Massive Switch Statement)
 
-## The Solution: Strategy
-The Strategy pattern suggests that you take a class that does something specific in a lot of different ways and extract all of these algorithms into separate classes called *strategies*.
-
-###  Diagram
-
-```mermaid
-classDiagram
-    class RouteStrategy {
-        <<interface>>
-        +buildRoute(A, B)
-    }
-    class WalkingStrategy {
-        +buildRoute(A, B)
-    }
-    class DrivingStrategy {
-        +buildRoute(A, B)
-    }
-    class Navigator {
-        -strategy RouteStrategy
-        +setStrategy(RouteStrategy s)
-        +buildRoute(string A, string B)
-    }
-    RouteStrategy <|.. WalkingStrategy
-    RouteStrategy <|.. DrivingStrategy
-    Navigator o-- RouteStrategy
-```
-
-###  Implementation in TypeScript
+Imagine an e-commerce checkout system applying different discounts.
 
 ```typescript
-interface RouteStrategy {
-  buildRoute(A: string, B: string): void;
+// BAD: Violates OCP. Hard to test. Hard to read.
+class Checkout {
+    calculateTotal(amount: number, discountType: string) {
+        if (discountType === "NONE") {
+            return amount;
+        } else if (discountType === "BLACK_FRIDAY") {
+            return amount * 0.5; // 50% off
+        } else if (discountType === "NEW_USER") {
+            return amount * 0.9; // 10% off
+        } else {
+            throw new Error("Unknown discount");
+        }
+    }
 }
-
-class WalkingStrategy implements RouteStrategy {
-  buildRoute(A: string, B: string) {
-    console.log(`Walking route from ${A} to ${B}: 30 mins.`);
-  }
-}
-
-class DrivingStrategy implements RouteStrategy {
-  buildRoute(A: string, B: string) {
-    console.log(`Driving route from ${A} to ${B}: 10 mins.`);
-  }
-}
-
-class Navigator {
-  private strategy: RouteStrategy;
-
-  constructor(strategy: RouteStrategy) {
-    this.strategy = strategy;
-  }
-
-  setStrategy(strategy: RouteStrategy) {
-    this.strategy = strategy;
-  }
-
-  buildRoute(A: string, B: string) {
-    this.strategy.buildRoute(A, B);
-  }
-}
-
-// Client Code
-const nav = new Navigator(new WalkingStrategy());
-nav.buildRoute("Home", "Gym");
-
-nav.setStrategy(new DrivingStrategy());
-nav.buildRoute("Home", "Office");
 ```
 
-## Why it matters
-1. **Runtime Switching**: You can swap the algorithm being used by an object at runtime.
-2. **Open/Closed Principle**: You can introduce new strategies without having to change the `Navigator`.
-3. **Isolation**: You isolate the implementation details of an algorithm from the code that uses it.
+## The Solution (The Strategy Pattern)
+
+We extract the changing behavior (the algorithms) into their own isolated classes.
+
+```typescript
+// 1. The Strategy Interface
+interface DiscountStrategy {
+    applyDiscount(amount: number): number;
+}
+
+// 2. Concrete Strategies (The interchangeable algorithms)
+class NoDiscount implements DiscountStrategy {
+    applyDiscount(amount: number) { return amount; }
+}
+
+class BlackFridayDiscount implements DiscountStrategy {
+    applyDiscount(amount: number) { return amount * 0.5; }
+}
+
+class NewUserDiscount implements DiscountStrategy {
+    applyDiscount(amount: number) { return amount * 0.9; }
+}
+
+// 3. The Context (The class that USES the strategy)
+class Checkout {
+    private strategy: DiscountStrategy;
+
+    // We set a default strategy
+    constructor() {
+        this.strategy = new NoDiscount();
+    }
+
+    // This allows us to swap the algorithm at RUNTIME
+    setDiscountStrategy(strategy: DiscountStrategy) {
+        this.strategy = strategy;
+    }
+
+    calculateTotal(amount: number) {
+        // The Context delegates the work to the Strategy object!
+        return this.strategy.applyDiscount(amount);
+    }
+}
+
+// --- USAGE ---
+const cart = new Checkout();
+
+console.log(cart.calculateTotal(100)); // Uses NoDiscount: 100
+
+// Oh wait, it's Black Friday! Swap the strategy at runtime.
+cart.setDiscountStrategy(new BlackFridayDiscount());
+console.log(cart.calculateTotal(100)); // Uses BlackFriday: 50
+```
+
+## When to use it?
+*   When you have a lot of similar classes that only differ in the way they execute some behavior.
+*   To replace massive `switch` or `if/else` statements within a class.
+*   When you want to swap out algorithms at runtime based on user input or state.

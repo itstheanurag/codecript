@@ -3,8 +3,6 @@ title: Networking: HTTP Clients
 order: 12
 ---
 
-# HTTP Clients: Communicating with the World
-
 Go was built by Google to solve internet-scale problems, so its networking primitives are first-class citizens. The `net/http` package provides a robust, production-ready HTTP client that handles connection pooling, TLS, and timeouts out of the box.
 
 ---
