@@ -1,18 +1,25 @@
 ---
-title: Engineering Fundamentals
-order: 0
+title: Core CS & Web Fundamentals
+order: 4
 ---
 
-Beyond coding and system design, a professional engineer must understand the core principles that govern the web and data storage. These are the "First Principles" of computer science.
+For most high-level backend engineering, the underlying transport layers and operating system mechanics are heavily abstracted. However, when performance degrades, memory leaks occur, or you are designing low-latency distributed systems, understanding how computers actually communicate and manage hardware resources becomes critical.
 
-In this section, we cover networking, web security, and database internals—topics that distinguish a senior engineer from a practitioner.
+Top-tier companies frequently test these fundamentals to ensure candidates understand what happens "under the hood."
 
-## What's Inside?
+## Networking & Web
 
-- **[Networking Basics](./001-networking-basics)**: The OSI Model and how data travels across the globe.
-- **[TCP, UDP & DNS](./002-tcp-udp-dns)**: Understanding the transport layer and the "Phonebook of the Web."
-- **[Web Security](./003-web-security)**: Protecting users from XSS, CSRF, and data breaches.
-- **[Database Indexing](./004-database-indexing)**: How B-Trees and LSM Trees make searching fast.
-- **[ACID & Transactions](./005-acid-transactions)**: Ensuring data integrity in distributed systems.
+- **[The OSI Model](./001-the-osi-model)**: The 7 layers of network abstraction (from wires to APIs).
+- **[TCP vs UDP (Layer 4)](./002-tcp-vs-udp)**: Reliable handshakes vs. reckless speed.
+- **[Routing (DNS & BGP)](./003-dns-and-bgp)**: How domains are resolved and packets are routed globally.
+- **[HTTP vs HTTPS (TLS)](./004-http-vs-https)**: Deep dive into the TLS handshake and asymmetric encryption.
+- **[Web Security (OWASP)](./005-web-security-owasp)**: Mitigating XSS, CSRF, SQLi, and understanding CORS.
 
-> "If you don't understand the underlying protocols, you're just assembling magic black boxes."
+## Operating Systems & Code Execution
+
+- **[Code Execution](./006-compilers-vs-interpreters)**: Compilers, Interpreters, and JIT (Just-In-Time) compilation.
+- **[Memory Management](./007-memory-management)**: Virtual memory, paging, and preventing thrashing.
+- **[CPU Scheduling](./008-cpu-scheduling)**: How the OS decides which process runs next.
+- **[File Systems & I/O](./009-file-systems-and-io)**: Inodes, journaling, and disk performance.
+
+> "There is no cloud, it's just someone else's computer. And that computer runs an OS connected to a router."
