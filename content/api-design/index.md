@@ -1,15 +1,23 @@
 ---
-title: Advanced API Design
-order: 13
+title: API Design & Communication
+order: 7
 ---
 
-APIs are the contracts that bind distributed systems together. While building a basic CRUD REST API is straightforward, designing an API that is secure, backwards-compatible, highly performant, and delightful for other developers to use is a complex engineering challenge.
+Building a great API is about establishing a rock-solid, scalable contract between your frontend clients, your backend microservices, and external third parties.
+
+In this module, we move beyond basic HTTP to explore the entire spectrum of modern communication protocols, architectural styles, and the hidden scaling challenges of real-time systems.
 
 ## What's Inside?
 
-- **[GraphQL vs. REST](./001-graphql-vs-rest)**: Understanding the trade-offs, over-fetching, and the N+1 problem.
-- **[Webhooks & Events](./002-webhooks-and-events)**: Designing asynchronous, push-based communication architectures.
-- **[API Security & OAuth 2.0](./003-api-security-and-oauth)**: Securing endpoints, JWTs, and delegated authorization.
-- **[Versioning & Pagination](./004-versioning-and-pagination)**: Handling breaking changes and iterating over massive datasets efficiently.
+- **[HTTP Fundamentals](./001-http-fundamentals)**: The foundational transport layer of the web.
+- **[REST Fundamentals](./002-rest-fundamentals)**: History, constraints, and the myth of HATEOAS.
+- **[GraphQL](./003-graphql)**: Solving over-fetching, and handling the dreaded N+1 database problem.
+- **[SOAP APIs](./004-soap-apis)**: The legacy XML giant and WSDL contracts.
+- **[Modern RPC (gRPC & tRPC)](./005-grpc-and-trpc)**: High-performance binary protocols and end-to-end type safety.
+- **[Real-Time APIs (Polling & SSE)](./006-real-time-polling-sse)**: Evolving from Short Polling to native Server-Sent Events.
+- **[WebSockets & Scaling](./007-websockets-and-scaling)**: The nightmare of scaling stateful TCP connections across load balancers.
+- **[Webhooks & Events](./008-webhooks-and-events)**: Inverting the request model and securing payloads with HMAC.
+- **[API Security & OAuth 2.0](./009-api-security-and-oauth)**: Securing endpoints with stateless JWTs and delegated authorization.
+- **[Versioning & Pagination](./010-versioning-and-pagination)**: Offset vs Cursor pagination and preventing breaking changes.
 
 > "APIs should be easy to use and hard to misuse."

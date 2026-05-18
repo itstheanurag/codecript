@@ -1,6 +1,6 @@
 ---
 title: Webhooks & Events
-order: 2
+order: 8
 ---
 
 REST and GraphQL are synchronous, request-response protocols. The client asks a question, and the server answers. But what happens when the client needs to know when something happens *in the future* (e.g., "Tell me when this Stripe payment succeeds")?

@@ -1,6 +1,6 @@
 ---
 title: API Security & OAuth 2.0
-order: 3
+order: 9
 ---
 
 Securing APIs is paramount. A single misconfigured authorization check can lead to massive data breaches.
