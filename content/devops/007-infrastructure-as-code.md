@@ -1,6 +1,6 @@
 ---
 title: Infrastructure as Code (IaC)
-order: 4
+order: 7
 ---
 
 Historically, infrastructure was provisioned manually. Sysadmins would click through AWS consoles or run imperative bash scripts to spin up servers, configure networks, and attach databases. This approach is slow, error-prone, untrackable, and impossible to replicate perfectly (the "Snowflake Server" problem).
@@ -9,19 +9,16 @@ Infrastructure as Code (IaC) solves this by treating your infrastructure configu
 
 ## 1. What is IaC?
 
-IaC is the managing and provisioning of computer data centers through machine-readable definition files, rather than physical hardware configuration or interactive configuration tools.
+IaC is the managing and provisioning of computer data centers through machine-readable definition files.
 
 *   **Version Controlled:** Your infrastructure definitions live in Git. Every change requires a Pull Request, code review, and provides an audit log of who changed what, when, and why.
-*   **Idempotent:** Running the IaC script once has the same effect as running it 100 times. It ensures the target environment matches the defined state, regardless of the starting state.
+*   **Idempotent:** Running the IaC script once has the same effect as running it 100 times. It ensures the target environment matches the defined state.
 *   **Reproducible:** Need a staging environment that perfectly mirrors production? You can spin one up in minutes by pointing your IaC scripts at a new AWS account.
 
 ## 2. Declarative vs. Imperative
 
-*   **Imperative (Bash scripts, CLI commands):** You write commands detailing *how* to achieve the desired state. (e.g., "Create an EC2 instance, then attach this security group, then start it").
-*   **Declarative (Terraform, CloudFormation):** You describe the *desired end state*, and the IaC tool figures out the steps required to get there. (e.g., "I want an EC2 instance with this security group").
-
-> [!IMPORTANT]
-> The industry standard is heavily weighted toward Declarative IaC because it handles state management automatically. If you change a declarative file and re-run it, the tool calculates the "diff" between reality and your code, and only applies the necessary changes.
+*   **Imperative (Bash scripts, Ansible):** You write commands detailing *how* to achieve the desired state. (e.g., "Create an EC2 instance, then attach this security group, then start it").
+*   **Declarative (Terraform, CloudFormation):** You describe the *desired end state*, and the IaC tool calculates the "diff" between reality and your code, applying only the necessary changes to reach that state. 
 
 ## 3. Terraform: The Industry Standard
 
@@ -56,6 +53,8 @@ resource "aws_db_instance" "app_database" {
 }
 ```
 
-## 4. The Value in Interviews
+## 4. Configuration Management (Ansible / Chef / Puppet)
 
-While junior developers are rarely expected to write Terraform from scratch, senior developers are expected to understand the concept. If asked "How would you deploy this distributed system?", answering with "I would define the entire architecture in Terraform so it is version-controlled and reproducible across environments" immediately signals seniority and operational maturity.
+While Terraform is brilliant at *provisioning* infrastructure (creating the EC2 instance), it is not designed to configure the internals of the operating system.
+
+**Configuration Management** tools like Ansible are used *after* the server is created to install dependencies, update packages, and write configuration files. However, with the rise of immutable Docker containers (where the dependencies are baked into the image), the usage of tools like Ansible has plummeted in modern stacks.
