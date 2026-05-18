@@ -1,80 +1,59 @@
 ---
-title: OAuth 2.0 & JWT
+title: OAuth 2.0 & JWT (System Design)
 order: 37
 ---
 
-Modern web applications use **OAuth 2.0** for authorization and **JSON Web Tokens (JWT)** to securely transmit information.
+# Identity: OAuth 2.0 & JWT
 
----
+In a distributed microservices system, handling user identity securely and efficiently is a massive challenge. If every microservice has to query a central "Users Database" to check if a session is valid, that database will quickly become a crippling bottleneck.
 
-## 1. OAuth 2.0
+The modern standard to solve this is using stateless JSON Web Tokens (JWTs) in combination with an Identity Provider (OAuth 2.0).
 
-OAuth 2.0 is an industry-standard protocol for authorization. It allows a website or app (the "Client") to access resources on another service (the "Resource Server") on behalf of a user, without the user sharing their password.
+## 1. JSON Web Tokens (JWT)
 
-### The "Delegation" Analogy: The Valet Key
-Imagine you give a valet your car keys. You don't give them your house keys or your wallet—only the key that allows them to drive the car. That is OAuth.
-
----
-
-## 2. JWT (JSON Web Tokens)
-
-A JWT is a compact, URL-safe means of representing claims to be transferred between two parties.
-
-### Structure of a JWT:
-1.  **Header**: Algorithm used (e.g., HS256).
-2.  **Payload**: The data (claims) like `user_id`, `role`, and `expiration`.
-3.  **Signature**: Verifies that the sender of the JWT is who it says it is and to ensure that the message wasn't changed along the way.
-
-```text
-Header.Payload.Signature
-```
-
----
-
-## The Workflow (Authorization Code Flow)
-
-1.  **User** clicks "Login with Google".
-2.  **App** redirects user to Google's Authorization Server.
-3.  **User** logs in and grants permission.
-4.  **Google** sends an **Authorization Code** back to the App.
-5.  **App** exchanges this code for an **Access Token** (usually a JWT).
-6.  **App** uses the **Access Token** to call Google APIs.
+A JWT allows you to authenticate a user without storing a session in a database.
 
 ```mermaid
-sequenceDiagram
-    participant User
-    participant App
-    participant Google
+architecture-beta
+    group jwt(cloud)[JSON Web Token]
     
-    User->>App: Login with Google
-    App->>Google: Redirect to Auth Page
-    Google->>User: Ask for Permission
-    User->>Google: Grant Permission
-    Google->>App: Return Auth Code
-    App->>Google: Exchange Code for JWT
-    Google-->>App: Access Token (JWT)
+    service header(database)[Header] in jwt
+    service payload(database)[Payload (Claims)] in jwt
+    service sig(database)[Signature] in jwt
+    
+    header:R -- L:payload
+    payload:R -- L:sig
 ```
 
----
+> [!TIP]
+> **ELI5: The VIP Wristband**
+> Instead of checking a massive guest list at the door of every single room in the club (Stateful DB lookup), the bouncer checks your ID once at the front door (Login). 
+> They give you a tamper-proof VIP wristband (JWT). Now, whenever you go to the VIP lounge (Microservice A) or the private bar (Microservice B), the guard just looks at the wristband. They don't need to ask the front desk who you are.
 
-## Stateful vs. Stateless Auth
+### How Microservices Validate JWTs
+1.  The `Auth Service` signs the JWT using a private key and sends it to the user.
+2.  The user sends the JWT in the HTTP headers to the `Billing Service`.
+3.  The `Billing Service` mathematically verifies the signature. **It does not need to talk to the Auth Service or the Database.** It instantly knows the token is valid and trusts the data inside it (e.g., `user_id: 123`).
 
-### Stateful (Session Based)
--   Server stores a "Session ID" in memory/database.
--   **Pros**: You can revoke a session instantly.
--   **Cons**: Hard to scale (requires sticky sessions or a shared DB like Redis).
+### The JWT Invalidation Problem
+Because JWTs are stateless, you cannot easily "log out" a user. The token remains valid until its expiration time.
+*   **Solution:** Keep JWT expiration times very short (e.g., 15 minutes). Issue a long-lived "Refresh Token" that is stored in the database. When the JWT expires, the client uses the Refresh Token to get a new one. If the user logs out, you delete the Refresh Token from the database.
 
-### Stateless (JWT Based)
--   All info is stored *inside* the token itself.
--   **Pros**: Extremely scalable. No database lookup needed for every request.
--   **Cons**: Hard to revoke a token before it expires.
+## 2. OAuth 2.0 (Delegated Authorization)
 
----
+OAuth 2.0 allows a user to grant a third-party application access to their resources *without* giving the third party their password.
 
-## Key Takeaways
+> [!TIP]
+> **ELI5: The Valet Key**
+> You don't give a valet your master car key, because then they could unlock the glovebox, open the trunk, and drive off with the car. You give them a "Valet Key" (OAuth Token) that *only* allows them to start the ignition and drive a short distance.
 
--   Use **OAuth 2.0** when you need to delegate access to 3rd party services.
--   Use **JWT** for stateless, scalable authentication in microservices.
--   **Important**: JWTs are signed, not encrypted. Anyone can read the payload, so never put sensitive info like passwords inside a JWT.
+### The Authorization Code Flow
+If you are designing a system that integrates with Google or Stripe, you use this flow.
 
-> JWT is the "passport" of the internet. It says who you are and what you can do, and the signature proves it hasn't been forged.
+1.  **Redirect:** Your app redirects the user to Google.
+2.  **Consent:** The user logs into Google and clicks "Approve".
+3.  **The Code:** Google redirects the user back to your app with a temporary `Authorization Code`.
+4.  **The Exchange (Backchannel):** Your backend server secretly sends the `Authorization Code` and your `Client Secret` directly to Google's servers.
+5.  **The Token:** Google validates the secret and returns the final `Access Token`.
+
+We do the exchange on the backend (Step 4) so the highly sensitive Access Token is never exposed to the user's browser where a malicious Chrome extension could steal it.
