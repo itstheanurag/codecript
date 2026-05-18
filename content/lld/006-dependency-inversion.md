@@ -1,77 +1,97 @@
 ---
-title: Dependency Inversion Principle
+title: Dependency Inversion Principle (DIP)
 order: 6
 ---
 
 # Dependency Inversion Principle (DIP)
 
-> "1. High-level modules should not depend on low-level modules. Both should depend on abstractions."
-> "2. Abstractions should not depend on details. Details should depend on abstractions."
+The "D" in SOLID. It states:
+1. **High-level modules should not depend on low-level modules. Both should depend on abstractions.**
+2. **Abstractions should not depend on details. Details should depend on abstractions.**
 
-DIP is about decoupling. It ensures that the core business logic (high-level) doesn't break when a detail (low-level), like a specific database or API, changes.
+This is the principle that enables decoupled architectures and makes unit testing possible.
 
-## The Problem: Hardcoded Dependencies
-When a high-level class creates its own low-level dependencies (e.g., using `new Database()`), you cannot easily swap the database or mock it for testing.
+> [!TIP]
+> **ELI5: The Lamp and the Wall Socket**
+> Imagine you buy a lamp. 
+> *   **Violating DIP (Hardwired):** The lamp's power cord is soldered directly into the electrical wiring inside the wall (The high-level lamp depends on the low-level house wiring). If you want to move the lamp to another room, you have to tear down the wall.
+> *   **Following DIP (The Socket):** The wall has a standard 3-prong socket (The Abstraction/Interface). The lamp has a standard 3-prong plug. The lamp doesn't care if the house is powered by a coal plant, solar panels, or a generator. It just expects electricity from the socket. You can unplug the lamp and move it anywhere instantly.
 
-###  Before DIP (Violation)
+## The Problem (Violating DIP)
+
+Imagine a high-level `OrderService` that saves orders to a MySQL database.
 
 ```typescript
-class SentryLogger {
-  log(message: string) {
-    console.log(`Sending to Sentry: ${message}`);
-  }
+// LOW-LEVEL MODULE (The concrete detail)
+class MySQLDatabase {
+    insert(data: string) {
+        console.log(`Saving ${data} to MySQL Database...`);
+    }
 }
 
-class App {
-  private logger: SentryLogger;
+// HIGH-LEVEL MODULE (The core business logic)
+class OrderService {
+    private db: MySQLDatabase;
 
-  constructor() {
-    // Violation: App is tightly coupled to SentryLogger.
-    this.logger = new SentryLogger();
-  }
+    constructor() {
+        // BAD: The high-level module is creating and hard-depending on the low-level detail.
+        this.db = new MySQLDatabase(); 
+    }
 
-  run() {
-    this.logger.log("Application started");
-  }
+    createOrder(item: string) {
+        this.db.insert(`Order for ${item}`);
+    }
 }
 ```
 
-If you want to switch to `WinstonLogger` or `ConsoleLogger`, you have to modify the `App` class.
+If we want to switch from MySQL to MongoDB, we have to rewrite the `OrderService`. Furthermore, we cannot easily mock the database to write a Unit Test for the `OrderService`.
 
-###  After DIP (Correct)
+## The Solution (Dependency Injection)
 
-Both modules depend on an abstraction (Interface).
+We introduce an Interface (The Socket) that both the high-level and low-level modules adhere to. Then, we "inject" the dependency.
 
 ```typescript
-interface Logger {
-  log(message: string): void;
+// 1. THE ABSTRACTION (The Interface / The Socket)
+interface IDatabase {
+    save(data: string): void;
 }
 
-class SentryLogger implements Logger {
-  log(message: string) { /* ... */ }
+// 2. LOW-LEVEL MODULES (Implementing the abstraction)
+class MySQLDatabase implements IDatabase {
+    save(data: string) {
+        console.log(`Saving ${data} to MySQL Database...`);
+    }
 }
 
-class ConsoleLogger implements Logger {
-  log(message: string) { /* ... */ }
+class MongoDatabase implements IDatabase {
+    save(data: string) {
+        console.log(`Saving ${data} to MongoDB Database...`);
+    }
 }
 
-class App {
-  // App depends on the Logger interface, not a concrete class.
-  constructor(private logger: Logger) {}
+// 3. HIGH-LEVEL MODULE (Depends ONLY on the abstraction)
+class OrderService {
+    private db: IDatabase;
 
-  run() {
-    this.logger.log("Application started");
-  }
+    // GOOD: We inject the dependency via the constructor. 
+    // The OrderService has no idea what specific database it's using!
+    constructor(database: IDatabase) {
+        this.db = database;
+    }
+
+    createOrder(item: string) {
+        this.db.save(`Order for ${item}`);
+    }
 }
 
-// Dependency Injection
-const app = new App(new ConsoleLogger());
-app.run();
+// --- USAGE ---
+const sqlService = new OrderService(new MySQLDatabase());
+sqlService.createOrder("Laptop");
+
+// Instantly swap to Mongo without changing the OrderService!
+const mongoService = new OrderService(new MongoDatabase());
+mongoService.createOrder("Phone");
 ```
 
-Now, the `App` class is completely oblivious to the specific logging implementation. You can inject any logger that implements the interface.
-
-## Why it matters
-1. **Unit Testing**: You can easily inject "Mock" or "Stub" objects for testing.
-2. **Flexibility**: You can swap out database engines, email providers, or third-party APIs without changing business logic.
-3. **Pluggable Architecture**: High-level modules remain untouched when low-level details evolve.
+## Why does this matter?
+DIP is the foundation of Clean Architecture. It isolates your core business logic from frameworks, databases, and external APIs. If an external service shuts down or you want to migrate databases, you only have to write a new low-level implementation class; your core application logic remains completely untouched.

@@ -1,71 +1,77 @@
 ---
-title: Single Responsibility Principle
+title: Single Responsibility Principle (SRP)
 order: 2
 ---
 
 # Single Responsibility Principle (SRP)
 
-> "A class should have one, and only one, reason to change."
+The first letter in SOLID. It states: **"A class should have one, and only one, reason to change."**
 
-SRP means that a class should be responsible for only one part of the functionality provided by the software, and that responsibility should be entirely encapsulated by the class.
+In simpler terms, every module or class should have responsibility over a single part of the functionality provided by the software, and that responsibility should be entirely encapsulated by the class.
 
-## The Problem: "The God Object"
-When a class does too many things (logging, database access, business logic, email notifications), it becomes fragile. A change to the logging logic might break the business logic.
+> [!TIP]
+> **ELI5: The Swiss Army Knife vs. The Chef's Knife**
+> *   **Violating SRP (The Swiss Army Knife):** It has a blade, a corkscrew, scissors, and a screwdriver. It tries to do everything. If the scissors break, you have to send the entire tool to the shop, meaning you also lose your blade and screwdriver while it's being fixed.
+> *   **Following SRP (The Chef's Knife):** It does exactly one thing: cut food perfectly. If it gets dull, you sharpen the knife. Your corkscrew is a completely separate tool in the drawer.
 
-###  Before SRP (Violation)
+## The Problem (Violating SRP)
+
+Imagine a `User` class in a backend application.
 
 ```typescript
+// BAD: This class does way too much.
 class User {
-  constructor(public name: string, public email: string) {}
+    constructor(private name: string, private email: string) {}
 
-  // Business Logic
-  saveToDatabase() {
-    console.log(`Saving user ${this.name} to DB...`);
-  }
+    // Responsibility 1: Data Management
+    getUserData() {
+        return { name: this.name, email: this.email };
+    }
 
-  // Communication Logic (Violation)
-  sendWelcomeEmail() {
-    console.log(`Sending email to ${this.email}...`);
-  }
+    // Responsibility 2: Database Operations
+    saveToDatabase() {
+        const db = new DatabaseConnection();
+        db.query(`INSERT INTO users (name, email) VALUES ('${this.name}', '${this.email}')`);
+    }
 
-  // Formatting Logic (Violation)
-  formatNameForReport() {
-    return this.name.toUpperCase();
-  }
+    // Responsibility 3: Formatting/Presentation
+    generateReport() {
+        return `<html><body><h1>User: ${this.name}</h1></body></html>`;
+    }
 }
 ```
 
-In the example above, if the email service provider changes or the database schema changes, the `User` class must be modified. It has too many reasons to change.
+If the database schema changes, you have to modify the `User` class. If the marketing team wants the report to be PDF instead of HTML, you have to modify the `User` class. This violates SRP because the class has *multiple reasons to change*.
 
-###  After SRP (Correct)
+## The Solution (Refactoring to SRP)
+
+We split these distinct responsibilities into their own dedicated classes.
 
 ```typescript
+// GOOD: Each class does exactly one thing.
+
+// Responsibility 1: Core Domain Entity (Just holds data)
 class User {
-  constructor(public name: string, public email: string) {}
+    constructor(public name: string, public email: string) {}
 }
 
+// Responsibility 2: Persistence (Database)
 class UserRepository {
-  save(user: User) {
-    console.log(`Saving ${user.name} to database...`);
-  }
+    save(user: User) {
+        const db = new DatabaseConnection();
+        // Uses an ORM or safe query builder
+        db.save('users', user); 
+    }
 }
 
-class EmailService {
-  sendWelcome(user: User) {
-    console.log(`Sending welcome email to ${user.email}...`);
-  }
-}
-
-class UserReportFormatter {
-  static format(user: User) {
-    return user.name.toUpperCase();
-  }
+// Responsibility 3: Presentation/Reporting
+class UserReportGenerator {
+    generateHtml(user: User) {
+        return `<html><body><h1>User: ${user.name}</h1></body></html>`;
+    }
 }
 ```
 
-Now, each class has a clear, single responsibility. You can change how emails are sent without touching the `User` domain model or the `UserRepository`.
-
-## Why it matters
-1. **Testing**: Smaller classes are easier to unit test.
-2. **Coupling**: Reduces the risk that a change in one area breaks unrelated features.
-3. **Collaboration**: Different developers can work on `EmailService` and `UserRepository` simultaneously without merge conflicts in a single "God file."
+## Why does this matter?
+*   **Testing:** It's incredibly easy to write a unit test for `UserReportGenerator` without needing to mock a database connection.
+*   **Merge Conflicts:** If Alice is updating the database schema and Bob is updating the HTML report, they are working in two entirely different files, avoiding Git merge conflicts.
