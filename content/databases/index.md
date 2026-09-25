@@ -1,5 +1,6 @@
 ---
 title: Databases & Storage
+description: Learn SQL, NoSQL, caching, and how to choose the right database for scale, consistency, and query patterns.
 order: 6
 ---
 

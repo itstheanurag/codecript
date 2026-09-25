@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import TableOfContents from "../components/TableOfContents";
 import Breadcrumbs from "../components/Breadcrumbs";
-import { getDocSections } from "../lib/content";
+import { getDocSections, resolveDocItem } from "../lib/content";
 
 export interface DocLayoutContext {
   scrollContainerRef: React.RefObject<HTMLElement | null>;
@@ -20,8 +20,8 @@ export const DocLayout = () => {
   const mainRef = useRef<HTMLElement | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const slug = params["*"];
-  const currentItem = slug ? section?.items.find((i) => i.slug === slug) : null;
+  const slug = params["*"] || "index";
+  const currentItem = section ? resolveDocItem(section, slug) : null;
 
   useEffect(() => {
     mainRef.current?.scrollTo(0, 0);

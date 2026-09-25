@@ -5,6 +5,7 @@ import { parseFrontmatter } from "./frontmatter";
 export interface DocMeta {
   title: string;
   order: number;
+  description?: string;
 }
 
 export interface DocItem {
@@ -152,7 +153,7 @@ export function getDocSections(): Record<string, DocSection> {
     },
     "/devops": {
       title: "DevOps & Infra",
-      description: "Docker, Kubernetes, and CI/CD pipelines.",
+      description: "Linux, containers, cloud IAM, Terraform, and how to operate production.",
       basePath: "/devops",
       items: loadDocSection("devops"),
     },
@@ -172,6 +173,17 @@ export interface AdjacentDocItems {
   next: DocItem | null;
 }
 
+export function resolveDocItem(
+  section: DocSection,
+  slug: string,
+): DocItem | null {
+  return (
+    section.items.find((item) => item.slug === slug) ??
+    section.items.find((item) => item.slug === `${slug}/index`) ??
+    null
+  );
+}
+
 export function getAdjacentDocItems(
   sectionKey: string,
   currentSlug: string,
@@ -179,8 +191,11 @@ export function getAdjacentDocItems(
   const section = getDocSections()[sectionKey];
   if (!section) return { prev: null, next: null };
 
+  const resolvedSlug =
+    resolveDocItem(section, currentSlug)?.slug ?? currentSlug;
+
   // Determine the group prefix (e.g. "javascript/" from "javascript/introduction")
-  const slugParts = currentSlug.split("/");
+  const slugParts = resolvedSlug.split("/");
   const groupPrefix =
     slugParts.length > 1 ? slugParts.slice(0, -1).join("/") + "/" : "";
 
@@ -190,7 +205,7 @@ export function getAdjacentDocItems(
     : section.items;
 
   const currentIndex = scopedItems.findIndex(
-    (item) => item.slug === currentSlug,
+    (item) => item.slug === resolvedSlug,
   );
 
   if (currentIndex === -1) return { prev: null, next: null };

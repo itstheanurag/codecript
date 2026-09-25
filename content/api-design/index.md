@@ -1,5 +1,6 @@
 ---
 title: API Design & Communication
+description: Learn REST, GraphQL, gRPC, webhooks, WebSockets, and API security so you can design scalable service contracts.
 order: 7
 ---
 

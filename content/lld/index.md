@@ -1,5 +1,6 @@
 ---
 title: Low-Level Design (LLD)
+description: Learn low-level design, SOLID principles, and common OOP design patterns for writing maintainable interview-ready code.
 order: 0
 ---
 

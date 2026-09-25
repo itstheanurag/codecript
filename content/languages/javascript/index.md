@@ -1,5 +1,6 @@
 ---
 title: JavaScript (The Language of the Web)
+description: Learn JavaScript from types and closures to the event loop, prototypes, and async patterns used in web interviews.
 order: 1
 ---
 

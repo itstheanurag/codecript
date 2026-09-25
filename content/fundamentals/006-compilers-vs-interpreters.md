@@ -1,53 +1,95 @@
 ---
 title: Code Execution Fundamentals
+description: Learn how compilers, interpreters, bytecode, and JIT actually turn source into CPU work, and where Python, Go, and JavaScript sit.
 order: 6
 ---
 
-As a software engineer, you write code in human-readable high-level languages like Python, JavaScript, Java, or C++. 
+You write Python or TypeScript. The CPU executes machine instructions for *this* chip (x86-64, ARM). Something in the middle translates. That something is a **compiler**, an **interpreter**, or both (bytecode + **JIT**).
 
-However, your computer's CPU is just a rock injected with lightning. It only understands raw binary Machine Code (`010101`). 
-
-How does your high-level syntax actually execute on the silicon hardware? There are three primary paradigms: **Compilers**, **Interpreters**, and **JIT (Just-In-Time) Compilation**.
-
-## 1. AOT Compilers (Ahead of Time)
-
-**Languages:** C, C++, Rust, Go.
-
-In a compiled language, you run a program (the Compiler) on your source code *before* you ever distribute the software. The compiler analyzes your entire codebase, optimizes it, and translates the entire thing directly into native Machine Code specific to your target CPU architecture (like x86 for Intel or ARM for Apple Silicon).
-
-*   **Pros:** Blazing fast execution speed. The computer just runs the raw binary instructions instantly with zero translation overhead.
-*   **Cons:** Extremely strict (you must define all types upfront). Slow build times (compiling a massive C++ project can take hours). Platform dependent (a Windows `.exe` binary will not run on a Linux machine).
-
-## 2. Interpreters
-
-**Languages:** Python, Ruby, PHP.
-
-An interpreter does not translate the code ahead of time. Instead, you distribute your raw human-readable source code (e.g., `script.py`). When the user runs the script, the Interpreter program reads the code line-by-line, translating and executing it on the fly.
-
-*   **Pros:** Platform independent. The exact same `script.py` file will run on Windows, Mac, and Linux, as long as the machine has the Python Interpreter installed. Fast development cycle (no waiting for builds).
-*   **Cons:** Slow execution speed. The CPU has to wait for the Interpreter to translate line 4 into machine code, execute it, and then translate line 5. 
-
-## 3. The Hybrid Approach: Virtual Machines & JIT
-
-**Languages:** Java, C#, JavaScript.
-
-Modern language designers wanted the blazing speed of Compilers *and* the platform independence of Interpreters. They created the hybrid approach.
-
-### Step 1: Intermediate Compilation (Bytecode)
-When you write Java, the compiler (`javac`) doesn't compile to raw Machine Code. It compiles to an intermediate format called **Bytecode** (`.class` files). Bytecode is highly optimized but not tied to any specific CPU architecture.
-
-### Step 2: The Virtual Machine (JVM / V8)
-You distribute the Bytecode. The user runs it inside a Virtual Machine (like the Java Virtual Machine - JVM, or the V8 Engine in Chrome). 
-
-### Step 3: JIT (Just-In-Time) Compilation
-When the JVM starts executing the Bytecode, it acts like an interpreter at first. However, the JVM includes a **JIT Compiler**. 
-
-The JIT monitors the program as it runs. If it notices that a specific function (like a math calculation in a `for` loop) is being called 10,000 times, the JIT will pause, take the Bytecode for that specific function, instantly compile it down to raw Machine Code, and cache it in memory. 
-
-The next time the loop runs, the JVM skips the interpreter and executes the raw Machine Code at C++ speeds.
+The labels on languages are marketing. CPython **compiles** to bytecode then **interprets** it. V8 **JITs**. Go **compiles ahead of time** to a binary. Knowing the pipeline tells you why a program starts fast or runs fast, and why "Python is slow" is incomplete.
 
 > [!TIP]
-> **ELI5: The Translator**
-> *   **Compiler:** Translating an entire French book into English, printing it, and handing the finished English book to the reader. (Slow to prepare, fast to read).
-> *   **Interpreter:** A live translator standing next to you, translating a French speech sentence-by-sentence as the person speaks. (Instant to start, but slows down the conversation).
-> *   **JIT Compiler:** The live translator realizes the speaker repeats the phrase "Thank you" 50 times. The translator writes the English translation on a whiteboard once, and points to it every time the speaker says it to save time.
+> **ELI5: Translating a speech**
+> **AOT compiler:** translate the whole book, print it, hand the reader a finished English copy. Slow to prepare, fast to read, one edition per language (CPU).
+> **Interpreter:** a person at your elbow translating sentence by sentence. Starts immediately, extra work every sentence.
+> **JIT:** the interpreter notices "thank you" for the 50th time and writes it on a whiteboard. Hot paths become a compiled book; cold paths stay live-translated.
+
+## 1. Ahead-of-time compilers
+
+**Typical:** C, C++, Rust, Go, Zig.
+
+`go build` / `rustc` produce a native binary. The compiler sees the whole program (or a lot of it), type-checks, optimizes, emits machine code and a calling convention for **one** OS/arch.
+
+- **Run speed:** no translator in the way. Tight loops are C-like (Rust/C) or close (Go).
+- **Start speed:** the OS loads a binary and jumps. No VM warmup.
+- **Cost:** compile time, less runtime flexibility, **rebuild per platform** (`linux/arm64` ≠ `windows/amd64`) unless you cross-compile.
+
+Go still has a runtime (GC, goroutines). "Compiled" does not mean "no runtime." It means "not interpreting source at run time."
+
+## 2. Interpreters (and the bytecode cheat)
+
+A **pure** interpreter walks the AST and performs operations. Slow.
+
+Most "interpreted" languages **compile to bytecode** first:
+
+```text
+source.py  →  .pyc bytecode  →  CPython VM loop
+```
+
+The VM is a program in C that switches on opcodes (`LOAD_FAST`, `BINARY_ADD`). Still not native machine code for *your* loop, but cheaper than re-parsing text.
+
+- **Portable:** ship source or bytecode; the VM is per platform.
+- **Edit-refresh:** no 5-minute C++ link.
+- **Slow hot loops:** every iteration pays the VM. Numeric Python is fast because it spends time in **C extensions**, not in the bytecode loop.
+
+Ruby, PHP, and CPython all live here by default (with optional JITs appearing later).
+
+## 3. Bytecode VMs + JIT
+
+**Typical:** Java (JVM), C# (CLR), JavaScript (V8, JavaScriptCore), sometimes PyPy / LuaJIT.
+
+Pipeline:
+
+1. Source → **bytecode** (`.class`, or V8's internal IR).
+2. VM starts by interpreting or quickly compiling.
+3. A **profiler** notices hot functions.
+4. **JIT** emits optimized machine code (type-specialized, inlined).
+5. If assumptions break (the variable was always an int, now it is a string), **deoptimize** back to slow path.
+
+That is why JS is "slow" on first load and "fast" in a long-running server, and why JVM apps have a **warmup** story.
+
+```text
+javac App.java   → App.class   →  java App
+                     bytecode      interpret + JIT
+```
+
+## 4. Where common languages sit
+
+| Language | What actually runs |
+| :--- | :--- |
+| C / Rust | Native AOT |
+| Go | Native AOT + GC runtime |
+| Java / Kotlin | Bytecode + JIT (JVM) |
+| C# | Bytecode + JIT (or AOT in some modes) |
+| JavaScript in Chrome | Parse → bytecode → JIT tiers (V8) |
+| CPython | Bytecode + C interpreter (JIT experimental) |
+| TypeScript | Erased to JS, then whatever the JS engine does |
+
+**TypeScript does not make JS faster.** It is a compile-time type checker. V8 never sees your types.
+
+## 5. Why this shows up at work
+
+- **Cold start** (Lambda, CLI): AOT binaries and small interpreters win. JVM/JIT want warmup.
+- **CPU-bound loops:** move them out of CPython bytecode (numpy, Rust extension) or use a compiled language.
+- **"Works on my machine" binaries:** you shipped `darwin/arm64` to `linux/amd64`.
+- **Debugging:** a JIT stack trace may not match source lines until you remember source maps / debug symbols.
+
+> [!NOTE]
+> "Is Python compiled or interpreted?" The precise answer: **compiled to bytecode, then interpreted (CPython).** Interviewers want that nuance, not a fight.
+
+## What to remember
+
+- CPUs run machine code. Compilers, interpreters, and JITs are different schedules for producing it.
+- AOT: fast run, per-platform binary. Interpreter/bytecode: portable, slower hot paths. JIT: slow start, fast hot paths.
+- Language marketing ≠ pipeline. Look at what the implementation does.
+- TS types and Python types (hints) are not what the CPU sees unless a compiler uses them.

@@ -1,5 +1,6 @@
 ---
 title: Algorithms
+description: Learn essential algorithms for interviews, from sorting and searching to graphs, dynamic programming, and complexity analysis.
 order: 0
 ---
 

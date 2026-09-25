@@ -1,27 +1,43 @@
 import { useMemo } from "react";
-import { useParams, useLocation, Link } from "react-router-dom";
-import { getDocSections, getAdjacentDocItems } from "../lib/content";
+import { useParams, useLocation, Link, Navigate } from "react-router-dom";
+import {
+  getDocSections,
+  getAdjacentDocItems,
+  resolveDocItem,
+} from "../lib/content";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import DocPagination from "../components/DocPagination";
 import SEO from "../components/SEO";
+import {
+  absoluteUrl,
+  buildArticleJsonLd,
+  buildBreadcrumbJsonLd,
+  canonicalPath,
+  docDescription,
+  docHref,
+} from "../lib/seo";
 
 const DocContentPage = () => {
   const params = useParams();
-  const slug = params["*"] || "index";
   const location = useLocation();
-
+  const canonicalPathname = canonicalPath(location.pathname);
+  const slug = params["*"] || "index";
   const sectionKey = "/" + location.pathname.split("/")[1];
   const sections = getDocSections();
   const section = sections[sectionKey];
 
   const item = useMemo(() => {
-    return section?.items.find((i) => i.slug === slug) ?? null;
+    return section ? resolveDocItem(section, slug) : null;
   }, [section, slug]);
 
   const { prev, next } = useMemo(
-    () => getAdjacentDocItems(sectionKey, slug),
-    [sectionKey, slug],
+    () => getAdjacentDocItems(sectionKey, item?.slug ?? slug),
+    [sectionKey, item, slug],
   );
+
+  if (canonicalPathname !== location.pathname) {
+    return <Navigate to={canonicalPathname} replace />;
+  }
 
   if (!section) {
     return (
@@ -72,31 +88,37 @@ const DocContentPage = () => {
     );
   }
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "TechArticle",
-    "headline": item.meta.title,
-    "description": `Learn ${item.meta.title} in the ${section.title} section. Master ${section.title.toLowerCase()} concepts with our detailed guides.`,
-    "articleSection": section.title,
-    "publisher": {
-      "@type": "Organization",
-      "name": "codecript",
-      "logo": {
-        "@type": "ImageObject",
-        "url": `${window.location.origin}/og-image.png`
-      }
-    },
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": window.location.href
-    }
-  };
+  const description = docDescription({
+    frontmatterDescription: item.meta.description,
+    content: item.content,
+    title: item.meta.title,
+    sectionTitle: section.title,
+  });
+  const canonical = docHref(section.basePath, item.slug);
+  const crumbs = [
+    { name: "Home", path: "/" },
+    { name: section.title, path: section.basePath },
+  ];
+  if (canonical !== section.basePath) {
+    crumbs.push({ name: item.meta.title, path: canonical });
+  }
+
+  const jsonLd = [
+    buildArticleJsonLd({
+      title: item.meta.title,
+      description,
+      canonical: absoluteUrl(canonical),
+      sectionTitle: section.title,
+    }),
+    buildBreadcrumbJsonLd(crumbs),
+  ];
 
   return (
     <div className="w-full max-w-4xl mx-auto px-1 sm:px-2 md:px-4 py-4 sm:py-6 md:py-8 lg:py-10">
       <SEO
         title={item.meta.title}
-        description={`Learn ${item.meta.title} in the ${section.title} section. Master ${section.title.toLowerCase()} concepts with our detailed guides.`}
+        description={description}
+        canonical={canonical}
         ogType="article"
         jsonLd={jsonLd}
       />

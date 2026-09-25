@@ -1,5 +1,6 @@
 ---
 title: The STAR Method
+description: Learn how to structure behavioral answers as Situation, Task, Action, and Result, including a failure story that still has a measurable result.
 order: 2
 ---
 
@@ -48,7 +49,33 @@ I quickly spun up a staging environment that mirrored the production traffic to 
 
 ---
 
+## Failure stories still need a Result
+
+**Question:** "Tell me about a mistake you made."
+
+**Situation:** "I shipped a migration that added a `NOT NULL` column without a default on a 40M-row table."
+
+**Task:** "I had to stop the incident, restore checkout, and make sure the next migration could not lock the table the same way."
+
+**Action:** "I called for a freeze, rolled forward with a default in a follow-up deploy because rollback would have been worse, then added an expand/contract checklist to the PR template and a CI comment that fails on dangerous `ALTER`s."
+
+**Result:** "Checkout recovered in 18 minutes. The next quarter we ran three large migrations with zero table-lock incidents. The mistake was mine; the system change is the result."
+
+That is a hireable failure: **you owned it, you changed the system, you have a metric.**
+
+> [!WARNING]
+> Do not spend 70% of the time on Situation. Interviewers glaze over org charts. Cut context to two sentences. Action and Result are the product.
+
+## Timing and follow-ups
+
+Aim for **2 minutes**. If they want more, they will ask.
+
+They will interrupt. That is good. Answer the interrupt, then return to Result so the story does not die in the middle of Action.
+
+Keep a one-line prompt card per story (not a script): `EU payments TLS / 4h / cert check added`. Glance, then talk like a human.
+
 ## Pro-Tips for STAR
-1. **Prepare 5 Stories**: Most behavioral questions fall into categories: Conflict, Failure, Achievement, Leadership, and Technical Challenge. Have one story for each.
-2. **The "R" is the Hook**: Always end on a positive note. Even in a "Failure" story, the result should be what you *learned* and how you improved.
-3. **Keep it Conversational**: Don't sound like you're reading a script. The STAR method is a guide, not a straightjacket.
+1. **Prepare 6 stories** across conflict, failure, leadership, ambiguity, technical depth, and stakeholders.
+2. **The R is the hook.** Even in a failure, the result is the *system* you installed afterward.
+3. **Quantify or name an artifact.** A dashboard, RFC, test, or runbook is evidence.
+4. **STAR is a guide, not a teleprompter.** If they ask a narrow follow-up, do not restart from Situation.

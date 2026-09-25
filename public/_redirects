@@ -1,6 +1,2 @@
-/languages/* /index.html 200
-/ds/* /index.html 200
-/algo/* /index.html 200
-/sys-design/* /index.html 200
-/building/* /index.html 200
-/blog/* /index.html 200
+/*/index  /:splat  301
+/*    /index.html   200

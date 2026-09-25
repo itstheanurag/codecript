@@ -1,5 +1,6 @@
 ---
 title: System Design
+description: Learn system design for interviews, covering CAP theorem, load balancing, caching, queues, and how to design scalable distributed systems.
 order: 0
 ---
 
