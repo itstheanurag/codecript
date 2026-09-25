@@ -1,50 +1,100 @@
 ---
 title: Common Questions & Scenarios
+description: Learn how to answer the behavioral questions you will actually get, what interviewers are scoring, and how to map a small story bank onto many prompts.
 order: 3
 ---
 
-This section breaks down the most frequent behavioral questions and provides a strategy for each. Remember the goal: **Show, don't just tell.**
+Most "tell me about a time" questions are the same five intents in different costumes. If you prepare the intent, you can reuse a story instead of inventing a new one on the spot.
 
-## 1. "Tell me about a time you had a conflict with a co-worker."
-**Intent**: To see your emotional intelligence and ability to work in a team.
-- **Wrong Approach**: Saying you've never had a conflict (implies you're lying or never do anything important) or blaming the other person.
-- **Right Approach**: Focus on a professional disagreement (not personal), how you listened to their perspective, and how you reached a compromise or data-driven decision.
-- **Key traits to show**: Empathy, de-escalation, professional maturity.
+Goal: **show, do not claim.** "I am a great collaborator" is empty. A disagreement, what you did, and the outcome is a signal.
 
-## 2. "Tell me about your greatest failure."
-**Intent**: To see how you handle setbacks and if you are self-aware.
-- **Wrong Approach**: "I’m a perfectionist" (not a failure) or a failure where you didn't learn anything.
-- **Right Approach**: A real technical or project failure where you were responsible. Describe the mistake, how you took ownership to fix it, and what systems you put in place to ensure it never happens again.
-- **Key traits to show**: Ownership, resilience, growth mindset.
+> [!TIP]
+> **ELI5: The exam has a rubric**
+> They are not collecting fun anecdotes. Each question is a box on a score sheet: conflict, failure, initiative, influence, motivation. Your job is to drop evidence in the box, then stop.
 
-## 3. "Tell me about a time you took initiative."
-**Intent**: To see if you are a "leader" regardless of your title.
-- **Wrong Approach**: Just doing your job well.
-- **Right Approach**: Identifying a problem that wasn't "your responsibility" and fixing it. Examples: Improving the CI pipeline, documentation, or mentoring a peer without being asked.
-- **Key traits to show**: Proactivity, leadership, big-picture thinking.
+## 1. Conflict with a coworker
 
-## 4. "Tell me about a time you had to work with a difficult stakeholder."
-**Intent**: To assess your influence and negotiation skills.
-- **Wrong Approach**: Complaining about how the Product Manager was unreasonable.
-- **Right Approach**: Explain why the stakeholder was difficult (e.g., they had different priorities), how you gathered data to bridge the gap, and how you managed their expectations.
-- **Key traits to show**: Communication, negotiation, customer obsession.
+**Intent:** Can you disagree without becoming the problem?
 
-## 5. "Why [Company Name]?"
-**Intent**: To see if you've done your homework and are genuinely interested.
-- **Wrong Approach**: "I heard you pay well."
-- **Right Approach**: Connect their mission/tech stack to your personal career goals. Mention a specific engineering blog post they wrote or a product feature you admire.
-- **Key traits to show**: Passion, research, alignment.
+**Wrong:** Never had a conflict. Or: they were an idiot, I won.
 
----
+**Right:** A *professional* disagreement (API shape, launch date, on-call load). You listened, you brought data, you changed your mind *or* you committed after being overruled.
 
-## The "Story Bank" Table
-Use this table to map your stories to potential questions.
+**Traits:** empathy, specificity, no character assassination.
 
-| Story Name | Conflict | Failure | Leadership | Technical Challenge |
+**Follow-ups they will ask:** "What did they think of you after?" "Would you do the same again?"
+
+Sketch: "I wanted a sync REST call; they wanted a queue. I was wrong about peak load. We shipped the queue; I wrote the consumer. p99 stayed under 200ms on Black Friday."
+
+## 2. Greatest failure
+
+**Intent:** Do you own mistakes, or do you narrate other people's?
+
+**Wrong:** "I'm a perfectionist." Or a failure with no change afterward.
+
+**Right:** You caused it (or a large share). You mitigated. You installed a **system** so it cannot recur (test, alert, checklist, design review).
+
+**Traits:** ownership, calibration, no self-flagellation theater.
+
+Never pick a story that makes you look careless with user data unless you can show a serious process change. Interviewers still have to sleep at night.
+
+## 3. Took initiative / leadership without title
+
+**Intent:** Do you move the team, or only your ticket?
+
+**Wrong:** Doing your assigned Jira well.
+
+**Right:** A problem that was nobody's job: flaky CI, missing runbook, a junior drowning, a cost spike. You aligned people, you shipped the fix, you left it owned.
+
+**Traits:** scope, influence, finishing.
+
+Initiative that created extra work for everyone with no buy-in scores **negative**. Leadership includes "I stopped after two people said no, and I was right to."
+
+## 4. Difficult stakeholder
+
+**Intent:** Influence without authority. Product, sales, another team, a founder.
+
+**Wrong:** "PMs don't understand engineering."
+
+**Right:** Their incentive (launch date, revenue, a customer). You made the trade-off visible (risk, hours, quality). You offered options, not a lecture. You stayed aligned after the decision.
+
+**Traits:** communication, negotiation, respect for their metric.
+
+## 5. Why this company?
+
+**Intent:** Did you do homework, or is this spray-and-pray?
+
+**Wrong:** Comp, brand, "you're a market leader."
+
+**Right:** One product decision, one engineering blog, one problem they are clearly solving — tied to what you want to work on next. Two minutes of research beats a paragraph of flattery.
+
+If you cannot name a product surface, you are not ready for that onsite.
+
+## 6. Ambiguity ("not enough requirements")
+
+**Intent:** Can you ship without a perfect spec?
+
+Show: you listed unknowns, you picked a default, you time-boxed a spike, you confirmed with the stakeholder, you documented the decision. "I waited for a perfect PRD" is a no-hire for senior roles.
+
+## Story bank grid
+
+Reuse. One outage story can be technical depth *or* failure *or* leadership depending on which STAR slice you emphasize.
+
+| Story | Conflict | Failure | Leadership | Technical |
 | :--- | :---: | :---: | :---: | :---: |
-| Payment Gateway Outage | | | | X |
-| Mentoring Junior Dev | | | X | |
-| API Design Disagreement | X | | | |
-| Production Database Leak | | X | | |
+| Payment gateway TLS outage | | | X | X |
+| Mentoring a junior through a bad review | | | X | |
+| API design disagreement | X | | | X |
+| Migration that locked prod | | X | | X |
+| Stakeholder wanted to skip rate limits | X | | X | |
 
-> **Action Item**: Write down one sentence for each cell in this table based on your own experience.
+Write **one sentence per filled cell** from your own career before the interview week. If a cell is empty, you have a gap; go find a smaller real story, do not invent a war.
+
+> [!NOTE]
+> When they ask a question you already used a story for, say so and offer a second: "I used the TLS outage for failure; for conflict I have the API review." Repeating the same hero narrative three times looks like a thin career.
+
+## What to remember
+
+- Map questions to intents, then to stories, not to memorized scripts.
+- Strong answers include a trade-off, your actions, and a result someone else could verify.
+- Empty cells in the grid are practice homework, not a mystery on the day.

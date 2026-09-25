@@ -1,29 +1,73 @@
 ---
 title: Introduction
+description: Learn why companies run behavioral interviews, how they score you, and how to build a story bank that survives follow-up questions.
 order: 1
 ---
 
-Behavioral interviews are based on the premise that **past behavior is the best predictor of future performance**. Instead of asking hypothetical questions ("What would you do?"), interviewers ask for specific examples of things you've actually done ("Tell me about a time when...").
+Behavioral interviews assume **past behavior predicts future behavior**. They do not ask "what would you do if a teammate missed a deadline." They ask "tell me about a time a teammate missed a deadline." Invented hypotheticals let you perform. Specific stories let them probe.
 
-## Why do companies do this?
+You cannot wing this. A coding round can be practiced on a whiteboard the night before. Behavioral rounds are won by stories you already wrote down and stress-tested.
 
-1. **Cultural Fit**: Every company has core values (e.g., Amazon's Leadership Principles). They want to see if you embody these.
-2. **Soft Skills**: They are assessing communication, empathy, resilience, and emotional intelligence.
-3. **Maturity**: How you handle failure or conflict says more about your maturity than your ability to write a balanced BST.
-4. **Impact**: They want to see what kind of results you deliver when things get tough.
+> [!TIP]
+> **ELI5: The highlight reel**
+> The interviewer is not asking for your autobiography. They want 5–7 clips they can replay: conflict, failure, leadership, ambiguity, a hard technical call. Same clips, different questions. If you only have one story, every answer sounds the same.
 
-## The Core Principles
+## Why they bother
 
-When preparing, keep these three principles in mind:
+1. **Values, not vibes.** Amazon maps answers onto Leadership Principles. Google looks for "Googleyness" plus general cognitive ability. Your company will have a rubric even if they do not publish it.
+2. **How you work when code is not the problem.** Conflict, missed estimates, bad stakeholders, on-call. Senior engineers spend more time here than on algorithms.
+3. **Ownership vs narrative.** They will ask "what did *you* do" three times. People who hide in "we" get a no-hire for the role they wanted.
+4. **Calibration.** Two interviewers should be able to write the same signal: "strong on conflict, weak on results."
 
-### 1. Be Specific
-Vague answers are forgettable. Use specific names, dates, and metrics where possible. Instead of saying "I helped the team," say "I mentored three junior developers over six months, resulting in a 20% increase in sprint velocity."
+They are also hiring for **the next level**. A senior answer names the system you changed (an alert, a process, a doc), not only the heroics of one night.
 
-### 2. Be Honest
-Interviewers are trained to dig deep. If you make up a story, you will likely get caught during follow-up questions. It's better to talk about a small, real success than a large, fake one.
+## How scoring actually works
 
-### 3. Focus on the 'I', not the 'We'
-While teamwork is important, the interviewer is hiring *you*. Make sure you clearly articulate your individual contribution to the team's success.
+Interviewers take notes against a rubric, then vote. Typical columns:
 
-## Preparation is Key
-You cannot wing a behavioral interview. You should have a "bank" of 5-7 versatile stories that you can adapt to different questions. In the next section, we'll look at the **STAR Method** to help you structure these stories.
+| Signal | Weak | Strong |
+| :--- | :--- | :--- |
+| Specificity | "We improved performance" | "p99 checkout 1.8s → 400ms" |
+| Your role | "The team decided" | "I proposed X, disagreed with Y, I did Z" |
+| Judgment | Blames others, or no trade-off | Names the trade-off you accepted |
+| Learning | "I'd work harder" | A concrete change that prevented a repeat |
+
+If your story has no number and no artifact (dashboard, RFC, test, runbook), it is hard to score "strong."
+
+## Three rules that survive follow-ups
+
+**Be specific.** Names, time box, metric. "Q3 last year, payments team, 12% of EU checkouts failing TLS" is memorable. "A production issue once" is not.
+
+**Be honest.** They will ask "what did your manager think" and "what would you do differently." A polished fake collapses. A small true story with a real lesson beats a cinematic lie.
+
+**Say I, then the team.** Hiring *you*. "I wrote the postmortem; Priya owned the cert rotation" is clearer than a fog of "we." Credit others; do not vanish.
+
+> [!WARNING]
+> Never use a story where you were a bystander. "I watched the staff engineer fix it" scores as no signal. Pick a story where you made a call, even a junior one (wrote the repro, owned the customer comms, added the test).
+
+## Build a story bank before the first screen
+
+Write 6 stories, one page each, using [STAR](./002-star-method). Cover:
+
+1. Conflict / disagreement
+2. Failure or mistake you owned
+3. Leadership without authority
+4. Ambiguous requirements
+5. Technical depth (debug, design, performance)
+6. Customer or stakeholder friction
+
+Map them onto a grid so one story can answer two question types (see [common questions](./003-common-questions)). Practice **out loud** in 2–3 minutes. Then practice the follow-ups:
+
+- "What did you consider and reject?"
+- "Who disagreed, and what did you do with that?"
+- "What broke two weeks later?"
+- "If you had 10% more time, what would you still not do?"
+
+If you cannot answer those, the story is not ready.
+
+## What to remember
+
+- They are testing judgment and ownership with evidence, not charisma.
+- Six written stories beat twenty half-remembered ones.
+- Follow-ups are the interview. The first telling is just the title card.
+- Next: structure those stories with STAR, then map them to the questions you will actually get.
