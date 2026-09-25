@@ -1,5 +1,6 @@
 ---
 title: Languages Overview
+description: Learn Python, JavaScript, TypeScript, and Go with interview-focused guides covering syntax, internals, and real-world patterns.
 order: 0
 ---
 

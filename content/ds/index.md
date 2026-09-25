@@ -1,5 +1,6 @@
 ---
 title: Data Structures
+description: Learn core data structures every developer needs, including arrays, trees, heaps, graphs, hash tables, and when to use each one.
 order: 0
 ---
 

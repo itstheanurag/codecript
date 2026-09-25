@@ -1,5 +1,6 @@
 ---
 title: Core CS & Web Fundamentals
+description: Learn OSI, TCP vs UDP, DNS, HTTP, memory management, and other computer science fundamentals used in interviews.
 order: 4
 ---
 

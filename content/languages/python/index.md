@@ -1,5 +1,6 @@
 ---
 title: Python Deep Dive
+description: Learn Python from basics to internals, including CPython, decorators, generators, typing, and concurrency.
 order: 0
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Concurrency & Multithreading
+description: Learn threads, locks, deadlocks, race conditions, and modern concurrency models used in backend systems.
 order: 10
 ---
 

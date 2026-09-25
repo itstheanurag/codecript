@@ -1,5 +1,6 @@
 ---
 title: Building Projects
+description: Build real systems like a URL shortener, chat app, news feed, and video streaming service using system design concepts.
 order: 0
 ---
 
