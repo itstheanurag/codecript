@@ -1,4 +1,16 @@
 import { Helmet } from "react-helmet-async";
+import { useLocation } from "react-router-dom";
+import {
+  absoluteUrl,
+  canonicalPath,
+  pageTitle as formatTitle,
+} from "../lib/seo";
+import {
+  OG_IMAGE,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  TWITTER_HANDLE,
+} from "../lib/site";
 
 interface SEOProps {
   title?: string;
@@ -8,45 +20,36 @@ interface SEOProps {
   ogType?: "website" | "article";
   ogLocale?: string;
   twitterHandle?: string;
-  jsonLd?: object;
+  jsonLd?: object | object[];
 }
 
 const SEO = ({
   title,
   description,
   canonical,
-  ogImage = "/og-image.png",
+  ogImage = OG_IMAGE,
   ogType = "website",
   ogLocale = "en_US",
-  twitterHandle = "@codecript",
+  twitterHandle = TWITTER_HANDLE,
   jsonLd,
 }: SEOProps) => {
-  const siteUrl = "https://codecript.pages.dev";
-  const siteTitle = "codecript - Learn Coding, Algorithms & System Design";
-  const fullTitle = title ? `${title} | codecript` : siteTitle;
-  const defaultDescription =
-    "Master programming languages, data structures, algorithms, and system design. Your one-stop destination to get job-ready.";
-  const metaDescription = description || defaultDescription;
-  const path = window.location.pathname || "/";
-  const absoluteCanonical = canonical
-    ? canonical.startsWith("http")
-      ? canonical
-      : new URL(canonical, siteUrl).toString()
-    : new URL(path, siteUrl).toString();
-  const absoluteOgImage = ogImage.startsWith("http")
-    ? ogImage
-    : new URL(ogImage, siteUrl).toString();
+  const location = useLocation();
+  const fullTitle = formatTitle(title);
+  const metaDescription = description || SITE_DESCRIPTION;
+  const absoluteCanonical = absoluteUrl(
+    canonical ?? canonicalPath(location.pathname),
+  );
+  const absoluteOgImage = absoluteUrl(ogImage);
+  const jsonLdBlocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
   return (
     <Helmet>
-      {/* Basic Meta Tags */}
       <title>{fullTitle}</title>
       <meta name="description" content={metaDescription} />
       <meta name="robots" content="index, follow" />
       <link rel="canonical" href={absoluteCanonical} />
 
-      {/* Open Graph / Facebook */}
-      <meta property="og:site_name" content="codecript" />
+      <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:locale" content={ogLocale} />
       <meta property="og:type" content={ogType} />
       <meta property="og:title" content={fullTitle} />
@@ -54,17 +57,17 @@ const SEO = ({
       <meta property="og:image" content={absoluteOgImage} />
       <meta property="og:url" content={absoluteCanonical} />
 
-      {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={metaDescription} />
       <meta name="twitter:image" content={absoluteOgImage} />
       <meta name="twitter:site" content={twitterHandle} />
 
-      {/* Structured Data */}
-      {jsonLd && (
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-      )}
+      {jsonLdBlocks.map((block, index) => (
+        <script key={index} type="application/ld+json">
+          {JSON.stringify(block)}
+        </script>
+      ))}
     </Helmet>
   );
 };

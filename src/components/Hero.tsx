@@ -1,4 +1,5 @@
 import { ChevronRight, Terminal } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const stripe = (angle: number) => ({
   background: `repeating-linear-gradient(
@@ -105,14 +106,20 @@ const Hero = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-          <button className="flex items-center gap-2 px-3  py-2 bg-white hover:bg-neutral-200 text-neutral-950 rounded-lg text-md transition-transform hover:scale-101 font-sans">
+          <Link
+            to="/languages"
+            className="flex items-center gap-2 px-3  py-2 bg-white hover:bg-neutral-200 text-neutral-950 rounded-lg text-md transition-transform hover:scale-101 font-sans"
+          >
             Start Learning
             <ChevronRight size={20} />
-          </button>
-          <button className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white rounded-lg font-semibold text-sm italic transition-colors lobster-two-bold">
+          </Link>
+          <Link
+            to="/sys-design"
+            className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white rounded-lg font-semibold text-sm italic transition-colors lobster-two-bold"
+          >
             <Terminal size={20} />
             <span>Explore Curriculum</span>
-          </button>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,3 +1,6 @@
+import { Link } from "react-router-dom";
+import { GITHUB_ISSUES_URL, GITHUB_URL } from "../lib/site";
+
 const Footer = () => {
   return (
     <footer className="sticky bottom-0 z-40 border-t border-neutral-900 bg-neutral-950 py-8 relative overflow-hidden text-center">
@@ -7,12 +10,26 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row items-center justify-between w-full text-sm text-neutral-500 tracking-widest gap-4">
           <p>© {new Date().getFullYear()} CodeCript Open Source.</p>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-neutral-300 transition-colors">
+            <Link to="/ds" className="hover:text-neutral-300 transition-colors">
               Documentation
+            </Link>
+            <span className="text-neutral-800">•</span>
+            <a
+              href={GITHUB_ISSUES_URL}
+              className="hover:text-neutral-300 transition-colors"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Report an Issue
             </a>
             <span className="text-neutral-800">•</span>
-            <a href="#" className="hover:text-neutral-300 transition-colors">
-              Report an Issue
+            <a
+              href={GITHUB_URL}
+              className="hover:text-neutral-300 transition-colors"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub
             </a>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { DocItem } from "../lib/content";
+import { docHref } from "../lib/seo";
 
 interface DocPaginationProps {
   prev: DocItem | null;
@@ -16,7 +17,7 @@ const DocPagination = ({ prev, next, basePath }: DocPaginationProps) => {
     >
       {prev ? (
         <Link
-          to={`${basePath}/${prev.slug}`}
+          to={docHref(basePath, prev.slug)}
           className="group flex items-center gap-3 px-5 py-4 rounded-xl border border-neutral-800 bg-neutral-900/40 hover:bg-neutral-800/60 hover:border-neutral-700 transition-all duration-200 max-w-[45%]"
         >
           <ArrowLeft
@@ -45,7 +46,7 @@ const DocPagination = ({ prev, next, basePath }: DocPaginationProps) => {
 
       {next ? (
         <Link
-          to={`${basePath}/${next.slug}`}
+          to={docHref(basePath, next.slug)}
           className="group flex items-center gap-3 px-5 py-4 rounded-xl border border-neutral-800 bg-neutral-900/40 hover:bg-neutral-800/60 hover:border-neutral-700 transition-all duration-200 max-w-[45%] ml-auto"
         >
           <div className="flex flex-col items-end min-w-0">

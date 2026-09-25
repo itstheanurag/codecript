@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useState, type MouseEvent } from "react";
 import { ChevronDown } from "lucide-react";
 import type { DocItem, DocGroup } from "../lib/content";
+import { docHref } from "../lib/seo";
 
 interface SidebarProps {
   basePath: string;
@@ -33,8 +34,10 @@ const Sidebar = ({ basePath, items, groups, onItemClick }: SidebarProps) => {
           {items
             .filter((item) => !item.slug.includes("/"))
             .map((item) => {
-              const to = item.slug === "index" ? basePath : `${basePath}/${item.slug}`;
-              const isActive = location.pathname === to || location.pathname === `${basePath}/${item.slug}`;
+              const to = docHref(basePath, item.slug);
+              const isActive =
+                location.pathname === to ||
+                location.pathname === `${basePath}/${item.slug}`;
               return (
                 <SidebarLink
                   key={item.slug}
@@ -73,7 +76,7 @@ const SidebarGroup = ({
   onItemClick?: () => void;
 }) => {
   const isAnyActive = group.items.some(
-    (item) => pathname === `${basePath}/${item.slug}`,
+    (item) => pathname === docHref(basePath, item.slug),
   );
   const [isOpen, setIsOpen] = useState<boolean>(isAnyActive || true);
 
@@ -96,9 +99,9 @@ const SidebarGroup = ({
           {group.items.map((item) => (
             <SidebarLink
               key={item.slug}
-              to={`${basePath}/${item.slug}`}
+              to={docHref(basePath, item.slug)}
               title={item.meta.title}
-              isActive={pathname === `${basePath}/${item.slug}`}
+              isActive={pathname === docHref(basePath, item.slug)}
               onClick={onItemClick}
             />
           ))}
