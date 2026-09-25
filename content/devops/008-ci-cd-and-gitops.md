@@ -1,51 +1,133 @@
 ---
 title: CI/CD & GitOps
+description: Learn how a real pipeline builds, tests, and ships: GitHub Actions, artifacts, rolling vs canary deploys, and pull-based GitOps.
 order: 8
 ---
 
-Continuous Integration and Continuous Deployment (CI/CD) is the automated process that takes code from a developer's laptop to running reliably in production.
+CI/CD is the path from a git push to running software, without a human SSHing to production. **CI** proves the change is not broken. **CD** puts it somewhere users can hit — with a button (delivery) or automatically (deployment).
+
+If that path is manual, it is slow, it is done at 5pm on Fridays by the person who has the passwords, and it is skipped when people are scared. Automation makes deploys boring. Boring deploys are the goal.
 
 > [!TIP]
-> **ELI5: The Car Factory Assembly Line**
-> *   **Without CI/CD (The Artisan):** One person builds a car from scratch in their garage. They forget to tighten the brakes, drive it on the highway, and crash.
-> *   **With CI/CD (The Factory):** A robot puts on the wheels. Another robot immediately tests if they spin (Automated Testing). If a wheel falls off, the assembly line stops instantly, an alarm sounds (Build Failed), and the broken car never reaches the dealership (Production).
+> **ELI5: The factory line**
+> CI is every car getting the same inspection the second the wheel is bolted on. If a bolt is missing, the line stops **now**, not after 10,000 cars. CD is the truck to the dealership. GitOps is the dealership ordering from a catalog (git) instead of a factory worker driving a truck into the store with a key to the stockroom.
 
-## 1. Continuous Integration (CI)
+## 1. Continuous Integration, concretely
 
-**The Goal:** Detect integration errors as quickly as possible.
+On every pull request:
 
-**The Process:**
-1.  Developer pushes code to a branch.
-2.  A CI server (e.g., GitHub Actions, Jenkins) detects the push.
-3.  The CI server pulls the code, builds it, and runs the entire automated testing suite.
-4.  If any test fails, the build turns "Red," the team is alerted, and the code cannot be merged.
+1. Check out the commit (not `main` plus local junk).
+2. Install deps from the **lockfile**.
+3. Lint, unit tests, build.
+4. Optionally integration tests against ephemeral Postgres.
+5. Fail the PR if any of that fails. Merge is blocked.
 
-## 2. Continuous Delivery vs. Continuous Deployment (CD)
+```yaml
+# .github/workflows/ci.yml
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
 
-*   **Continuous Delivery:** Code that passes CI is built into a deployable artifact (like a Docker image). It is *ready* to be deployed at any time, but requires a human to click "Deploy".
-*   **Continuous Deployment:** Every change that passes CI is released to customers *automatically*, with zero human intervention. Requires extreme confidence in your automated tests.
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=5s
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go test ./...
+      - run: go build -o bin/api ./cmd/api
+```
 
-## 3. GitOps: The Modern CD Paradigm
+Properties that matter:
 
-Historically, CI servers "Pushed" code to production. Your GitHub Actions runner would connect to your Kubernetes cluster and run `kubectl apply`. This creates a massive security vulnerability: your CI server must have admin credentials to your production cluster!
+- **Hermetic.** Same result on a laptop and in CI. Pin tool versions.
+- **Fast.** 20 minutes of tests trains people to ignore CI. Parallelize, cache, and keep unit tests off the network.
+- **On the right commit.** Test the merge SHA, not "whatever was on the runner."
 
-**GitOps** (using tools like ArgoCD or Flux) flips this model to a "Pull" architecture.
+CI also builds the **artifact**: a Docker image tagged with the git SHA, not `latest`. `myapp:a1b2c3d` can be rolled back. `myapp:latest` cannot, because you overwrote it.
 
-1.  Your Kubernetes YAML manifests are stored in a dedicated Git repository.
-2.  ArgoCD lives *inside* your secure Kubernetes cluster.
-3.  ArgoCD constantly watches the Git repository. If the Git repo says "Deploy Image V2", but the cluster is running "Image V1", ArgoCD detects the drift and automatically pulls the new state into the cluster.
+```bash
+docker build -t ghcr.io/acme/api:${GITHUB_SHA} .
+docker push ghcr.io/acme/api:${GITHUB_SHA}
+```
 
-**The Benefit:** Your CI server no longer needs production credentials. Git becomes the single source of truth for your entire cluster state.
+## 2. Delivery vs deployment
 
-## 4. Advanced Deployment Strategies
+**Continuous delivery:** main is always *deployable*. A human (or a protected environment) clicks Deploy to prod after looking at the changelog.
 
-### Blue-Green Deployment
-*   Maintain two identical environments: Blue (currently live) and Green (idle).
-*   Deploy the new version to Green. Run tests.
-*   If everything is good, flip the router to instantly direct all user traffic to Green. If it breaks, flip the router back to Blue.
+**Continuous deployment:** every green main commit goes to prod. This needs tests you trust, instant rollback, and feature flags for unfinished work.
 
-### Canary Deployment
-*   Named after the "canary in the coal mine."
-*   Deploy the new version to a small subset of servers.
-*   Route a tiny percentage of user traffic (e.g., 1%) to the new version.
-*   Monitor error rates closely. If it's stable, slowly increase traffic to 10%, 50%, 100%. If errors spike, instantly roll back the 1%.
+Neither is "we merge and Dave runs a script from memory."
+
+## 3. How the new version actually replaces the old
+
+**Rolling.** Replace instances a few at a time. Default in Kubernetes Deployments. Needs the new version to run next to the old (migrations must be compatible with both).
+
+**Blue-green.** Two full fleets. Switch the load balancer. Instant rollback (switch back). Double compute cost during the cut.
+
+**Canary.** Send 1% of traffic to v2, watch error rate and latency, then 10%, 50%, 100%. Needs metrics that are actually about *that* version (see observability). If you cannot measure, a canary is theater.
+
+```mermaid
+flowchart LR
+    v1["v1 99%"]
+    v2["v2 1%"]
+    LB["Load balancer"] --> v1
+    LB --> v2
+```
+
+**Expand/contract migrations.** Deploy code that can read the new schema, migrate, then deploy code that writes it. Never "stop the world, ALTER TABLE, pray" on a large table without a plan.
+
+> [!WARNING]
+> A deploy that runs `ALTER TABLE users ADD COLUMN ... NOT NULL` without a default will lock the table and take the site down. Schema changes are part of CD, not a side quest.
+
+**Feature flags** decouple "code is in production" from "users see it." That is how continuous deployment stays sane.
+
+## 4. GitOps: pull, don't push
+
+Push CD: GitHub Actions has a kubeconfig (or `aws eks update-kubeconfig`) and runs `kubectl apply`. The CI runner is now a production admin. Steal the GitHub org, steal the cluster.
+
+**GitOps** (Argo CD, Flux):
+
+1. A repo holds desired manifests (`apps/prod/api.yaml` image tag `a1b2c3d`).
+2. CI only **pushes an image** and **opens a PR / commits the tag** in that repo.
+3. A controller **inside** the cluster watches git, diffs, and applies.
+4. If a human kubectl-ed a change, the controller reverts it (or alerts on drift).
+
+The cluster pulls. Credentials to change prod are not in GitHub secrets; the controller's ServiceAccount can only talk to its own API server. Git history is the audit log of what prod was supposed to be.
+
+You still need promotion: PR from `staging` values to `prod` values, or separate folders with human approval.
+
+## 5. What a production pipeline looks like end-to-end
+
+```text
+PR → lint/test → merge to main
+  → build image :sha → push registry
+  → update staging manifest → Argo syncs staging
+  → smoke test / integration
+  → PR or auto-promote prod manifest
+  → canary → metrics → full
+```
+
+Fail any step, stop. Roll back by reverting the manifest to the previous SHA (GitOps) or by pointing the Deployment at the previous tag. Practice rollback on a quiet day. An untested rollback is not a rollback plan.
+
+## What to remember
+
+- CI is a reproducible test+build on every change. Artifacts are immutable SHA tags.
+- Delivery = always deployable. Deployment = it actually went out.
+- Rolling needs compatible deploys. Canary needs metrics. Blue-green needs spare capacity.
+- GitOps pulls from git; CI should not hold cluster-admin keys.
+- Schema changes and flags are part of the pipeline, not afterthoughts.

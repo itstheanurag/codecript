@@ -1,47 +1,105 @@
 ---
-title: Serverless Architecture (FaaS)
+title: Serverless Architecture
+description: Learn how Functions-as-a-Service actually run, what cold starts cost, which limits bite, and when serverless is the wrong tool.
 order: 6
 ---
 
-In traditional deployments, you rent a Virtual Machine (EC2) or run a Kubernetes cluster. You pay for these servers 24/7, even if no users are accessing your application at 3:00 AM. 
+"Serverless" does not mean no servers. It means you do not provision, patch, or size them. You upload a function; the platform creates an execution environment when an event arrives, runs your code, and bills you for the time it ran.
 
-**Serverless** (specifically Functions as a Service - FaaS) flips this model on its head.
+AWS Lambda, Google Cloud Functions, Azure Functions, Cloudflare Workers — same contract, different limits.
 
-## 1. What is Serverless?
+> [!TIP]
+> **ELI5: The ghost kitchen**
+> You do not rent a restaurant (a VM) that is empty at 3am. You publish a recipe (the function). When an order arrives, the platform staffs a cook for that ticket, plates it, and sends the cook home. No orders, no payroll. The first order after a quiet stretch waits while someone clocks in (**cold start**).
 
-Serverless does *not* mean there are no servers. It means you, the developer, do not manage them.
+## 1. What actually runs
 
-With services like **AWS Lambda** or **Google Cloud Functions**, you upload your raw code (a single JavaScript or Python function). The cloud provider holds your code in storage. When an HTTP request comes in, the provider instantly spins up a micro-container, executes your function, returns the response, and immediately destroys the container.
+A function is a handler:
 
-### The Value Proposition
-*   **Zero Ops:** No OS to patch, no Docker images to build, no K8s YAML to write.
-*   **Pay per Execution:** You are billed by the millisecond of compute time. If your app gets 0 traffic, your bill is exactly $0.00.
-*   **Infinite Auto-scaling:** If your app goes viral and receives 10,000 requests in one second, AWS instantly spins up 10,000 parallel instances of your function.
+```javascript
+export async function handler(event) {
+  const id = event.pathParameters.id;
+  const user = await db.getUser(id);
+  return { statusCode: 200, body: JSON.stringify(user) };
+}
+```
 
-## 2. The Cold Start Problem
+The platform maps **events** onto that handler: an HTTP request (API Gateway / Function URL / Cloud Run), a queue message (SQS, Pub/Sub), an object uploaded to S3, a schedule (`cron`), a stream record.
 
-Serverless is not a silver bullet. Its biggest drawback is the **Cold Start**.
+Rough lifecycle of a Lambda-style invoke:
 
-When a request comes in and there are no active instances of your function running, the cloud provider must:
-1. Allocate a container.
-2. Download your code.
-3. Boot the language runtime (Node.js/Python).
-4. Execute your code.
+1. Platform picks a free **execution environment** (micro-VM or container) with your runtime.
+2. If none exist, it creates one: download package, start Node/Python, run init code **outside** the handler (global imports, DB client). That is the **cold start**.
+3. It calls `handler(event)`.
+4. It keeps the environment around for minutes, reusing it for more invokes (**warm start**). Your global variables survive. The disk is a small ephemeral `/tmp`.
+5. Eventually it is frozen or destroyed. You are not told when.
 
-This process can take anywhere from 300ms to 2 seconds. For a user waiting for an API response, a 2-second delay is extremely noticeable and frustrating.
+You are billed for duration × memory (Lambda) or CPU-time (Cloud Run). Scale-to-zero is the cost story. Scale-to-a-lot is the ops story: the platform runs many environments in parallel, up to a **concurrency limit**.
 
-*   **Warm Starts:** If another request comes in shortly after the first one, the container is kept "warm" and handles the request instantly (in ~10ms).
-*   **Mitigation:** To solve Cold Starts, engineers use "Provisioned Concurrency" (paying a flat fee to keep X containers warm 24/7—which defeats the cost savings of serverless) or optimize their code bundle size to boot faster.
+## 2. Cold starts, without folklore
 
-## 3. Stateful vs Stateless
+Cold start time is dominated by:
 
-Serverless functions must be entirely **Stateless**. 
+- Runtime: Java and .NET are heavier than Node, Python, or Go.
+- Package size: a 80MB `node_modules` is slower to unpack than a 5MB bundle.
+- VPC: attaching to a private subnet used to add seconds (ENI). Modern Lambda in VPC is better, still not free.
+- Init work: opening a DB connection at import time is good for warm invokes and painful for cold ones if you do too much.
 
-Because the container is destroyed after the execution finishes, you cannot save data to memory (RAM) or the local file system and expect it to be there for the next request. 
-Any state or session data must be immediately persisted to an external database (like DynamoDB or Redis).
+Typical ballpark (order of magnitude, not a promise): warm Node HTTP is single-digit milliseconds of overhead; cold can be 100ms–1s+; a fat JVM in a VPC can be worse.
 
-## 4. Edge Computing (Serverless at the Edge)
+Mitigations that actually exist:
 
-Traditional serverless functions (like AWS Lambda) run in a specific geographic region (e.g., `us-east-1` in Virginia). If a user in Tokyo requests your function, they suffer significant network latency.
+- **Provisioned concurrency / min instances**: keep N environments warm. You pay for that idle time. You have reinvented a small always-on fleet.
+- **Bundle and tree-shake.** Skip `FROM node:20` with the whole OS if the platform lets you ship a zip.
+- **Avoid doing auth+DB+S3 in the import graph** if most events do not need it.
+- **Edge runtimes** (Cloudflare Workers, some Vercel/Netlify edge): isolate model is V8 isolates, not a full Node process. Cold starts are tiny; Node APIs are not all there.
 
-**Edge Computing** (Cloudflare Workers, Vercel Edge Functions) deploys your serverless code to hundreds of CDNs worldwide. When the Tokyo user makes a request, the function executes on a server physically located in Tokyo, returning a response in milliseconds.
+> [!NOTE]
+> A 300ms cold start on a webhook that runs 2 times an hour is fine. The same on a synchronous "search as you type" API is not. Measure p99 including cold starts, not just warm local `curl`.
+
+## 3. Hard limits that design your system
+
+Read the quota page for your vendor. The recurring ones:
+
+| Limit | Why it matters |
+| :--- | :--- |
+| **Timeout** (Lambda default 3s, max 15min) | HTTP users will not wait 15 minutes. Queue consumers can. Do not run video transcoding in an HTTP Lambda. |
+| **Payload size** (6MB sync Lambda, larger on async/S3) | Do not POST a 50MB file through the function. Put it in object storage, pass the key. |
+| **Memory / CPU** | CPU often scales with memory. Under-provisioning makes you slower *and* you stay running longer, so you pay more. |
+| **Concurrency** | Account-level cap (e.g. 1000). One noisy function can starve others. Set **reserved concurrency**. |
+| **Execution environment reuse** | A global DB pool of 10 × 500 concurrent environments = 5000 connections. Your RDS `max_connections` will die. Use RDS Proxy or a connection-thrifty driver. |
+
+**Stateless** means: do not expect `/tmp`, RAM, or a local socket to still be there on the next request. You may get the same environment; you may not. Persist to the database, cache, or object storage.
+
+## 4. When serverless is the wrong tool
+
+Good fit:
+
+- Spiky or idle traffic (internal tools, webhooks, cron, image thumbnail on upload).
+- Glue between managed services (S3 → function → queue → function).
+- Teams that should not own Kubernetes for a CRUD API.
+
+Bad fit:
+
+- Steady high QPS with tiny handlers: you will pay more than a small always-on container, and you will fight connection pooling.
+- Long-lived WebSockets or SSE (possible with some platforms, awkward on classic Lambda).
+- Tight p99 latency with heavy runtimes.
+- Specialized hardware, GPUs, or a protocol that is not HTTP/queue.
+
+**Cloud Run / App Runner / Azure Container Apps** sit in the middle: you ship a container, they scale it, sometimes to zero. You keep a normal HTTP server, fewer Lambda-shaped constraints, still less cluster ops.
+
+## 5. Cost and operations
+
+Cost is not always cheaper. A 512MB function at 200ms, 10 million times a month, is a few dollars of compute plus API Gateway which is often *more* than compute. Always price the trigger.
+
+Ops you still own: IAM for the function role (least privilege to one bucket prefix, not `*`), structured logs, traces (the platform will inject a request id — log it), alerts on error rate and throttles (`429` from concurrency), and **idempotency** because queues retry.
+
+A function that is not idempotent + an SQS retry = double charges, double emails, double writes. Design for "at least once."
+
+## What to remember
+
+- The platform runs your handler in a reused environment. Cold start is environment create; warm is reuse.
+- Timeouts, payload size, and concurrency are design constraints, not footnotes.
+- Connection pools × concurrency can knock over a database.
+- Serverless is glue and spiky HTTP, not a default for every service.
+- Pay for idle-zero; also pay for API Gateway, provisioned concurrency, and retries.

@@ -1,42 +1,180 @@
 ---
 title: Linux & Networking Basics
+description: Learn the Linux process model, permissions, systemd, and the networking tools you actually use to debug a production server.
 order: 1
 ---
 
-Before you can orchestrate a cluster of thousands of containers in the cloud, you must understand the operating system that runs 96% of the top 1 million web servers: **Linux**.
+Almost every production server you will ever SSH into is Linux. Before Docker, Kubernetes, or AWS, you need to be able to land on a box, figure out what it is doing, and fix it when it is not.
 
-DevOps begins with the terminal. If a server goes down, you won't have a GUI to fix it.
+If a service is down at 2am, there is no GUI. There is a shell, some log files, and a set of tools that answer three questions: is the process alive, can it talk on the network, and does it have permission to do its job.
 
-## 1. Process Management
+> [!TIP]
+> **ELI5: The apartment building**
+> A Linux server is a building. **Processes** are people living in apartments (PIDs). **Files** are rooms and drawers. **Permissions** are keys: owner, housemates, strangers. **Ports** are numbered doors to the street. `ss` and `curl` tell you which doors are open and whether anyone answers.
 
-Every running program on a Linux machine is a **Process**. Understanding how to monitor and manipulate processes is critical for debugging resource leaks.
+## 1. The process model
 
-*   **`top` & `htop`:** The task managers of Linux. They show you exactly which processes are consuming your CPU and Memory. `htop` provides a much cleaner, color-coded interface.
-*   **`ps aux`:** Lists every currently running process on the machine. Commonly piped into grep: `ps aux | grep node` to find the exact Process ID (PID) of your Node.js application.
-*   **`kill <PID>`:** Sends a signal to gracefully stop a process.
-*   **`kill -9 <PID>`:** The nuclear option. Sends `SIGKILL`, forcing the OS to terminate the process immediately without letting it clean up its resources.
+Everything running is a **process**. The kernel tracks each one with a PID, a parent PID, open file descriptors, and resource usage.
 
-## 2. Users, Groups, and Permissions
+```bash
+# Who is eating CPU and RAM right now?
+htop          # nicer; install it if missing
+top           # always available
 
-Security in Linux is heavily based on file permissions. A massive number of deployment bugs boil down to: "The application doesn't have permission to read that configuration file."
+# Find a specific program
+ps aux | grep nginx
 
-Every file has three sets of permissions: **User (Owner)**, **Group**, and **Others**.
-For each set, there are three rights: **Read (r)**, **Write (w)**, and **Execute (x)**.
+# What is PID 1421 doing, and who started it?
+ps -o pid,ppid,user,stat,cmd -p 1421
+```
 
-*   **`chmod` (Change Mode):** Modifies permissions. You will often see numbers like `chmod 755 script.sh`.
-    *   `7` (Owner): Read (4) + Write (2) + Execute (1)
-    *   `5` (Group): Read (4) + Execute (1)
-    *   `5` (Others): Read (4) + Execute (1)
-*   **`chown` (Change Owner):** Transfers ownership of a file from one user to another.
+Process state letters you will see in `ps`:
+
+| State | Meaning |
+| :--- | :--- |
+| `R` | Running or ready to run |
+| `S` | Sleeping, waiting on I/O or a timer (normal) |
+| `Z` | Zombie: child exited, parent never called `wait()` |
+| `D` | Uninterruptible sleep, usually stuck on disk I/O |
+
+### Signals: how you actually stop things
+
+`kill` does not "kill" by default. It sends **SIGTERM** (15): "please shut down, flush your buffers, close connections."
+
+```bash
+kill 1421          # SIGTERM — graceful
+kill -15 1421      # same thing
+kill -9 1421       # SIGKILL — kernel yanks the process, no cleanup
+```
 
 > [!WARNING]
-> Never run an application server (like a web server or database) as the `root` user. If an attacker exploits a vulnerability in your Node.js app, and it's running as `root`, they instantly gain full control over the entire server.
+> `kill -9` skips destructors, connection draining, and lock release. Use it when the process is wedged. If you SIGKILL a database, you can leave WAL files and lock files in a bad state.
 
-## 3. Networking & Debugging
+On modern servers, you usually do not `kill` by PID. You talk to **systemd**, which knows how to start, stop, and restart the service:
 
-When microservices fail to communicate, these are the tools you use to find out why:
+```bash
+systemctl status nginx
+systemctl restart nginx
+journalctl -u nginx -n 100 --no-pager   # last 100 log lines
+```
 
-*   **`ping <ip>`:** Sends a basic ICMP packet to see if a server is alive. Note: Many production servers block ping requests for security reasons.
-*   **`curl -I <url>`:** Fetches the HTTP headers of a website. Crucial for verifying API endpoints without downloading the entire response body.
-*   **`netstat -tulpn`:** Shows you exactly which ports are open on your machine and which processes are listening on them. If your app crashes saying "Port 8080 is already in use," this command tells you who is using it.
-*   **`iptables` / `ufw`:** The built-in Linux firewalls. You use these to explicitly block all incoming traffic except for specific ports (like 80 for HTTP and 443 for HTTPS).
+`systemctl` sends SIGTERM, waits a timeout (often 90s), then SIGKILL if the process ignores you. That timeout is why a "restart" can hang.
+
+## 2. Files, users, and permissions
+
+Linux security is still mostly: **who owns this file, and what bits are set**.
+
+Every file has an owner user, an owner group, and three permission triples: **user / group / other**, each `rwx`.
+
+```
+-rwxr-xr-x  1 app app  4096  deploy.sh
+ ^          ^   ^
+ type       owner group
+```
+
+Numeric form is just addition: read=4, write=2, execute=1.
+
+| Mode | Meaning |
+| :--- | :--- |
+| `755` | Owner rwx, everyone else rx. Typical for scripts and directories. |
+| `644` | Owner rw, everyone else r. Typical for config and source. |
+| `600` | Owner only. SSH keys, secrets, env files. |
+| `777` | Anyone can do anything. Almost never correct. |
+
+```bash
+ls -l /etc/nginx/nginx.conf
+chmod 644 /etc/nginx/nginx.conf
+chown root:root /etc/nginx/nginx.conf
+
+# Your app should run as a dedicated user, not root
+id app
+sudo -u app -H ./server
+```
+
+> [!CAUTION]
+> If the web app runs as `root` and an attacker gets remote code execution, they own the machine: they can read `/etc/shadow`, install a cron backdoor, and dump every other tenant on the box. Create a user, give it only the files it needs, drop privileges after bind-to-port-80 if you must.
+
+Directories need **execute** to be entered (`cd`) even if you can read them. A common deploy bug is `chmod 644` on a directory, then Nginx returns 403 because it cannot traverse to `index.html`.
+
+## 3. How a request reaches a process
+
+When you type `https://api.example.com/health` the box has to succeed at several independent steps. Debugging is walking this chain.
+
+```mermaid
+sequenceDiagram
+    participant You
+    participant DNS
+    participant Kernel
+    participant Process
+
+    You->>DNS: Where is api.example.com?
+    DNS-->>You: 203.0.113.10
+    You->>Kernel: TCP connect 203.0.113.10:443
+    Kernel->>Process: socket accept on :443
+    Process-->>You: HTTP response
+```
+
+1. **DNS** turns the name into an IP (`dig`, `nslookup`).
+2. **Routing** sends packets toward that IP (`ip route`, `traceroute`).
+3. **Firewall** decides whether the packet is allowed (`iptables`/`nft`/`ufw`, or a cloud security group in front of the box).
+4. A process must be **listening** on that port (`ss -lptn`).
+5. The process must **accept** and speak the protocol (`curl -v`).
+
+```bash
+# Does DNS resolve, and to what?
+dig +short api.example.com
+
+# Is anything listening on 443?
+ss -lptn | grep 443
+# older boxes: netstat -tulpn | grep 443
+
+# Can we complete TLS and HTTP from here?
+curl -vI https://api.example.com/health
+
+# Where do packets die?
+traceroute -n api.example.com
+```
+
+`curl -v` is the most useful HTTP tool you have. It prints DNS, TCP, TLS, request headers, and response headers. If TLS fails, you never reach the app. If TCP hangs, you never reach TLS.
+
+### Ports and binding
+
+A process **binds** an address and port. `0.0.0.0:8080` means "all interfaces." `127.0.0.1:8080` means "only this machine." That is why "it works on the server when I curl localhost" and "it fails from my laptop" can both be true: the app bound to loopback, or a firewall dropped the public path.
+
+```bash
+# Show listening sockets and the process that owns them
+ss -lptn
+```
+
+## 4. Logs live on disk until they do not
+
+Default places to look, in order:
+
+| Path | What is there |
+| :--- | :--- |
+| `journalctl -u <service>` | systemd-captured stdout/stderr |
+| `/var/log/nginx/` | access.log, error.log |
+| `/var/log/syslog` or `/var/log/messages` | kernel and system |
+| `dmesg` | kernel ring buffer (OOM killer lives here) |
+
+When a process "just disappears," check `dmesg | grep -i oom`. The **OOM killer** is the kernel shooting a process because RAM is gone. From the app's point of view it was murdered, not crashed.
+
+## 5. A real debugging loop: "the API is down"
+
+Do not guess. Walk the path.
+
+1. `curl -vI https://api.example.com/health` from your laptop. DNS? TLS? Timeout? Connection refused? HTTP 502?
+2. SSH in. `systemctl status api` and `journalctl -u api -n 200`.
+3. `ss -lptn | grep 8080` — is the process even listening?
+4. `curl -sS http://127.0.0.1:8080/health` on the box. If localhost works and the public URL does not, the problem is proxy, TLS, security group, or bind address — not application code.
+5. `df -h` and `free -h`. Disks at 100% make logs and databases fail in bizarre ways. RAM at 0 triggers OOM.
+
+> [!NOTE]
+> `ping` only tests ICMP. Many clouds disable ICMP. A failed ping does not mean the HTTP port is down. Always test the real protocol with `curl` or `nc`.
+
+## What to remember
+
+- SIGTERM asks, SIGKILL forces. Prefer `systemctl`.
+- Permissions are owner/group/other × rwx. Do not run apps as root.
+- Network failures are a chain: DNS → route → firewall → listen → protocol.
+- `ss`, `curl -v`, `journalctl`, and `dmesg` solve most "the server is broken" tickets.
