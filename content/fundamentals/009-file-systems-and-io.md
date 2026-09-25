@@ -1,49 +1,81 @@
 ---
 title: File Systems & I/O
+description: Learn inodes, directories, journaling, page cache, fsync, and why disk I/O is the bottleneck databases work around.
 order: 9
 ---
 
-The hard drive is just a massive array of physical blocks holding 1s and 0s. The File System is the OS abstraction that organizes these blocks into the recognizable structure of files and directories.
+A disk is blocks of bits. A **file system** is the scheme that turns those blocks into files, directories, permissions, and names. Most production bugs at this layer are not "ext4 vs XFS." They are **full disks**, **forgotten `fsync`**, and **random I/O** on a spinning rust mental model that still applies to tail latency.
 
-## 1. Inodes (Index Nodes)
+> [!TIP]
+> **ELI5: Library catalog**
+> The book (data blocks) lives on shelves. The **inode** is the catalog card: size, owner, where the shelves are. The **filename** is not on the card — it lives in a folder listing (a directory is a file that maps names → inode numbers). Two names can point at one card (**hard link**). A **symlink** is a card that just says "see that other name."
 
-In Unix-like systems (Linux, macOS), a file is not just its data. It is composed of two parts: the data blocks, and the metadata.
+## 1. Inodes, names, and links
 
-The metadata is stored in an **Inode**.
+On Unix, a file is an **inode** + data blocks.
 
-An Inode contains:
-*   File type (regular file, directory, symlink).
-*   Permissions (read, write, execute for user, group, others).
-*   Owner (UID, GID).
-*   File size.
-*   Timestamps (creation, modification, access).
-*   **Pointers to the physical data blocks on the disk.**
+The inode stores type, mode (`rwx`), owner, size, timestamps, and **pointers to data blocks** (and indirect pointers for large files). It does **not** store the name.
 
-> [!NOTE]
-> An Inode does **not** contain the filename. A directory is essentially just a special file that contains a mapping of human-readable filenames to Inode numbers. This is why you can have multiple "Hard Links" (different filenames) pointing to the exact same Inode and data.
+A **directory** is a list of `(name, inode number)`. That is why `mv` inside a filesystem is cheap: you rewrite directory entries, not the file bytes.
 
-## 2. Journaling File Systems
+```bash
+ls -li file.txt          # left column is inode
+stat file.txt
+df -i                    # inode exhaustion: lots of tiny files can fill inodes first
+```
 
-Imagine the OS is in the middle of writing a large file, updating several data blocks and the Inode, and suddenly the power goes out. The file system is now in an inconsistent state, potentially leading to catastrophic data corruption.
+**Hard link:** second name, same inode, same data. Data lives until the last link (and last open fd) is gone.
 
-Modern file systems (like ext4, NTFS, APFS) use **Journaling** to prevent this.
+**Symlink:** a small file holding a path. Breaks if you move the target.
 
-1.  Before making any actual changes to the main file system structures, the OS writes a "log" or "journal" of the intended changes to a dedicated area on the disk.
-2.  Once the journal entry is safely on disk, the OS executes the actual changes.
-3.  If power is lost during the actual update, the OS simply reads the journal upon reboot and either replays the completed transaction or rolls back the incomplete one, guaranteeing consistency.
+**"No space left on device"** can mean data blocks **or** inodes. `df -h` vs `df -i`.
 
-## 3. I/O Performance & Bottlenecks
+## 2. Journaling (why the disk is not soup after a crash)
 
-Disk I/O is often the slowest part of a computer system. 
+A write is several steps: update data, update inode, update directory. Power loss in the middle = torn metadata.
 
-### Sequential vs. Random Access
-*   **Sequential I/O:** Reading or writing contiguous blocks of data (e.g., streaming a video, or appending to a log file). Very fast, especially on traditional HDDs where the physical read head doesn't have to move.
-*   **Random I/O:** Reading or writing small chunks of data scattered across the disk (e.g., a heavily fragmented database lookup). Much slower. NVMe SSDs have drastically reduced the penalty for Random I/O, but it remains a critical metric.
+**Journaling** file systems (ext4, NTFS, APFS) write an **intent log** first, then the real structures. On mount after a crash, the journal is replayed or rolled back. You get a **consistent tree**, not necessarily every byte of file contents (depends on journal mode: metadata-only vs data=journal).
 
-### Page Cache (Buffer Cache)
-Because disks are slow, the OS aggressively caches disk reads and writes in unused physical RAM.
-*   When you read a file, the OS loads it into the Page Cache. A subsequent read of the same file will be served directly from RAM (lightning fast).
-*   When you write a file, the OS writes it to the Page Cache first and marks the page as "dirty". It then asynchronously flushes these dirty pages to the physical disk in the background.
+This is consistency of the *file system*, not of your *database*. Postgres still has its own WAL.
+
+## 3. Sequential vs random, HDD vs SSD
+
+**Sequential:** read the next block, then the next. HDD heads barely move; NVMe is still happiest here (large reads). Logs, scans, video.
+
+**Random:** tiny reads scattered. HDD dies (milliseconds per seek). NVMe is orders of magnitude better but still not RAM; p99 spikes if the queue depth explodes.
+
+Databases and KV stores are designed around this (LSM vs B-tree, compaction, write amplification). Your API that `read()`s a 10-byte file per request on a network filesystem will feel it.
+
+## 4. Page cache and `fsync`
+
+Linux uses spare RAM as **page cache**. Reads of hot files never hit disk. Writes often go to cache (**dirty pages**) and flush later.
+
+```text
+write()  →  page cache (fast)  →  later  →  disk
+fsync()  →  "I mean it: durable now"
+```
+
+That is why `write()` returning does **not** mean the file survived a crash. Databases call `fsync` (or `fdatasync`) on WAL files. That is also why "sync every write" tanks throughput.
 
 > [!WARNING]
-> Because writes are buffered in RAM, a sudden power loss means recent writes can be lost. Databases must explicitly tell the OS to bypass the cache and force an immediate sync to the physical disk (using `fsync()`) to guarantee ACID Durability. This is why database writes are significantly slower than normal file writes.
+> Docker and VMs lie if the hypervisor caches too. A test that `write()`s a file then "pulls the plug" in a VM may still see data that would have died on real power loss. Durability tests need `fsync` and a clear storage path.
+
+`O_DIRECT` bypasses the cache when you want to manage buffers yourself (some DBs). Most app code should not.
+
+## 5. What you debug on a box
+
+```bash
+df -h && df -i
+iostat -xz 1              # await, %util
+dmesg | grep -i error     # dying disk
+lsof | grep deleted       # process holds a deleted file; space not freed until exit
+```
+
+A classic outage: log file deleted but the process still has it open — `df` stays at 100% until restart.
+
+## What to remember
+
+- Names live in directories; identity and blocks live in inodes. Links are extra names.
+- Journaling protects file-system metadata across crashes; it is not your app's durability story.
+- `write` is to cache; `fsync` is to media. Databases pay for `fsync` on purpose.
+- Full inodes, held-deleted files, and random I/O are the boring causes of "the disk is broken."
