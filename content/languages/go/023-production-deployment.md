@@ -43,6 +43,7 @@ ENTRYPOINT ["/myapp"]
 ## 3. Health Checks and Monitoring
 
 Production services must be "Observable."
+
 - **Health Checks**: Expose a `/health` endpoint for Kubernetes or load balancers to verify your service is alive.
 - **Metrics**: Use the `prometheus` client library to expose internal metrics like request counts, error rates, and DB latency.
 
@@ -57,15 +58,18 @@ When updating your service, you must ensure that in-flight requests are finished
 ---
 
 ## Interview Pro-Tips: Why use Scratch images?
+
 If an interviewer asks about the smallest possible Docker image:
+
 - **The Answer**: You can use the `scratch` image (an empty starting point). If your Go binary is statically compiled (`CGO_ENABLED=0`), it can run on a completely empty filesystem. This results in the **highest security** possible, as there are no shells, libraries, or utilities for an attacker to exploit if they breach your app.
 
 ---
 
 ## Technical Summary
+
 1. `Multi-Stage`: Separate build and runtime environments.
 2. `Static`: Zero-dependency binaries.
 3. `Alpine/Scratch`: Targeted, minimal base images for security and speed.
 4. `Signal Handling`: The key to zero-downtime deployments.
- flagship
- flagship
+   flagship
+   flagship

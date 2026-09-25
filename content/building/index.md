@@ -27,6 +27,10 @@ How does Facebook or Instagram scale to billions of posts? Learn about fan-out p
 Master the complexities of data ingestion and delivery for high-bandwidth systems like YouTube or Netflix.
 - [Building Video Streaming](/building/004-video-streaming)
 
+### Web Server from Scratch
+Demystify the magic of standard libraries. Build a raw HTTP server over TCP sockets from the ground up.
+- [Build a Web Server](/building/006-web-server)
+
 ---
 
 ## Beyond the Code
