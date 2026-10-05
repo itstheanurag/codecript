@@ -8,7 +8,8 @@ import {
   Command,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Fuse, { type FuseResult } from "fuse.js";
+import type Fuse from "fuse.js";
+import type { FuseResult } from "fuse.js";
 import { getDocSections, type DocItem } from "../lib/content";
 
 interface SearchEntry {
@@ -26,17 +27,19 @@ const SearchOverlay = ({
 }) => {
   const [query, setQuery] = useState("");
   const [rawSelectedIndex, setRawSelectedIndex] = useState(0);
+  const [results, setResults] = useState<FuseResult<SearchEntry>[]>([]);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const fuseInstanceRef = useRef<Fuse<SearchEntry> | null>(null);
 
-  const searchIndex = useMemo(() => {
+  const allDocs = useMemo(() => {
     const sections = getDocSections();
-    const allDocs: SearchEntry[] = [];
+    const docs: SearchEntry[] = [];
 
     Object.entries(sections).forEach(([path, section]) => {
       section.items.forEach((doc) => {
-        allDocs.push({
+        docs.push({
           sectionTitle: section.title,
           sectionPath: path,
           doc,
@@ -44,17 +47,35 @@ const SearchOverlay = ({
       });
     });
 
-    return new Fuse<SearchEntry>(allDocs, {
-      keys: ["doc.meta.title", "sectionTitle", "doc.slug"],
-      threshold: 0.3,
-      includeMatches: true,
-    });
+    return docs;
   }, []);
 
-  const results = useMemo(() => {
-    if (!query) return [];
-    return searchIndex.search(query).slice(0, 8);
-  }, [query, searchIndex]);
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (!fuseInstanceRef.current) {
+      import("fuse.js").then(({ default: FuseClass }) => {
+        fuseInstanceRef.current = new FuseClass<SearchEntry>(allDocs, {
+          keys: ["doc.meta.title", "sectionTitle", "doc.slug"],
+          threshold: 0.3,
+          includeMatches: true,
+        });
+        if (query) {
+          setResults(fuseInstanceRef.current.search(query).slice(0, 8));
+        }
+      });
+    }
+  }, [isOpen, allDocs, query]);
+
+  useEffect(() => {
+    if (!query) {
+      setResults([]);
+      return;
+    }
+    if (fuseInstanceRef.current) {
+      setResults(fuseInstanceRef.current.search(query).slice(0, 8));
+    }
+  }, [query]);
 
   const selectedIndex =
     rawSelectedIndex < results.length ? rawSelectedIndex : 0;
@@ -120,25 +141,25 @@ const SearchOverlay = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-paper-300">
-          <SearchIcon className="text-ink-muted shrink-0" size={19} />
+          <SearchIcon className="text-ink-secondary shrink-0" size={19} />
           <input
             ref={inputRef}
             type="text"
             placeholder="Search guides, algorithms, system patterns..."
-            className="flex-1 bg-transparent border-none outline-none text-ink placeholder:text-ink-muted font-medium text-sm font-sans"
+            className="flex-1 bg-transparent border-none outline-none text-ink placeholder:text-ink-secondary/70 font-medium text-sm font-sans"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
               setRawSelectedIndex(0);
             }}
           />
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-paper-200 text-[10px] text-ink-muted font-bold tracking-tighter sm:flex hidden font-sans">
+          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-paper-200 text-[10px] text-ink-secondary font-bold tracking-tighter sm:flex hidden font-sans">
             <Command size={10} />
             <span>K</span>
           </div>
           <button
             onClick={handleClose}
-            className="text-ink-muted hover:text-ink transition-colors cursor-pointer p-1"
+            className="text-ink-secondary hover:text-ink transition-colors cursor-pointer p-1"
           >
             <X size={18} />
           </button>
@@ -171,10 +192,10 @@ const SearchOverlay = ({
                   >
                     {result.item.doc.meta.title}
                   </h4>
-                  <div className="flex items-center gap-1 text-[11px] text-ink-muted font-medium mt-0.5 font-sans">
+                  <div className="flex items-center gap-1 text-[11px] text-ink-secondary font-medium mt-0.5 font-sans">
                     <span>{result.item.sectionTitle}</span>
                     <ChevronRight size={10} className="text-paper-400" />
-                    <span className="truncate text-ink-muted font-mono">
+                    <span className="truncate text-ink-secondary font-mono">
                       {result.item.doc.slug}
                     </span>
                   </div>
@@ -188,13 +209,13 @@ const SearchOverlay = ({
             ))
           ) : query ? (
             <div className="py-12 text-center">
-              <p className="text-ink-muted text-sm font-serif">
+              <p className="text-ink-secondary text-sm font-serif">
                 No guides found for &ldquo;{query}&rdquo;
               </p>
             </div>
           ) : (
             <div className="py-6 px-3">
-              <p className="text-ink-muted text-[11px] font-bold uppercase tracking-widest mb-3 font-sans">
+              <p className="text-ink-secondary text-[11px] font-bold uppercase tracking-widest mb-3 font-sans">
                 Quick Navigation
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -214,7 +235,7 @@ const SearchOverlay = ({
                       </span>
                       <ChevronRight
                         size={14}
-                        className="text-ink-muted group-hover:text-ink"
+                        className="text-ink-secondary group-hover:text-ink"
                       />
                     </button>
                   ))}
@@ -223,23 +244,23 @@ const SearchOverlay = ({
           )}
         </div>
 
-        <div className="p-3 border-t border-paper-300 bg-paper-200 flex items-center justify-between text-[10px] text-ink-muted font-bold uppercase tracking-widest px-5 font-sans">
+        <div className="p-3 border-t border-paper-300 bg-paper-200 flex items-center justify-between text-[10px] text-ink-secondary font-bold uppercase tracking-widest px-5 font-sans">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
-              <span className="px-1.5 py-0.5 rounded bg-paper-300 text-ink-secondary">
+              <span className="px-1.5 py-0.5 rounded bg-paper-300 text-ink">
                 ENT
               </span>{" "}
               SELECT
             </span>
             <span className="flex items-center gap-1">
-              <span className="px-1.5 py-0.5 rounded bg-paper-300 text-ink-secondary">
+              <span className="px-1.5 py-0.5 rounded bg-paper-300 text-ink">
                 ↑↓
               </span>{" "}
               NAVIGATE
             </span>
           </div>
           <span className="flex items-center gap-1">
-            <span className="px-1.5 py-0.5 rounded bg-paper-300 text-ink-secondary">
+            <span className="px-1.5 py-0.5 rounded bg-paper-300 text-ink">
               ESC
             </span>{" "}
             CLOSE

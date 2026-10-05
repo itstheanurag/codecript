@@ -1,10 +1,26 @@
 import { useEffect, useState, useRef } from "react";
-import { codeToHtml } from "shiki";
 
 interface CodeBlockProps {
   code: string;
   language: string;
 }
+
+const SUPPORTED_LANGS = [
+  "javascript",
+  "typescript",
+  "python",
+  "go",
+  "rust",
+  "cpp",
+  "csharp",
+  "bash",
+  "json",
+  "yaml",
+  "markdown",
+  "sql",
+  "html",
+  "css",
+] as const;
 
 const LANGUAGE_ALIAS_MAP: Record<string, string> = {
   cplusplus: "cpp",
@@ -13,9 +29,9 @@ const LANGUAGE_ALIAS_MAP: Record<string, string> = {
   "c#": "csharp",
   cs: "csharp",
   js: "javascript",
-  jsx: "jsx",
+  jsx: "javascript",
   ts: "typescript",
-  tsx: "tsx",
+  tsx: "typescript",
   py: "python",
   sh: "bash",
   shell: "bash",
@@ -62,6 +78,24 @@ const CheckIcon = () => (
   </svg>
 );
 
+type Highlighter = Awaited<
+  ReturnType<(typeof import("shiki"))["getSingletonHighlighter"]>
+>;
+
+let highlighterPromise: Promise<Highlighter> | null = null;
+
+const getHighlighter = () => {
+  if (!highlighterPromise) {
+    highlighterPromise = import("shiki").then(({ getSingletonHighlighter }) =>
+      getSingletonHighlighter({
+        themes: ["everforest-light"],
+        langs: [...SUPPORTED_LANGS],
+      }),
+    );
+  }
+  return highlighterPromise;
+};
+
 const CodeBlock = ({ code, language }: CodeBlockProps) => {
   const [html, setHtml] = useState<string>("");
   const [copied, setCopied] = useState(false);
@@ -75,17 +109,22 @@ const CodeBlock = ({ code, language }: CodeBlockProps) => {
     );
 
     const renderHighlightedCode = async () => {
-      for (const lang of languageCandidates) {
-        try {
-          const result = await codeToHtml(code, {
-            lang,
-            theme: "everforest-light",
-          });
-          if (!cancelled) setHtml(result);
-          return;
-        } catch {
-          // Try next language candidate.
+      try {
+        const highlighter = await getHighlighter();
+        for (const lang of languageCandidates) {
+          try {
+            const result = highlighter.codeToHtml(code, {
+              lang,
+              theme: "everforest-light",
+            });
+            if (!cancelled) setHtml(result);
+            return;
+          } catch {
+            // Try next candidate
+          }
         }
+      } catch (err) {
+        console.error("Shiki load error:", err);
       }
       if (!cancelled) setHtml("");
     };
@@ -111,7 +150,7 @@ const CodeBlock = ({ code, language }: CodeBlockProps) => {
     <div className="relative group my-5 rounded-lg overflow-hidden border border-paper-300/80 bg-paper-200">
       <button
         onClick={handleCopy}
-        className="absolute right-2.5 top-2.5 p-1.5 rounded bg-paper-300paper-300/60 text-ink-mutedink-muted opacity-0 group-hover:opacity-100 transition-all hover:bg-paper-400paper-400 hover:text-inkink z-10 cursor-pointer"
+        className="absolute right-2.5 top-2.5 p-1.5 rounded bg-paper-300/60 text-ink-secondary opacity-0 group-hover:opacity-100 transition-all hover:bg-paper-400 hover:text-ink z-10 cursor-pointer"
         title="Copy code"
         aria-label="Copy code to clipboard"
       >
@@ -121,11 +160,11 @@ const CodeBlock = ({ code, language }: CodeBlockProps) => {
       {html ? (
         <div
           ref={containerRef}
-          className="shiki-wrapper overflow-x-auto text-[13.5px] font-mono leading-relaxed [&>pre]:p-4 [&>pre]:bg-paper-200paper-200! [&>pre]:overflow-x-auto"
+          className="shiki-wrapper overflow-x-auto text-[13.5px] font-mono leading-relaxed [&>pre]:p-4 [&>pre]:bg-paper-200! [&>pre]:overflow-x-auto"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       ) : (
-        <pre className="bg-paper-200paper-paper-300200 p-4 text-[13.5px] text-inkink font-mono overflow-x-auto leading-relaxed">
+        <pre className="bg-paper-200 p-4 text-[13.5px] text-ink font-mono overflow-x-auto leading-relaxed">
           <code>{code}</code>
         </pre>
       )}
