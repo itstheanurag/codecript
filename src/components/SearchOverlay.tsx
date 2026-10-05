@@ -1,19 +1,38 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import { Search as SearchIcon, X, FileText, ChevronRight, Command } from "lucide-react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
+import {
+  Search as SearchIcon,
+  X,
+  FileText,
+  ChevronRight,
+  Command,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Fuse from "fuse.js";
-import { getDocSections } from "../lib/content";
+import Fuse, { type FuseResult } from "fuse.js";
+import { getDocSections, type DocItem } from "../lib/content";
 
-const SearchOverlay = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+interface SearchEntry {
+  sectionTitle: string;
+  sectionPath: string;
+  doc: DocItem;
+}
+
+const SearchOverlay = ({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) => {
   const [query, setQuery] = useState("");
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [rawSelectedIndex, setRawSelectedIndex] = useState(0);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const searchIndex = useMemo(() => {
     const sections = getDocSections();
-    const allDocs: any[] = [];
+    const allDocs: SearchEntry[] = [];
 
     Object.entries(sections).forEach(([path, section]) => {
       section.items.forEach((doc) => {
@@ -25,7 +44,7 @@ const SearchOverlay = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
       });
     });
 
-    return new Fuse(allDocs, {
+    return new Fuse<SearchEntry>(allDocs, {
       keys: ["doc.meta.title", "sectionTitle", "doc.slug"],
       threshold: 0.3,
       includeMatches: true,
@@ -37,30 +56,48 @@ const SearchOverlay = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
     return searchIndex.search(query).slice(0, 8);
   }, [query, searchIndex]);
 
+  const selectedIndex =
+    rawSelectedIndex < results.length ? rawSelectedIndex : 0;
+
+  const handleClose = useCallback(() => {
+    setQuery("");
+    setRawSelectedIndex(0);
+    onClose();
+  }, [onClose]);
+
+  const handleSelect = useCallback(
+    (result: FuseResult<SearchEntry>) => {
+      const { sectionPath, doc } = result.item;
+      navigate(`${sectionPath}/${doc.slug}`);
+      handleClose();
+    },
+    [navigate, handleClose],
+  );
+
   useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus();
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
-      setQuery("");
     }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [isOpen]);
 
   useEffect(() => {
-    setSelectedIndex(0);
-  }, [results]);
-
-  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        setSelectedIndex((prev) => (prev + 1) % results.length);
+        setRawSelectedIndex((prev) => (prev + 1) % (results.length || 1));
       }
       if (e.key === "ArrowUp") {
         e.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + results.length) % results.length);
+        setRawSelectedIndex(
+          (prev) => (prev - 1 + results.length) % (results.length || 1),
+        );
       }
       if (e.key === "Enter" && results[selectedIndex]) {
         handleSelect(results[selectedIndex]);
@@ -69,105 +106,148 @@ const SearchOverlay = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
 
     if (isOpen) window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, results, selectedIndex]);
+  }, [isOpen, results, selectedIndex, handleSelect, handleClose]);
 
-  const handleSelect = (result: any) => {
-    const { sectionPath, doc } = result.item;
-    navigate(`${sectionPath}/${doc.slug}`);
-    onClose();
-  };
+  if (!isOpen || typeof document === "undefined") return null;
 
-  if (!isOpen) return null;
-
-  return (
-    <div 
-      className="fixed inset-0 z-[100] bg-neutral-950/40 backdrop-blur-md flex items-start justify-center pt-[10vh] px-4"
-      onClick={onClose}
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100] bg-ink/50 backdrop-blur-sm flex items-start justify-center pt-[10vh] sm:pt-[12vh] px-4"
+      onClick={handleClose}
     >
-      <div 
-        className="w-full max-w-2xl bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
-        onClick={e => e.stopPropagation()}
+      <div
+        className="w-full max-w-2xl bg-paper-50 border border-paper-300 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-3 px-4 py-4 border-b border-neutral-800">
-          <SearchIcon className="text-neutral-500 shrink-0" size={20} />
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-paper-300">
+          <SearchIcon className="text-ink-muted shrink-0" size={19} />
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search notes, algorithms, patterns..."
-            className="flex-1 bg-transparent border-none outline-none text-neutral-100 placeholder:text-neutral-600 font-medium"
+            placeholder="Search guides, algorithms, system patterns..."
+            className="flex-1 bg-transparent border-none outline-none text-ink placeholder:text-ink-muted font-medium text-sm font-sans"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setRawSelectedIndex(0);
+            }}
           />
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-neutral-800 text-[10px] text-neutral-500 font-bold tracking-tighter sm:flex hidden">
+          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-paper-200 text-[10px] text-ink-muted font-bold tracking-tighter sm:flex hidden font-sans">
             <Command size={10} />
             <span>K</span>
           </div>
-          <button onClick={onClose} className="text-neutral-500 hover:text-neutral-100 transition-colors">
-            <X size={20} />
+          <button
+            onClick={handleClose}
+            className="text-ink-muted hover:text-ink transition-colors cursor-pointer p-1"
+          >
+            <X size={18} />
           </button>
         </div>
 
-        <div ref={resultsRef} className="max-h-[60vh] overflow-y-auto p-2 flex flex-col gap-1">
+        <div
+          ref={resultsRef}
+          className="max-h-[60vh] overflow-y-auto p-2 flex flex-col gap-1"
+        >
           {results.length > 0 ? (
             results.map((result, index) => (
               <button
                 key={`${result.item.sectionPath}-${result.item.doc.slug}`}
                 onClick={() => handleSelect(result)}
-                onMouseEnter={() => setSelectedIndex(index)}
-                className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all text-left ${
-                  index === selectedIndex ? "bg-white/5 border-neutral-700" : "bg-transparent border-transparent"
+                onMouseEnter={() => setRawSelectedIndex(index)}
+                className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all text-left cursor-pointer ${
+                  index === selectedIndex
+                    ? "bg-paper-200 border-paper-400 shadow-2xs"
+                    : "bg-transparent border-transparent"
                 } border`}
               >
-                <div className={`p-2 rounded-lg ${index === selectedIndex ? "bg-white text-neutral-950" : "bg-neutral-800 text-neutral-400"} transition-colors`}>
+                <div
+                  className={`p-2 rounded-lg ${index === selectedIndex ? "bg-ink text-paper-50" : "bg-paper-200 text-accent"} transition-colors`}
+                >
                   <FileText size={18} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className={`text-sm font-semibold truncate ${index === selectedIndex ? "text-neutral-50" : "text-neutral-300"}`}>
+                  <h4
+                    className={`text-sm font-semibold truncate ${index === selectedIndex ? "text-ink" : "text-ink-secondary"} font-sans`}
+                  >
                     {result.item.doc.meta.title}
                   </h4>
-                  <div className="flex items-center gap-1 text-[11px] text-neutral-500 font-medium mt-0.5">
+                  <div className="flex items-center gap-1 text-[11px] text-ink-muted font-medium mt-0.5 font-sans">
                     <span>{result.item.sectionTitle}</span>
-                    <ChevronRight size={10} />
-                    <span className="truncate">{result.item.doc.slug}</span>
+                    <ChevronRight size={10} className="text-paper-400" />
+                    <span className="truncate text-ink-muted font-mono">
+                      {result.item.doc.slug}
+                    </span>
                   </div>
                 </div>
                 {index === selectedIndex && (
-                  <span className="text-[10px] text-neutral-600 font-bold uppercase tracking-widest hidden sm:block">Open</span>
+                  <span className="text-[10px] text-accent font-bold uppercase tracking-widest hidden sm:block font-sans">
+                    Open
+                  </span>
                 )}
               </button>
             ))
           ) : query ? (
             <div className="py-12 text-center">
-              <p className="text-neutral-500 text-sm">No results found for "{query}"</p>
+              <p className="text-ink-muted text-sm font-serif">
+                No guides found for &ldquo;{query}&rdquo;
+              </p>
             </div>
           ) : (
-            <div className="py-8 px-4">
-              <p className="text-neutral-600 text-[11px] font-bold uppercase tracking-widest mb-4">Quick Links</p>
+            <div className="py-6 px-3">
+              <p className="text-ink-muted text-[11px] font-bold uppercase tracking-widest mb-3 font-sans">
+                Quick Navigation
+              </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {Object.values(getDocSections()).slice(0, 4).map(section => (
-                  <button 
-                    key={section.basePath}
-                    onClick={() => { navigate(section.basePath); onClose(); }}
-                    className="flex items-center justify-between p-3 rounded-xl bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-800 transition-all text-left group"
-                  >
-                    <span className="text-sm font-medium text-neutral-400 group-hover:text-neutral-50">{section.title}</span>
-                    <ChevronRight size={14} className="text-neutral-600 group-hover:text-neutral-50" />
-                  </button>
-                ))}
+                {Object.values(getDocSections())
+                  .slice(0, 4)
+                  .map((section) => (
+                    <button
+                      key={section.basePath}
+                      onClick={() => {
+                        navigate(section.basePath);
+                        handleClose();
+                      }}
+                      className="flex items-center justify-between p-3 rounded-xl bg-paper-100 hover:bg-paper-200 border border-paper-300 transition-all text-left group cursor-pointer"
+                    >
+                      <span className="text-xs font-semibold text-ink-secondary group-hover:text-ink font-sans">
+                        {section.title}
+                      </span>
+                      <ChevronRight
+                        size={14}
+                        className="text-ink-muted group-hover:text-ink"
+                      />
+                    </button>
+                  ))}
               </div>
             </div>
           )}
         </div>
-        
-        <div className="p-3 border-t border-neutral-800 bg-neutral-900/50 flex items-center justify-between text-[10px] text-neutral-500 font-bold uppercase tracking-widest px-6">
+
+        <div className="p-3 border-t border-paper-300 bg-paper-200 flex items-center justify-between text-[10px] text-ink-muted font-bold uppercase tracking-widest px-5 font-sans">
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1"><span className="p-1 rounded bg-neutral-800">ENT</span> SELECT</span>
-            <span className="flex items-center gap-1"><span className="p-1 rounded bg-neutral-800">↑↓</span> NAVIGATE</span>
+            <span className="flex items-center gap-1">
+              <span className="px-1.5 py-0.5 rounded bg-paper-300 text-ink-secondary">
+                ENT
+              </span>{" "}
+              SELECT
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="px-1.5 py-0.5 rounded bg-paper-300 text-ink-secondary">
+                ↑↓
+              </span>{" "}
+              NAVIGATE
+            </span>
           </div>
-          <span className="flex items-center gap-1"><span className="p-1 rounded bg-neutral-800">ESC</span> CLOSE</span>
+          <span className="flex items-center gap-1">
+            <span className="px-1.5 py-0.5 rounded bg-paper-300 text-ink-secondary">
+              ESC
+            </span>{" "}
+            CLOSE
+          </span>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 
