@@ -1,5 +1,12 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, Github, Menu, X } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Github,
+  Menu,
+  X,
+  BookOpen,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { getDocSections } from "../lib/content";
 import SearchOverlay from "./SearchOverlay";
@@ -80,20 +87,26 @@ const Navbar = React.memo(() => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-neutral-950/80 backdrop-blur-md border-b border-neutral-800">
-      <div className="flex items-center justify-between px-6 py-2 max-w-7xl mx-auto">
+    <nav className="sticky top-0 z-50 bg-paper-100/90 backdrop-blur-md border-b border-paper-300 shadow-xs">
+      <div className="flex items-center justify-between px-6 py-2.5 max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
           <Link
             to="/"
-            className="flex items-center gap-2 text-neutral-50 text-2xl tracking-tight lobster-two-bold"
+            className="flex items-center gap-2.5 text-ink group select-none"
             onClick={() => {
               setIsMenuOpen(false);
               setOpenMobileGroups({});
             }}
           >
-            CodeCript
+            <div className="w-8 h-8 rounded-lg bg-ink text-paper-50 flex items-center justify-center shadow-xs group-hover:bg-accent transition-colors">
+              <BookOpen size={16} className="shrink-0" />
+            </div>
+            <span className="font-serif font-bold text-[19px] tracking-[-0.02em] text-ink">
+              Code<span className="text-accent font-semibold">Cript</span>
+            </span>
           </Link>
-          <ul className="hidden md:flex items-center gap-4 text-sm text-neutral-400 font-semibold tracking-wider">
+
+          <ul className="hidden md:flex items-center gap-5 text-sm text-ink-muted font-medium tracking-wide">
             {navGroups.map((group) => {
               const children = group.isDynamic
                 ? languageMenuItems
@@ -118,34 +131,36 @@ const Navbar = React.memo(() => {
                   }}
                 >
                   <div
-                    className={`inline-flex items-center gap-1 cursor-pointer hover:text-neutral-50 transition-colors duration-200 decoration-2 underline-offset-4 ${
-                      isGroupActive ? "text-neutral-50 underline" : ""
+                    className={`inline-flex items-center gap-1 cursor-pointer py-1 hover:text-ink transition-colors duration-200 ${
+                      isGroupActive
+                        ? "text-ink font-semibold border-b-2 border-accent"
+                        : ""
                     }`}
                   >
-                    {group.label}
+                    <span>{group.label}</span>
                     {hasChildren &&
                       (isDropdownOpen ? (
-                        <ChevronUp size={14} aria-hidden="true" />
+                        <ChevronUp size={13} aria-hidden="true" />
                       ) : (
-                        <ChevronDown size={14} aria-hidden="true" />
+                        <ChevronDown size={13} aria-hidden="true" />
                       ))}
                   </div>
 
                   {hasChildren && isDropdownOpen && (
-                    <div className="absolute left-0 top-full pt-3">
-                      <div className="w-56 rounded-xl border border-neutral-800 bg-neutral-950/95 backdrop-blur-md shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-150">
-                        <p className="px-2 pb-1 text-[10px] tracking-widest uppercase text-neutral-500 font-bold">
+                    <div className="absolute left-0 top-full pt-2">
+                      <div className="w-56 rounded-xl border border-paper-300 bg-paper-50 shadow-xl p-2 animate-in fade-in slide-in-from-top-2 duration-150">
+                        <p className="px-2 pb-1 text-[10px] tracking-widest uppercase text-ink-muted font-bold font-sans">
                           {group.label}
                         </p>
-                        <ul className="flex flex-col gap-1">
+                        <ul className="flex flex-col gap-0.5">
                           {children.map((child) => (
                             <li key={child.href}>
                               <Link
                                 to={child.href}
-                                className={`block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                                className={`block rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                                   location.pathname.startsWith(child.href)
-                                    ? "text-neutral-50 bg-white/5"
-                                    : "text-neutral-400 hover:text-neutral-50 hover:bg-neutral-900"
+                                    ? "text-ink bg-paper-200 font-semibold"
+                                    : "text-ink-secondary hover:text-ink hover:bg-paper-100"
                                 }`}
                                 onClick={() => setActiveHoverMenu(null)}
                               >
@@ -163,16 +178,20 @@ const Navbar = React.memo(() => {
           </ul>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-neutral-50 hover:bg-neutral-800 transition-all font-medium text-xs group"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-paper-200 border border-paper-300 text-ink-muted hover:text-ink hover:bg-paper-300 transition-all font-medium text-xs group cursor-pointer"
+            aria-label="Search curriculum"
           >
-            <Search size={16} />
-            <span className="hidden lg:inline">Search...</span>
-            <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded bg-neutral-800 text-[9px] font-bold">
-              <span className="group-hover:text-white">⌘</span>
-              <span className="group-hover:text-white">K</span>
+            <Search size={15} />
+            <span className="hidden lg:inline font-sans">
+              Search reading guides...
+            </span>
+            <span className="lg:hidden inline font-sans">Search</span>
+            <div className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-paper-300 text-[10px] font-bold text-ink-muted">
+              <span>⌘</span>
+              <span>K</span>
             </div>
           </button>
 
@@ -180,14 +199,14 @@ const Navbar = React.memo(() => {
             href="https://github.com/itstheanurag/codecript"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-50 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200"
+            className="flex items-center gap-2 bg-ink hover:bg-ink-secondary text-paper-50 rounded-lg px-3.5 py-1.5 text-xs font-semibold tracking-wide transition-all shadow-xs"
           >
-            <Github size={18} />
-            <span className="hidden sm:inline">Star on GitHub</span>
+            <Github size={15} />
+            <span className="hidden sm:inline">GitHub</span>
           </a>
 
           <button
-            className="md:hidden p-2 text-neutral-400 hover:text-neutral-50 transition-colors"
+            className="md:hidden p-1.5 text-ink-muted hover:text-ink transition-colors rounded-md hover:bg-paper-200"
             onClick={() => {
               setIsMenuOpen((prev) => {
                 const next = !prev;
@@ -195,16 +214,17 @@ const Navbar = React.memo(() => {
                 return next;
               });
             }}
+            aria-label="Toggle Navigation"
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 border-t border-neutral-800 bg-neutral-950/95 backdrop-blur-md px-6 py-4 animate-in fade-in slide-in-from-top-4 duration-200 shadow-2xl overflow-y-auto max-h-[80vh]">
-          <ul className="flex flex-col gap-4 text-base text-neutral-400 font-medium">
+        <div className="md:hidden absolute top-full left-0 right-0 border-t border-paper-300 bg-paper-50 px-6 py-4 shadow-xl overflow-y-auto max-h-[80vh]">
+          <ul className="flex flex-col gap-3 text-base text-ink-secondary font-medium">
             {navGroups.map((group) => {
               const children = group.isDynamic
                 ? languageMenuItems
@@ -220,8 +240,8 @@ const Navbar = React.memo(() => {
                 <li key={group.label} className="flex flex-col">
                   <button
                     type="button"
-                    className={`inline-flex items-center justify-between py-2 hover:text-neutral-50 transition-colors ${
-                      isGroupActive ? "text-neutral-50" : ""
+                    className={`inline-flex items-center justify-between py-2 text-left hover:text-ink transition-colors ${
+                      isGroupActive ? "text-ink font-bold" : ""
                     }`}
                     onClick={() => toggleMobileGroup(group.label)}
                   >
@@ -234,15 +254,15 @@ const Navbar = React.memo(() => {
                   </button>
 
                   {isOpen && (
-                    <ul className="mt-1 ml-2 pl-3 border-l border-neutral-800 flex flex-col gap-1">
+                    <ul className="mt-1 ml-2 pl-3 border-l border-paper-300 flex flex-col gap-1">
                       {children?.map((child) => (
                         <li key={child.href}>
                           <Link
                             to={child.href}
-                            className={`block rounded-md px-2 py-2 text-sm transition-colors ${
+                            className={`block rounded-md px-2 py-1.5 text-sm transition-colors ${
                               location.pathname.startsWith(child.href)
-                                ? "text-neutral-50 bg-white/5"
-                                : "text-neutral-400 hover:text-neutral-50 hover:bg-neutral-900/70"
+                                ? "text-ink bg-paper-200 font-semibold"
+                                : "text-ink-muted hover:text-ink hover:bg-paper-100"
                             }`}
                             onClick={() => {
                               setIsMenuOpen(false);
