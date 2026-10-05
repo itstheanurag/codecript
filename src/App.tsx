@@ -4,11 +4,12 @@ import HomeLayout from "./layouts/HomeLayout";
 import DocLayout from "./layouts/DocLayout";
 import HomePage from "./pages/HomePage";
 import DocContentPage from "./pages/DocContentPage";
+import CoffeeButton from "./components/CoffeeButton";
 
 function App() {
   return (
     <HelmetProvider>
-      <div className="min-h-screen bg-zinc-950 font-sans selection:bg-white/30 text-white">
+      <div className="min-h-screen bg-paper-100 font-sans selection:bg-paper-300 selection:text-ink text-ink">
         <Routes>
           {/* Home — with footer */}
           <Route element={<HomeLayout />}>
@@ -45,6 +46,9 @@ function App() {
             <Route path="/testing/*" element={<DocContentPage />} />
           </Route>
         </Routes>
+
+        {/* Global Floating Buy Me A Coffee Button */}
+        <CoffeeButton />
       </div>
     </HelmetProvider>
   );
