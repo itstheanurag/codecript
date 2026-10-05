@@ -5,35 +5,40 @@ import { getDocSections } from "../lib/content";
 const Breadcrumbs = () => {
   const location = useLocation();
   const sections = getDocSections();
-  
+
   const pathnames = location.pathname.split("/").filter((x) => x);
-  
+
   // Helper to get formatted title for a segment
-  const getSegmentTitle = (segment: string, type: 'section' | 'group' | 'item') => {
-    if (type === 'section') {
+  const getSegmentTitle = (
+    segment: string,
+    type: "section" | "group" | "item",
+  ) => {
+    if (type === "section") {
       const section = sections[`/${segment}`];
-      return section ? section.title : segment.charAt(0).toUpperCase() + segment.slice(1);
+      return section
+        ? section.title
+        : segment.charAt(0).toUpperCase() + segment.slice(1);
     }
 
-    if (type === 'group') {
+    if (type === "group") {
       // Clean numbers from group names (e.g. "01-basics" -> "Basics")
       const cleanGroup = segment.replace(/^\d+-/, "");
       return cleanGroup.charAt(0).toUpperCase() + cleanGroup.slice(1);
     }
-    
+
     // For items, split by hyphens, remove leading numbers, and capitalize
     return segment
       .replace(/^\d+-/, "")
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   return (
-    <nav className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 mb-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
+    <nav className="flex items-center gap-1.5 text-xs font-medium text-ink-muted mb-6 overflow-x-auto whitespace-nowrap no-scrollbar font-sans">
       <Link
         to="/"
-        className="flex items-center gap-1 hover:text-neutral-50 transition-colors"
+        className="flex items-center gap-1 hover:text-ink transition-colors"
       >
         <Home size={14} />
       </Link>
@@ -41,25 +46,22 @@ const Breadcrumbs = () => {
       {pathnames.map((value, index) => {
         const last = index === pathnames.length - 1;
         const to = `/${pathnames.slice(0, index + 1).join("/")}`;
-        
-        let type: 'section' | 'group' | 'item' = 'item';
-        if (index === 0) type = 'section';
-        else if (index === 1 && pathnames.length > 2) type = 'group';
+
+        let type: "section" | "group" | "item" = "item";
+        if (index === 0) type = "section";
+        else if (index === 1 && pathnames.length > 2) type = "group";
 
         const title = getSegmentTitle(value, type);
 
         return (
           <div key={to} className="flex items-center gap-1.5">
-            <ChevronRight size={12} className="shrink-0 text-neutral-700" />
+            <ChevronRight size={12} className="shrink-0 text-paper-400" />
             {last ? (
-              <span className="text-neutral-300 truncate max-w-[150px] sm:max-w-none">
+              <span className="text-ink font-semibold truncate max-w-[200px] sm:max-w-none">
                 {title}
               </span>
             ) : (
-              <Link
-                to={to}
-                className="hover:text-neutral-50 transition-colors"
-              >
+              <Link to={to} className="hover:text-ink transition-colors">
                 {title}
               </Link>
             )}

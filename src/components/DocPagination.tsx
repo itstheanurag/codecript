@@ -13,32 +13,32 @@ const DocPagination = ({ prev, next, basePath }: DocPaginationProps) => {
   return (
     <nav
       aria-label="Page navigation"
-      className="mt-16 pt-8 border-t border-neutral-800 flex items-stretch justify-between gap-4"
+      className="mt-16 pt-8 border-t border-paper-300 flex items-stretch justify-between gap-4 font-sans"
     >
       {prev ? (
         <Link
           to={docHref(basePath, prev.slug)}
-          className="group flex items-center gap-3 px-5 py-4 rounded-xl border border-neutral-800 bg-neutral-900/40 hover:bg-neutral-800/60 hover:border-neutral-700 transition-all duration-200 max-w-[45%]"
+          className="group flex items-center gap-3 px-5 py-4 rounded-xl border border-paper-300 bg-paper-50 hover:border-paper-400 hover:shadow-xs transition-all duration-200 max-w-[48%]"
         >
           <ArrowLeft
             size={18}
-            className="shrink-0 text-neutral-500 group-hover:text-neutral-300 transition-colors group-hover:-translate-x-0.5 duration-200"
+            className="shrink-0 text-ink-muted group-hover:text-accent transition-colors group-hover:-translate-x-1 duration-200"
           />
           <div className="flex flex-col items-start min-w-0">
-            <span className="text-xs text-neutral-500 font-medium">
-              Previous
+            <span className="text-[11px] text-ink-muted uppercase tracking-wider font-semibold">
+              Previous Chapter
             </span>
-            <span className="text-sm font-semibold text-neutral-300 group-hover:text-neutral-100 transition-colors truncate w-full">
+            <span className="text-sm font-semibold text-ink group-hover:text-accent transition-colors truncate w-full">
               {prev.meta.title}
             </span>
           </div>
         </Link>
       ) : (
-        <span className="flex items-center gap-3 px-5 py-4 rounded-xl border border-neutral-800/50 bg-neutral-900/20 max-w-[45%] cursor-not-allowed opacity-40 select-none">
-          <ArrowLeft size={18} className="shrink-0 text-neutral-600" />
+        <span className="flex items-center gap-3 px-5 py-4 rounded-xl border border-paper-300/50 bg-paper-200/40 max-w-[48%] cursor-not-allowed opacity-40 select-none">
+          <ArrowLeft size={18} className="shrink-0 text-ink-muted" />
           <div className="flex flex-col items-start min-w-0">
-            <span className="text-xs text-neutral-600 font-medium">
-              Previous
+            <span className="text-[11px] text-ink-muted uppercase tracking-wider font-medium">
+              Previous Chapter
             </span>
           </div>
         </span>
@@ -47,25 +47,29 @@ const DocPagination = ({ prev, next, basePath }: DocPaginationProps) => {
       {next ? (
         <Link
           to={docHref(basePath, next.slug)}
-          className="group flex items-center gap-3 px-5 py-4 rounded-xl border border-neutral-800 bg-neutral-900/40 hover:bg-neutral-800/60 hover:border-neutral-700 transition-all duration-200 max-w-[45%] ml-auto"
+          className="group flex items-center gap-3 px-5 py-4 rounded-xl border border-paper-300 bg-paper-50 hover:border-paper-400 hover:shadow-xs transition-all duration-200 max-w-[48%] ml-auto"
         >
           <div className="flex flex-col items-end min-w-0">
-            <span className="text-xs text-neutral-500 font-medium">Next</span>
-            <span className="text-sm font-semibold text-neutral-300 group-hover:text-neutral-100 transition-colors truncate w-full text-right">
+            <span className="text-[11px] text-ink-muted uppercase tracking-wider font-semibold">
+              Next Chapter
+            </span>
+            <span className="text-sm font-semibold text-ink group-hover:text-accent transition-colors truncate w-full text-right">
               {next.meta.title}
             </span>
           </div>
           <ArrowRight
             size={18}
-            className="shrink-0 text-neutral-500 group-hover:text-neutral-300 transition-colors group-hover:translate-x-0.5 duration-200"
+            className="shrink-0 text-ink-muted group-hover:text-accent transition-colors group-hover:translate-x-1 duration-200"
           />
         </Link>
       ) : (
-        <span className="flex items-center gap-3 px-5 py-4 rounded-xl border border-neutral-800/50 bg-neutral-900/20 max-w-[45%] ml-auto cursor-not-allowed opacity-40 select-none">
+        <span className="flex items-center gap-3 px-5 py-4 rounded-xl border border-paper-300/50 bg-paper-200/40 max-w-[48%] ml-auto cursor-not-allowed opacity-40 select-none">
           <div className="flex flex-col items-end min-w-0">
-            <span className="text-xs text-neutral-600 font-medium">Next</span>
+            <span className="text-[11px] text-ink-muted uppercase tracking-wider font-medium">
+              Next Chapter
+            </span>
           </div>
-          <ArrowRight size={18} className="shrink-0 text-neutral-600" />
+          <ArrowRight size={18} className="shrink-0 text-ink-muted" />
         </span>
       )}
     </nav>
