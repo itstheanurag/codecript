@@ -1,69 +1,130 @@
 @import "tailwindcss";
 
+@theme {
+    --color-paper-50: #fdfcfa;
+    --color-paper-100: #fbf8f2;
+    --color-paper-200: #f4eedf;
+    --color-paper-300: #e8decb;
+    --color-paper-400: #d6c5ab;
+    --color-paper-500: #bfa88b;
+    --color-paper-600: #968166;
+    --color-paper-700: #6e5e4b;
+    --color-paper-800: #4a3e31;
+    --color-paper-900: #29221b;
+
+    --color-ink: #1c1917;
+    --color-ink-primary: #1c1917;
+    --color-ink-secondary: #38332e;
+    --color-ink-muted: #78716c;
+    --color-ink-faint: #a8a29e;
+
+    --color-accent: #a84320;
+    --color-accent-amber: #b45309;
+    --color-accent-forest: #2d6a4f;
+    --color-accent-navy: #1e40af;
+
+    --font-sans:
+        "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        sans-serif;
+    --font-serif: "Source Serif 4", Georgia, Cambria, serif;
+    --font-mono:
+        "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        monospace;
+}
+
 body {
-  @apply bg-neutral-950 text-neutral-400;
+    background-color: var(--color-paper-100);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Hide scrollbars while keeping scroll functionality */
-.overflow-y-auto {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+/* Custom Paper Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
 }
 
-.overflow-y-auto::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+::-webkit-scrollbar-track {
+    background: var(--color-paper-200);
 }
 
-.lobster-two-regular {
-  font-family: "Lobster Two", sans-serif;
-  font-weight: 400;
-  font-style: normal;
+::-webkit-scrollbar-thumb {
+    background: var(--color-paper-300);
+    border-radius: 4px;
 }
 
-.lobster-two-bold {
-  font-family: "Lobster Two", sans-serif;
-  font-weight: 700;
-  font-style: normal;
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-paper-400);
 }
 
-.lobster-two-regular-italic {
-  font-family: "Lobster Two", sans-serif;
-  font-weight: 400;
-  font-style: italic;
+/* Hide scrollbars while keeping scroll functionality where desired */
+.no-scrollbar,
+.overflow-y-auto.no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-.lobster-two-bold-italic {
-  font-family: "Lobster Two", sans-serif;
-  font-weight: 700;
-  font-style: italic;
+.no-scrollbar::-webkit-scrollbar,
+.overflow-y-auto.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Paper fine-ruled patterns */
+.paper-grid {
+    background-size: 32px 32px;
+    background-image:
+        linear-gradient(
+            to right,
+            rgba(190, 175, 150, 0.12) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            to bottom,
+            rgba(190, 175, 150, 0.12) 1px,
+            transparent 1px
+        );
+}
+
+/* Shiki code block typography and styling */
+.shiki-wrapper pre {
+    background-color: var(--color-paper-200) !important;
+    color: var(--color-ink) !important;
+    font-family: var(--font-mono);
+    line-height: 1.6;
+}
+
+.shiki-wrapper code {
+    font-family: var(--font-mono);
 }
 
 @keyframes code-tab-enter {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes code-tab-exit {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-2px);
-  }
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-2px);
+    }
 }
 
 .code-tab-pane-enter {
-  animation: code-tab-enter 220ms ease-out;
+    animation: code-tab-enter 180ms ease-out;
 }
 
 .code-tab-pane-exit {
-  animation: code-tab-exit 220ms ease-out forwards;
+    animation: code-tab-exit 180ms ease-out forwards;
 }
