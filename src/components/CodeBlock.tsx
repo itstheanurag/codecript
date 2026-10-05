@@ -29,6 +29,39 @@ const normalizeLanguage = (rawLanguage: string): string => {
   return LANGUAGE_ALIAS_MAP[cleaned] ?? (cleaned || "text");
 };
 
+const CopyIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
 const CodeBlock = ({ code, language }: CodeBlockProps) => {
   const [html, setHtml] = useState<string>("");
   const [copied, setCopied] = useState(false);
@@ -46,7 +79,7 @@ const CodeBlock = ({ code, language }: CodeBlockProps) => {
         try {
           const result = await codeToHtml(code, {
             lang,
-            theme: "vitesse-dark",
+            theme: "everforest-light",
           });
           if (!cancelled) setHtml(result);
           return;
@@ -74,45 +107,13 @@ const CodeBlock = ({ code, language }: CodeBlockProps) => {
     }
   };
 
-  const CopyIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-    </svg>
-  );
-
-  const CheckIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-
   return (
-    <div className="relative group mb-4">
+    <div className="relative group my-5 rounded-lg overflow-hidden border border-paper-300/80 bg-paper-200">
       <button
         onClick={handleCopy}
-        className="absolute right-3 top-3 p-2 rounded-md bg-neutral-800/50 text-neutral-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-neutral-800 hover:text-neutral-200 z-10 border border-neutral-700/50"
+        className="absolute right-2.5 top-2.5 p-1.5 rounded bg-paper-300paper-300/60 text-ink-mutedink-muted opacity-0 group-hover:opacity-100 transition-all hover:bg-paper-400paper-400 hover:text-inkink z-10 cursor-pointer"
         title="Copy code"
+        aria-label="Copy code to clipboard"
       >
         {copied ? <CheckIcon /> : <CopyIcon />}
       </button>
@@ -120,11 +121,11 @@ const CodeBlock = ({ code, language }: CodeBlockProps) => {
       {html ? (
         <div
           ref={containerRef}
-          className="shiki-wrapper rounded-lg overflow-x-auto border border-neutral-800 text-sm [&>pre]:p-4 [&>pre]:bg-neutral-900! [&>pre]:overflow-x-auto"
+          className="shiki-wrapper overflow-x-auto text-[13.5px] font-mono leading-relaxed [&>pre]:p-4 [&>pre]:bg-paper-200paper-200! [&>pre]:overflow-x-auto"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       ) : (
-        <pre className="bg-neutral-900 border border-neutral-800 rounded-lg p-4 text-sm text-neutral-400 font-mono overflow-x-auto">
+        <pre className="bg-paper-200paper-paper-300200 p-4 text-[13.5px] text-inkink font-mono overflow-x-auto leading-relaxed">
           <code>{code}</code>
         </pre>
       )}

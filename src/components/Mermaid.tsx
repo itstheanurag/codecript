@@ -5,12 +5,22 @@ interface MermaidProps {
   chart: string;
 }
 
-// Initialize mermaid with dark theme for consistent aesthetics
+// Initialize mermaid with neutral theme for consistent paper aesthetics
 mermaid.initialize({
   startOnLoad: true,
-  theme: "dark",
+  theme: "neutral",
   securityLevel: "loose",
-  fontFamily: "inherit",
+  fontFamily: "Plus Jakarta Sans, sans-serif",
+  themeVariables: {
+    background: "#f4eedf",
+    primaryColor: "#e8decb",
+    primaryBorderColor: "#d6c5ab",
+    primaryTextColor: "#1c1917",
+    lineColor: "#78716c",
+    textColor: "#44403c",
+    mainBkg: "#f4eedf",
+    nodeBorder: "#d6c5ab",
+  },
 });
 
 const Mermaid: React.FC<MermaidProps> = ({ chart }) => {
@@ -25,13 +35,9 @@ const Mermaid: React.FC<MermaidProps> = ({ chart }) => {
       // Trigger rendering
       mermaid.contentLoaded();
 
-      // Use mermaid.render for more control if contentLoaded isn't enough,
-      // but contentLoaded is safer for React refs in many cases.
-      // For Vite/React apps, often we need to re-render it explicitly:
       const renderChart = async () => {
         try {
-          // Unique ID for each diagram
-          const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+          const id = `mermaid-${Math.random().toString(36).substring(2, 11)}`;
           const { svg } = await mermaid.render(id, chart);
           if (ref.current) {
             ref.current.innerHTML = svg;
@@ -40,7 +46,7 @@ const Mermaid: React.FC<MermaidProps> = ({ chart }) => {
           console.error("Mermaid render error:", error);
           if (ref.current) {
             ref.current.innerHTML =
-              '<div class="text-red-500">Failed to render diagram</div>';
+              '<div class="text-accent text-xs">Failed to render diagram</div>';
           }
         }
       };
@@ -51,7 +57,7 @@ const Mermaid: React.FC<MermaidProps> = ({ chart }) => {
 
   return (
     <div
-      className="mermaid flex justify-center py-6 px-4 bg-neutral-900/50 rounded-xl border border-neutral-800 my-6 overflow-x-auto"
+      className="mermaid flex justify-center py-6 px-4 bg-paper-200 rounded-2xl border border-paper-300 my-6 overflow-x-auto shadow-2xs"
       ref={ref}
     />
   );

@@ -19,8 +19,8 @@ interface CodeTabsProps {
 }
 
 const CodeTabs: React.FC<CodeTabsProps> = ({ tabs }) => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [visibleIndex, setVisibleIndex] = useState(0);
+  const [rawActiveIndex, setRawActiveIndex] = useState(0);
+  const [rawVisibleIndex, setRawVisibleIndex] = useState(0);
   const [outgoingIndex, setOutgoingIndex] = useState<number | null>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({
     left: 0,
@@ -30,15 +30,8 @@ const CodeTabs: React.FC<CodeTabsProps> = ({ tabs }) => {
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const transitionTimerRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (tabs.length === 0) return;
-    if (activeIndex >= tabs.length) {
-      setActiveIndex(0);
-    }
-    if (visibleIndex >= tabs.length) {
-      setVisibleIndex(0);
-    }
-  }, [activeIndex, visibleIndex, tabs.length]);
+  const activeIndex = rawActiveIndex < tabs.length ? rawActiveIndex : 0;
+  const visibleIndex = rawVisibleIndex < tabs.length ? rawVisibleIndex : 0;
 
   const updateIndicator = useCallback(() => {
     const activeEl = tabRefs.current[activeIndex];
@@ -71,9 +64,9 @@ const CodeTabs: React.FC<CodeTabsProps> = ({ tabs }) => {
   const handleTabChange = (index: number) => {
     if (tabs.length === 0) return;
     if (index === activeIndex) return;
-    setActiveIndex(index);
+    setRawActiveIndex(index);
     setOutgoingIndex(visibleIndex);
-    setVisibleIndex(index);
+    setRawVisibleIndex(index);
 
     if (transitionTimerRef.current !== null) {
       window.clearTimeout(transitionTimerRef.current);
@@ -87,48 +80,54 @@ const CodeTabs: React.FC<CodeTabsProps> = ({ tabs }) => {
   if (tabs.length === 0) return null;
 
   return (
-    <div className="mb-8 rounded-xl overflow-hidden border border-neutral-800 bg-neutral-900/60 shadow-[0_8px_24px_rgba(0,0,0,0.28)] transition-all hover:border-neutral-700">
-      <div className="relative border-b border-neutral-800 bg-neutral-900/80">
+    <div className="my-6 rounded-lg overflow-hidden border border-paper-300paper-300 bg-paper-50paper-50 shadow-2xs">
+      <div className="relative border-b border-paper-300paper-300 bg-paper-200paper-200">
         <div
-          className="pointer-events-none absolute top-2 bottom-2 rounded-md border border-blue-500/25 bg-blue-500/10 shadow-[0_0_18px_rgba(59,130,246,0.18)] transition-all duration-300 ease-out"
+          className="pointer-events-none absolute top-1 bottom-1 rounded bg-paper-50paper-paper-30050 shadow-2xs transition-all duration-200 ease-out"
           style={{
             left: `${indicatorStyle.left}px`,
             width: `${indicatorStyle.width}px`,
             opacity: indicatorStyle.opacity,
           }}
         />
-        <div className="flex items-center gap-1 p-2 overflow-x-auto no-scrollbar">
-        {tabs.map((tab, index) => (
-          <button
-            key={index}
-            ref={(el) => {
-              tabRefs.current[index] = el;
-            }}
-            onClick={() => handleTabChange(index)}
-            className={`relative z-10 px-4 py-1.5 rounded-md text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
-              activeIndex === index
-                ? "text-blue-300"
-                : "text-neutral-500 hover:text-neutral-200"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        <div className="flex items-center gap-1 p-1 overflow-x-auto no-scrollbar">
+          {tabs.map((tab, index) => (
+            <button
+              key={index}
+              ref={(el) => {
+                tabRefs.current[index] = el;
+              }}
+              onClick={() => handleTabChange(index)}
+              className={`relative z-10 px-3 py-1 rounded text-xs font-semibold tracking-wide transition-colors duration-200 whitespace-nowrap cursor-pointer font-sans font-sans ${
+                activeIndex === index
+                  ? "text-inkink"
+                  : "text-ink-mutedink-muted hover:text-inkink"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
-      <div className="relative p-3 pb-0">
+      <div className="relative p-2 pb-0">
         {outgoingIndex !== null && outgoingIndex !== visibleIndex && (
-          <div className="pointer-events-none absolute inset-3 pb-0 code-tab-pane-exit">
+          <div className="pointer-events-none absolute inset-2 pb-0 code-tab-pane-exit">
             <CodeBlock
               code={tabs[outgoingIndex].code}
-              language={tabs[outgoingIndex].language ?? tabs[outgoingIndex].lang ?? "text"}
+              language={
+                tabs[outgoingIndex].language ??
+                tabs[outgoingIndex].lang ??
+                "text"
+              }
             />
           </div>
         )}
         <div className="relative code-tab-pane-enter">
           <CodeBlock
             code={tabs[visibleIndex].code}
-            language={tabs[visibleIndex].language ?? tabs[visibleIndex].lang ?? "text"}
+            language={
+              tabs[visibleIndex].language ?? tabs[visibleIndex].lang ?? "text"
+            }
           />
         </div>
       </div>
