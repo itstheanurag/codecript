@@ -47,8 +47,8 @@ function loadDocSection(section: string): DocItem[] {
       return { slug, meta: data, content };
     })
     .sort((a, b) => {
-      if (a.slug === "index") return -1;
-      if (b.slug === "index") return 1;
+      if (a.slug === "index" || a.slug.endsWith("/index")) return -1;
+      if (b.slug === "index" || b.slug.endsWith("/index")) return 1;
       return (a.meta.order ?? 0) - (b.meta.order ?? 0);
     });
 }
@@ -59,8 +59,8 @@ function loadGroupedDocSection(section: string): DocGroup[] {
 
   items.forEach((item) => {
     const parts = item.slug.split("/");
-    // Only group items that are in subdirectories and are not 'index' files
-    if (parts.length > 1 && parts[parts.length - 1] !== "index") {
+    // Group all items that are in subdirectories
+    if (parts.length > 1) {
       const groupName = parts[0];
       // Capitalize first letter of groupName
       const groupTitle = groupName.charAt(0).toUpperCase() + groupName.slice(1);
@@ -153,7 +153,8 @@ export function getDocSections(): Record<string, DocSection> {
     },
     "/devops": {
       title: "DevOps & Infra",
-      description: "Linux, containers, cloud IAM, Terraform, and how to operate production.",
+      description:
+        "Linux, containers, cloud IAM, Terraform, and how to operate production.",
       basePath: "/devops",
       items: loadDocSection("devops"),
     },
@@ -177,11 +178,34 @@ export function resolveDocItem(
   section: DocSection,
   slug: string,
 ): DocItem | null {
-  return (
-    section.items.find((item) => item.slug === slug) ??
-    section.items.find((item) => item.slug === `${slug}/index`) ??
-    null
+  // 1. Exact match
+  const exact = section.items.find((item) => item.slug === slug);
+  if (exact) return exact;
+
+  // 2. Subdirectory index (e.g. "javascript" -> "javascript/index")
+  const subIndex = section.items.find((item) => item.slug === `${slug}/index`);
+  if (subIndex) return subIndex;
+
+  // 3. Subdirectory first item (e.g. "go" -> "go/001-philosophy-and-setup")
+  const subFirst = section.items.find((item) =>
+    item.slug.startsWith(`${slug}/`),
   );
+  if (subFirst) return subFirst;
+
+  // 4. Normalized slug (handling stripped numbers, e.g. "arrays" -> "002-arrays")
+  const cleanSlug = (s: string) =>
+    s
+      .split("/")
+      .map((part) => part.replace(/^\d+-/, ""))
+      .join("/");
+
+  const targetClean = cleanSlug(slug);
+  const normalizedMatch = section.items.find(
+    (item) => cleanSlug(item.slug) === targetClean,
+  );
+  if (normalizedMatch) return normalizedMatch;
+
+  return null;
 }
 
 export function getAdjacentDocItems(
