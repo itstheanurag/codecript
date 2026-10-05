@@ -5,8 +5,8 @@ const Hero = () => {
   return (
     <section className="pt-20 pb-16 sm:pt-28 sm:pb-24 border-b border-paper-300 bg-paper-100">
       <div className="max-w-4xl mx-auto px-6 text-center">
-        {/* Subtle Eyebrow */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-paper-300 bg-paper-200/70 text-ink-muted text-[11px] font-mono tracking-[0.22em] uppercase font-medium mb-8">
+        {/* Subtle Eyebrow with High Contrast */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-paper-300 bg-paper-200 text-ink-secondary text-[11px] font-mono tracking-[0.2em] uppercase font-bold mb-8 shadow-2xs">
           <span className="w-1.5 h-1.5 rounded-full bg-accent" />
           <span>The Engineer&apos;s Reading Library</span>
         </div>
@@ -42,9 +42,9 @@ const Hero = () => {
 
           <a
             href="#curriculum"
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-transparent hover:bg-paper-200 text-ink-secondary hover:text-ink border border-paper-300 text-sm font-medium transition-colors font-sans w-full sm:w-auto"
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-transparent hover:bg-paper-200 text-ink-secondary hover:text-ink border border-paper-300 text-sm font-semibold transition-colors font-sans w-full sm:w-auto"
           >
-            <Layers size={15} className="text-ink-muted" />
+            <Layers size={15} className="text-ink-secondary" />
             <span>Browse Volumes</span>
           </a>
         </div>
@@ -52,7 +52,7 @@ const Hero = () => {
         {/* Editorial Pillars Footnote */}
         <div className="grid sm:grid-cols-3 gap-8 sm:gap-10 pt-10 border-t border-paper-300 text-left max-w-3xl mx-auto">
           <div className="space-y-1.5">
-            <div className="text-[11px] font-mono uppercase tracking-wider text-ink-muted font-semibold">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-ink-secondary font-bold">
               01 / Foundations
             </div>
             <p className="text-xs sm:text-[13px] text-ink-secondary font-serif leading-relaxed">
@@ -62,7 +62,7 @@ const Hero = () => {
           </div>
 
           <div className="space-y-1.5">
-            <div className="text-[11px] font-mono uppercase tracking-wider text-ink-muted font-semibold">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-ink-secondary font-bold">
               02 / Architecture
             </div>
             <p className="text-xs sm:text-[13px] text-ink-secondary font-serif leading-relaxed">
@@ -72,7 +72,7 @@ const Hero = () => {
           </div>
 
           <div className="space-y-1.5">
-            <div className="text-[11px] font-mono uppercase tracking-wider text-ink-muted font-semibold">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-ink-secondary font-bold">
               03 / Craft
             </div>
             <p className="text-xs sm:text-[13px] text-ink-secondary font-serif leading-relaxed">

@@ -106,7 +106,7 @@ const Navbar = React.memo(() => {
             </span>
           </Link>
 
-          <ul className="hidden md:flex items-center gap-5 text-sm text-ink-muted font-medium tracking-wide">
+          <ul className="hidden md:flex items-center gap-5 text-sm text-ink-secondary font-medium tracking-wide">
             {navGroups.map((group) => {
               const children = group.isDynamic
                 ? languageMenuItems
@@ -133,7 +133,7 @@ const Navbar = React.memo(() => {
                   <div
                     className={`inline-flex items-center gap-1 cursor-pointer py-1 hover:text-ink transition-colors duration-200 ${
                       isGroupActive
-                        ? "text-ink font-semibold border-b-2 border-accent"
+                        ? "text-ink font-bold border-b-2 border-accent"
                         : ""
                     }`}
                   >
@@ -149,7 +149,7 @@ const Navbar = React.memo(() => {
                   {hasChildren && isDropdownOpen && (
                     <div className="absolute left-0 top-full pt-2">
                       <div className="w-56 rounded-xl border border-paper-300 bg-paper-50 shadow-xl p-2 animate-in fade-in slide-in-from-top-2 duration-150">
-                        <p className="px-2 pb-1 text-[10px] tracking-widest uppercase text-ink-muted font-bold font-sans">
+                        <p className="px-2 pb-1 text-[10px] tracking-widest uppercase text-ink-secondary font-bold font-sans">
                           {group.label}
                         </p>
                         <ul className="flex flex-col gap-0.5">
@@ -159,7 +159,7 @@ const Navbar = React.memo(() => {
                                 to={child.href}
                                 className={`block rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                                   location.pathname.startsWith(child.href)
-                                    ? "text-ink bg-paper-200 font-semibold"
+                                    ? "text-ink bg-paper-200 font-bold"
                                     : "text-ink-secondary hover:text-ink hover:bg-paper-100"
                                 }`}
                                 onClick={() => setActiveHoverMenu(null)}
@@ -181,15 +181,17 @@ const Navbar = React.memo(() => {
         <div className="flex items-center gap-2.5 sm:gap-3">
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-paper-200 border border-paper-300 text-ink-muted hover:text-ink hover:bg-paper-300 transition-all font-medium text-xs group cursor-pointer"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-paper-200 border border-paper-300 text-ink-secondary hover:text-ink hover:bg-paper-300 transition-all font-semibold text-xs group cursor-pointer"
             aria-label="Search curriculum"
           >
             <Search size={15} />
-            <span className="hidden lg:inline font-sans">
+            <span className="hidden lg:inline font-sans font-medium">
               Search reading guides...
             </span>
-            <span className="lg:hidden inline font-sans">Search</span>
-            <div className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-paper-300 text-[10px] font-bold text-ink-muted">
+            <span className="lg:hidden inline font-sans font-semibold">
+              Search
+            </span>
+            <div className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-paper-300 text-[10px] font-bold text-ink-secondary">
               <span>⌘</span>
               <span>K</span>
             </div>
@@ -206,7 +208,7 @@ const Navbar = React.memo(() => {
           </a>
 
           <button
-            className="md:hidden p-1.5 text-ink-muted hover:text-ink transition-colors rounded-md hover:bg-paper-200"
+            className="md:hidden p-1.5 text-ink-secondary hover:text-ink transition-colors rounded-md hover:bg-paper-200"
             onClick={() => {
               setIsMenuOpen((prev) => {
                 const next = !prev;
@@ -261,8 +263,8 @@ const Navbar = React.memo(() => {
                             to={child.href}
                             className={`block rounded-md px-2 py-1.5 text-sm transition-colors ${
                               location.pathname.startsWith(child.href)
-                                ? "text-ink bg-paper-200 font-semibold"
-                                : "text-ink-muted hover:text-ink hover:bg-paper-100"
+                                ? "text-ink bg-paper-200 font-bold"
+                                : "text-ink-secondary hover:text-ink hover:bg-paper-100"
                             }`}
                             onClick={() => {
                               setIsMenuOpen(false);

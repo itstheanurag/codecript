@@ -31,7 +31,10 @@ const CoffeeButton = () => {
         title="Support CodeCript"
       >
         <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-paper-50 transition-colors">
-          <Coffee size={14} className="shrink-0 group-hover:rotate-6 transition-transform" />
+          <Coffee
+            size={14}
+            className="shrink-0 group-hover:rotate-6 transition-transform"
+          />
         </div>
         <span className="text-xs font-semibold text-ink group-hover:text-accent transition-colors hidden sm:inline">
           Buy me a coffee
@@ -69,7 +72,8 @@ const CoffeeButton = () => {
               </h3>
 
               <p className="text-xs sm:text-[13px] text-ink-secondary font-serif leading-relaxed mb-5 max-w-[260px]">
-                If these guides help your engineering journey, consider buying a coffee to keep this compendium free and ad-free.
+                If these guides help your engineering journey, consider buying a
+                coffee to keep this compendium free and ad-free.
               </p>
 
               {/* QR Code Container */}
@@ -83,7 +87,7 @@ const CoffeeButton = () => {
               </div>
 
               <p className="text-[11px] font-mono text-ink-muted uppercase tracking-wider mb-2">
-                Scan with any camera / UPI app
+                Scan with any QR CODE SCANNER
               </p>
 
               <div className="flex items-center gap-1.5 text-xs text-ink-muted font-sans pt-3 border-t border-paper-200 w-full justify-center">
