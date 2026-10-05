@@ -40,37 +40,37 @@ const getTextContent = (children: React.ReactNode): string => {
 const ALERT_CONFIG = {
   NOTE: {
     icon: Info,
-    bg: "bg-blue-900/10",
-    border: "border-blue-800/50",
-    text: "text-blue-400",
+    bg: "bg-blue-50/40",
+    border: "border-l-2 border-blue-600",
+    text: "text-blue-700",
     label: "Note",
   },
   TIP: {
     icon: Lightbulb,
-    bg: "bg-emerald-900/10",
-    border: "border-emerald-800/50",
-    text: "text-emerald-400",
+    bg: "bg-emerald-50/40",
+    border: "border-l-2 border-emerald-600",
+    text: "text-emerald-700",
     label: "Tip",
   },
   IMPORTANT: {
     icon: AlertCircle,
-    bg: "bg-purple-900/10",
-    border: "border-purple-800/50",
-    text: "text-purple-400",
+    bg: "bg-purple-50/40",
+    border: "border-l-2 border-purple-600",
+    text: "text-purple-700",
     label: "Important",
   },
   WARNING: {
     icon: AlertTriangle,
-    bg: "bg-amber-900/10",
-    border: "border-amber-800/50",
-    text: "text-amber-400",
+    bg: "bg-amber-50/40",
+    border: "border-l-2 border-amber-600",
+    text: "text-amber-800",
     label: "Warning",
   },
   CAUTION: {
     icon: Octagon,
-    bg: "bg-red-900/10",
-    border: "border-red-800/50",
-    text: "text-red-400",
+    bg: "bg-red-50/40",
+    border: "border-l-2 border-red-600",
+    text: "text-red-700",
     label: "Caution",
   },
 };
@@ -186,157 +186,189 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
   }, [content]);
 
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={{
-        h1: ({ children }) => (
-          <h1
-            id={slugify(getTextContent(children))}
-            className="text-3xl md:text-4xl font-semibold text-neutral-300 mt-8 mb-5"
-          >
-            {children}
-          </h1>
-        ),
-        h2: ({ children }) => (
-          <h2
-            id={slugify(getTextContent(children))}
-            className="text-2xl font-semibold text-neutral-300 mt-10 mb-4"
-          >
-            {children}
-          </h2>
-        ),
-        h3: ({ children }) => (
-          <h3
-            id={slugify(getTextContent(children))}
-            className="text-lg font-semibold text-neutral-300 mt-8 mb-3"
-          >
-            {children}
-          </h3>
-        ),
-        p: ({ children }) => (
-          <p className="text-neutral-400 leading-relaxed mb-4 text-base">
-            {children}
-          </p>
-        ),
-        ul: ({ children }) => (
-          <ul className="list-disc ml-6 mb-4 space-y-1">{children}</ul>
-        ),
-        ol: ({ children }) => (
-          <ol className="list-decimal ml-6 mb-4 space-y-1">{children}</ol>
-        ),
-        li: ({ children }) => (
-          <li className="text-neutral-400 leading-relaxed">{children}</li>
-        ),
-        strong: ({ children }) => (
-          <strong className="text-neutral-400 font-semibold">{children}</strong>
-        ),
-        code: ({ children, className }) => {
-          const isTabs = className?.includes("language-code-tabs");
-          if (isTabs) {
-            try {
-              const tabs = JSON.parse(String(children));
-              return <CodeTabs tabs={tabs} />;
-            } catch (err) {
-              console.error("Failed to parse code-tabs", err);
-              return null;
-            }
-          }
-
-          const match = className?.match(/language-(\w+)/);
-          if (match) {
-            const lang = match[1].toLowerCase();
-            const code = String(children).replace(/\n$/, "");
-
-            if (lang === "mermaid") {
-              return <Mermaid chart={code} />;
-            }
-
-            return <CodeBlock code={code} language={lang} />;
-          }
-          return (
-            <code className="bg-neutral-900 text-neutral-200 px-1.5 py-0.5 rounded text-sm font-mono border border-neutral-800">
-              {children}
-            </code>
-          );
-        },
-        pre: ({ children }) => <>{children}</>,
-        table: ({ children }) => (
-          <div className="overflow-x-auto mb-4">
-            <table className="w-full text-sm border-collapse">{children}</table>
-          </div>
-        ),
-        thead: ({ children }) => (
-          <thead className="border-b border-neutral-800">{children}</thead>
-        ),
-        th: ({ children }) => (
-          <th className="text-left text-neutral-400 font-semibold py-2 px-3">
-            {children}
-          </th>
-        ),
-        td: ({ children }) => (
-          <td className="text-neutral-400 py-2 px-3 border-b border-neutral-900">
-            {children}
-          </td>
-        ),
-        a: ({ children, href }) => {
-          const isExternal = href?.startsWith("http") || href?.startsWith("mailto:");
-          if (isExternal) {
-            return (
-              <a
-                href={href}
-                className="text-blue-400 hover:text-blue-300 underline transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {children}
-              </a>
-            );
-          }
-          // Safely strip .md if it exists so internal routing works correctly
-          const toPath = href ? href.replace(/\.md(#.*)?$/, "$1") : "";
-          return (
-            <Link
-              to={toPath}
-              className="text-blue-400 hover:text-blue-300 underline transition-colors"
+    <div className="reading-content text-ink-secondary font-serif">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: ({ children }) => (
+            <h1
+              id={slugify(getTextContent(children))}
+              className="text-2xl sm:text-3xl font-bold font-sans text-ink mt-10 mb-4 tracking-tight leading-snug"
             >
               {children}
-            </Link>
-          );
-        },
-        blockquote: ({ children }) => {
-          const { content, type } = processAlertContent(children);
-
-          if (type) {
-            const config = ALERT_CONFIG[type];
-            const Icon = config.icon;
-            return (
-              <div
-                className={`p-4 rounded-lg border-l-4 mb-6 ${config.bg} ${config.border} shadow-sm`}
-              >
-                <div className="flex items-center gap-2 mb-2 font-bold tracking-tight">
-                  <Icon size={18} className={config.text} />
-                  <span className={`text-sm uppercase ${config.text}`}>
-                    {config.label}
-                  </span>
-                </div>
-                <div className="text-neutral-400 leading-relaxed italic">
-                  {content}
-                </div>
-              </div>
-            );
-          }
-
-          return (
-            <blockquote className="border-l-2 border-neutral-800 pl-4 italic text-neutral-500 mb-4">
+            </h1>
+          ),
+          h2: ({ children }) => (
+            <h2
+              id={slugify(getTextContent(children))}
+              className="text-xl sm:text-2xl font-bold font-sans text-ink mt-11 mb-3.5 tracking-tight leading-snug"
+            >
               {children}
-            </blockquote>
-          );
-        },
-        hr: () => <hr className="border-neutral-900 my-8" />,
-      }}
-    >
-      {processedContent}
-    </ReactMarkdown>
+            </h2>
+          ),
+          h3: ({ children }) => (
+            <h3
+              id={slugify(getTextContent(children))}
+              className="text-lg sm:text-xl font-semibold font-sans text-ink mt-8 mb-2.5 tracking-tight leading-snug"
+            >
+              {children}
+            </h3>
+          ),
+          h4: ({ children }) => (
+            <h4
+              id={slugify(getTextContent(children))}
+              className="text-base font-semibold font-sans text-ink mt-6 mb-2 tracking-tight"
+            >
+              {children}
+            </h4>
+          ),
+          p: ({ children }) => (
+            <p className="text-ink-secondary leading-[1.78] mb-5 text-[17px] font-serif">
+              {children}
+            </p>
+          ),
+          ul: ({ children }) => (
+            <ul className="list-disc ml-6 mb-5 space-y-2 font-serif text-[17px] leading-[1.75] text-ink-secondary">
+              {children}
+            </ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal ml-6 mb-5 space-y-2 font-serif text-[17px] leading-[1.75] text-ink-secondary">
+              {children}
+            </ol>
+          ),
+          li: ({ children }) => (
+            <li className="text-ink-secondary leading-[1.75] pl-1 font-serif">
+              {children}
+            </li>
+          ),
+          strong: ({ children }) => (
+            <strong className="text-ink font-semibold">{children}</strong>
+          ),
+          em: ({ children }) => <em className="italic">{children}</em>,
+          code: ({ children, className }) => {
+            const isTabs = className?.includes("language-code-tabs");
+            if (isTabs) {
+              try {
+                const tabs = JSON.parse(String(children));
+                return <CodeTabs tabs={tabs} />;
+              } catch (err) {
+                console.error("Failed to parse code-tabs", err);
+                return null;
+              }
+            }
+
+            const match = className?.match(/language-(\w+)/);
+            if (match) {
+              const lang = match[1].toLowerCase();
+              const code = String(children).replace(/\n$/, "");
+
+              if (lang === "mermaid") {
+                return <Mermaid chart={code} />;
+              }
+
+              return <CodeBlock code={code} language={lang} />;
+            }
+            return (
+              <code className="bg-paper-200 text-accent font-mono text-[0.875em] px-1.5 py-0.5 rounded-sm font-medium">
+                {children}
+              </code>
+            );
+          },
+          pre: ({ children }) => <>{children}</>,
+          table: ({ children }) => (
+            <div className="overflow-x-auto my-6">
+              <table className="w-full text-left text-sm border-collapse">
+                {children}
+              </table>
+            </div>
+          ),
+          thead: ({ children }) => (
+            <thead className="border-b border-paper-300">{children}</thead>
+          ),
+          th: ({ children }) => (
+            <th className="text-left text-ink font-semibold py-2.5 px-3 font-sans text-xs uppercase tracking-wider">
+              {children}
+            </th>
+          ),
+          tbody: ({ children }) => (
+            <tbody className="divide-y divide-paper-300/50">{children}</tbody>
+          ),
+          tr: ({ children }) => (
+            <tr className="border-b border-paper-300/40 last:border-b-0">
+              {children}
+            </tr>
+          ),
+          td: ({ children }) => (
+            <td className="text-ink-secondary py-2.5 px-3 font-serif text-[15px] leading-normal">
+              {children}
+            </td>
+          ),
+          a: ({ children, href }) => {
+            const isExternal =
+              href?.startsWith("http") || href?.startsWith("mailto:");
+            if (isExternal) {
+              return (
+                <a
+                  href={href}
+                  className="text-accent hover:underline hover:text-ink transition-colors font-medium"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {children}
+                </a>
+              );
+            }
+            const toPath = href ? href.replace(/\.md(#.*)?$/, "$1") : "";
+            return (
+              <Link
+                to={toPath}
+                className="text-accent hover:underline hover:text-ink transition-colors font-medium"
+              >
+                {children}
+              </Link>
+            );
+          },
+          blockquote: ({ children }) => {
+            const { content, type } = processAlertContent(children);
+
+            if (type) {
+              const config = ALERT_CONFIG[type];
+              const Icon = config.icon;
+              return (
+                <div
+                  className={`my-5 py-2.5 px-3.5 rounded-r-md ${config.border} ${config.bg}`}
+                >
+                  <div className="flex items-center gap-1.5 mb-1 font-sans text-[11px] font-bold uppercase tracking-wider">
+                    <Icon size={14} className={config.text} />
+                    <span className={config.text}>{config.label}</span>
+                  </div>
+                  <div className="text-ink-secondary leading-relaxed font-serif text-[15px]">
+                    {content}
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <blockquote className="border-l-2 border-paper-400 pl-4 py-0.5 my-5 font-serif italic text-ink-muted text-[16.5px] leading-relaxed">
+                {children}
+              </blockquote>
+            );
+          },
+          hr: () => <hr className="border-t border-paper-300 my-8" />,
+          img: ({ src, alt }) => (
+            <img
+              src={src}
+              alt={alt}
+              className="rounded-lg max-w-full h-auto my-6 shadow-2xs"
+            />
+          ),
+        }}
+      >
+        {processedContent}
+      </ReactMarkdown>
+    </div>
   );
 };
 

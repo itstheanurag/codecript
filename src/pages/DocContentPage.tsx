@@ -41,15 +41,15 @@ const DocContentPage = () => {
 
   if (!section) {
     return (
-      <div className="px-4 sm:px-6 py-10 sm:py-14 text-center">
-        <h1 className="text-xl sm:text-2xl font-bold text-neutral-300 mb-4">
+      <div className="px-4 sm:px-6 py-12 sm:py-16 text-center">
+        <h1 className="text-xl sm:text-2xl font-bold font-sans text-ink mb-4">
           Section not found
         </h1>
         <Link
           to="/"
-          className="text-neutral-400 hover:text-neutral-50 transition-colors"
+          className="text-xs font-semibold text-accent hover:underline transition-colors font-sans"
         >
-          Go home
+          ← Return to Compendium Home
         </Link>
       </div>
     );
@@ -58,31 +58,34 @@ const DocContentPage = () => {
   // If there's no slug AND no index file, show placeholder
   if (!slug && !item) {
     return (
-      <div className="w-full max-w-4xl mx-auto px-1 sm:px-2 md:px-4 py-6 sm:py-8 md:py-10">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-neutral-300 mb-4">
+      <div className="w-full max-w-[740px] py-4">
+        <div className="text-xs font-bold uppercase tracking-widest text-accent mb-2 font-sans">
+          Curriculum Overview
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-bold font-sans text-ink mb-4 tracking-tight">
           {section.title}
         </h1>
-        <p className="text-neutral-400 text-base mb-8 leading-relaxed">
+        <p className="text-ink-secondary font-serif text-[17px] leading-[1.78] mb-8">
           {section.description}
         </p>
-        <p className="text-neutral-500">
-          ← Select a topic from the sidebar to get started.
-        </p>
+        <div className="py-3 px-4 rounded-md border-l-2 border-paper-400 bg-paper-200 text-ink-muted text-sm font-sans">
+          ← Select a topic from the sidebar table of contents to start reading.
+        </div>
       </div>
     );
   }
 
   if (!item) {
     return (
-      <div className="px-4 sm:px-6 py-10 sm:py-14 text-center">
-        <h1 className="text-xl sm:text-2xl font-bold text-neutral-300 mb-4">
+      <div className="px-4 sm:px-6 py-12 sm:py-16 text-center">
+        <h1 className="text-xl sm:text-2xl font-bold font-sans text-ink mb-4">
           Topic not found
         </h1>
         <Link
           to={section.basePath}
-          className="text-neutral-400 hover:text-neutral-50 transition-colors"
+          className="text-xs font-semibold text-accent hover:underline transition-colors font-sans"
         >
-          Back to {section.title}
+          ← Back to {section.title}
         </Link>
       </div>
     );
@@ -114,7 +117,7 @@ const DocContentPage = () => {
   ];
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-1 sm:px-2 md:px-4 py-4 sm:py-6 md:py-8 lg:py-10">
+    <article className="w-full max-w-[740px] py-2">
       <SEO
         title={item.meta.title}
         description={description}
@@ -122,12 +125,17 @@ const DocContentPage = () => {
         ogType="article"
         jsonLd={jsonLd}
       />
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-neutral-300 mb-6 sm:mb-8">
-        {item.meta.title}
-      </h1>
+      <header className="mb-7">
+        <div className="text-xs font-bold uppercase tracking-widest text-accent mb-2 font-sans">
+          {section.title}
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-bold font-sans text-ink tracking-tight leading-tight">
+          {item.meta.title}
+        </h1>
+      </header>
       <MarkdownRenderer content={item.content} />
       <DocPagination prev={prev} next={next} basePath={section.basePath} />
-    </div>
+    </article>
   );
 };
 

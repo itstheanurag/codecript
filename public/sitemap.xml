@@ -9,11 +9,23 @@
     <lastmod>2026-09-25</lastmod>
   </url>
   <url>
+    <loc>https://codecript.pages.dev/algo/backtracking</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
     <loc>https://codecript.pages.dev/algo/backtracking/008-backtracking</loc>
     <lastmod>2026-05-18</lastmod>
   </url>
   <url>
+    <loc>https://codecript.pages.dev/algo/divide-and-conquer</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
     <loc>https://codecript.pages.dev/algo/divide-and-conquer/005-divide-and-conquer</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/dp</loc>
     <lastmod>2026-05-18</lastmod>
   </url>
   <url>
@@ -27,6 +39,10 @@
   <url>
     <loc>https://codecript.pages.dev/algo/dp/020-lcs</loc>
     <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/graphs</loc>
+    <lastmod>2026-04-14</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/algo/graphs/012-bfs</loc>
@@ -53,11 +69,23 @@
     <lastmod>2026-05-18</lastmod>
   </url>
   <url>
+    <loc>https://codecript.pages.dev/algo/greedy</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
     <loc>https://codecript.pages.dev/algo/greedy/021-activity-selection</loc>
     <lastmod>2026-05-18</lastmod>
   </url>
   <url>
+    <loc>https://codecript.pages.dev/algo/kadanes</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
     <loc>https://codecript.pages.dev/algo/kadanes/006-kadanes-algorithm</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/searching</loc>
     <lastmod>2026-05-18</lastmod>
   </url>
   <url>
@@ -66,6 +94,10 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/algo/searching/001-binary-search</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/sorting</loc>
     <lastmod>2026-05-18</lastmod>
   </url>
   <url>
@@ -93,11 +125,19 @@
     <lastmod>2026-05-18</lastmod>
   </url>
   <url>
+    <loc>https://codecript.pages.dev/algo/trees</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
     <loc>https://codecript.pages.dev/algo/trees/010-binary-search-tree</loc>
     <lastmod>2026-05-18</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/algo/trees/011-lowest-common-ancestor</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/algo/trie</loc>
     <lastmod>2026-05-18</lastmod>
   </url>
   <url>
@@ -397,6 +437,10 @@
     <lastmod>2026-09-25</lastmod>
   </url>
   <url>
+    <loc>https://codecript.pages.dev/languages/go</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
     <loc>https://codecript.pages.dev/languages/go/001-philosophy-and-setup</loc>
     <lastmod>2026-05-18</lastmod>
   </url>
@@ -690,6 +734,10 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/languages/python/024-virtual-environments</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/languages/typescript</loc>
     <lastmod>2026-05-18</lastmod>
   </url>
   <url>

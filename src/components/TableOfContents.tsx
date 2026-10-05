@@ -95,20 +95,20 @@ const TableOfContents = ({
   return (
     <nav className="py-6 px-4">
       <div className="sticky top-6">
-        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-4">
+        <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest mb-3 font-sans">
           On this page
         </p>
-        <ul className="space-y-1 border-l border-neutral-800">
+        <ul className="space-y-1 border-l border-paper-300">
           {headings.map((heading) => (
             <li key={heading.id}>
               <button
                 onClick={() => handleClick(heading.id)}
-                className={`block w-full text-left text-sm py-1 transition-colors duration-150 border-l-2 -ml-px ${
-                  heading.level === 3 ? "pl-6" : "pl-4"
+                className={`block w-full text-left text-xs py-1 transition-colors duration-150 border-l-2 -ml-px cursor-pointer leading-snug font-sans ${
+                  heading.level === 3 ? "pl-5" : "pl-3"
                 } ${
                   activeId === heading.id
-                    ? "border-neutral-50 text-neutral-50"
-                    : "border-transparent text-neutral-500 hover:text-neutral-300"
+                    ? "border-accent text-accent font-semibold"
+                    : "border-transparent text-ink-muted hover:text-ink"
                 }`}
               >
                 {heading.text}

@@ -146,6 +146,41 @@ export function getContentRoutes() {
         isSectionHub: path === basePath,
       });
     }
+
+    // Also ensure top-level group routes (e.g. /languages/go, /algo/sorting) exist
+    for (const file of files) {
+      const rel = relative(sectionDir, file).replaceAll("\\", "/");
+      const parts = rel.split("/");
+      if (parts.length > 1) {
+        const groupSlug = parts[0];
+        const groupPath = `${basePath}/${groupSlug}`;
+        if (!seen.has(groupPath)) {
+          seen.add(groupPath);
+          const raw = readFileSync(file, "utf8");
+          const { data, content } = parseFrontmatter(raw);
+          const lastmod = statSync(file).mtime.toISOString().split("T")[0];
+          const groupTitle =
+            groupSlug.charAt(0).toUpperCase() + groupSlug.slice(1);
+          const title = data.title || `${groupTitle} - ${sectionMeta.title}`;
+          const description =
+            (typeof data.description === "string" && data.description.trim()) ||
+            excerptFromMarkdown(content) ||
+            `Learn ${groupTitle} in ${sectionMeta.title} on ${SITE_NAME}.`;
+
+          routes.push({
+            path: groupPath,
+            section,
+            sectionTitle: sectionMeta.title,
+            title,
+            description,
+            content,
+            lastmod,
+            slug: groupSlug,
+            isSectionHub: false,
+          });
+        }
+      }
+    }
   }
 
   return routes.sort((a, b) => a.path.localeCompare(b.path));

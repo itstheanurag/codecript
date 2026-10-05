@@ -1,128 +1,88 @@
-import { ChevronRight, Terminal } from "lucide-react";
+import { ArrowRight, BookOpen, Layers } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const stripe = (angle: number) => ({
-  background: `repeating-linear-gradient(
-    ${angle}deg,
-    transparent,
-    transparent 12px,
-    rgba(255,255,255,0.08) 12px,
-    rgba(255,255,255,0.08) 13px
-  )`,
-});
-
-const BackgroundMesh = () => (
-  <div className="absolute inset-0 z-0 overflow-hidden flex justify-center items-center opacity-40 pointer-events-none">
-    <div className="absolute inset-0 before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.06),transparent_70%)]" />
-
-    <div className="w-full max-w-[1400px] h-screen grid grid-cols-6 grid-rows-8 absolute top-0">
-      <div className="col-span-2 row-span-2 border border-white/10" />
-
-      <div className="col-span-1 row-span-1 border border-white/30 relative overflow-hidden bg-white/5">
-        <div className="absolute inset-0" style={stripe(45)} />
-      </div>
-
-      <div className="col-span-2 row-span-1 border border-white/10" />
-
-      <div className="col-span-1 row-span-3 border border-white/20 relative overflow-hidden">
-        <div className="absolute inset-0" style={stripe(-45)} />
-      </div>
-
-      <div className="col-span-1 row-span-2 border border-white/10" />
-
-      <div className="col-span-2 row-span-2 border border-white/20 relative overflow-hidden bg-white/[0.03]">
-        <div className="absolute inset-0" style={stripe(45)} />
-      </div>
-
-      <div className="col-span-1 row-span-1 border border-white/10" />
-
-      <div className="col-span-1 row-span-1 border border-white/30 relative overflow-hidden">
-        <div className="absolute inset-0" style={stripe(90)} />
-      </div>
-
-      <div className="col-span-2 row-span-1 border border-white/10 bg-white/[0.02]" />
-
-      <div className="col-span-2 row-span-2 border border-white/10" />
-
-      <div className="col-span-1 row-span-1 border border-white/20 relative overflow-hidden">
-        <div className="absolute inset-0" style={stripe(-45)} />
-      </div>
-
-      <div className="col-span-1 row-span-2 border border-white/20 relative overflow-hidden">
-        <div className="absolute inset-0" style={stripe(0)} />
-      </div>
-
-      <div className="col-span-2 row-span-1 border border-white/10" />
-
-      {/* Additional boxes for full-screen coverage */}
-      <div className="col-span-1 row-span-2 border border-white/10 bg-white/[0.02]" />
-
-      <div className="col-span-2 row-span-1 border border-white/20 relative overflow-hidden">
-        <div className="absolute inset-0" style={stripe(45)} />
-      </div>
-
-      <div className="col-span-1 row-span-1 border border-white/10" />
-
-      <div className="col-span-2 row-span-2 border border-white/10" />
-
-      <div className="col-span-1 row-span-1 border border-white/30 relative overflow-hidden bg-white/[0.03]">
-        <div className="absolute inset-0" style={stripe(-45)} />
-      </div>
-
-      <div className="col-span-2 row-span-1 border border-white/10" />
-
-      <div className="col-span-1 row-span-1 border border-white/20 relative overflow-hidden">
-        <div className="absolute inset-0" style={stripe(90)} />
-      </div>
-
-      <div className="col-span-2 row-span-1 border border-white/10 bg-white/[0.02]" />
-    </div>
-  </div>
-);
 
 const Hero = () => {
   return (
-    <div className="relative overflow-hidden h-full min-h-[500px] flex flex-col justify-center">
-      <BackgroundMesh />
-
-      <div className="relative max-w-6xl mx-auto px-6 text-center z-10 pb-20">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-950 border border-white/10 text-neutral-100 text-sm font-bold mb-8 uppercase tracking-widest">
-          <span className="flex h-2 w-2 bg-white animate-pulse"></span>
-          System Design Courses Live
+    <section className="pt-20 pb-16 sm:pt-28 sm:pb-24 border-b border-paper-300 bg-paper-100">
+      <div className="max-w-4xl mx-auto px-6 text-center">
+        {/* Subtle Eyebrow */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-paper-300 bg-paper-200/70 text-ink-muted text-[11px] font-mono tracking-[0.22em] uppercase font-medium mb-8">
+          <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+          <span>The Engineer&apos;s Reading Library</span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl lg:text-8xl text-white tracking-tight mb-8 leading-tighter">
-          Master Software <br className="hidden md:block" />
-          <span className="text-white relative inline-block px-4 border border-white/10 bg-neutral-950 mt-2 lobster-two-bold">
-            <span className="relative z-10">Engineering.</span>
-            <div className="absolute inset-0 z-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(255,255,255,0.1)_4px,rgba(255,255,255,0.1)_6px)]"></div>
-          </span>
+        {/* Primary Hero Statement */}
+        <h1 className="text-4xl sm:text-6xl lg:text-[72px] font-bold font-sans tracking-[-0.04em] text-ink leading-[1.08] max-w-3xl mx-auto mb-7">
+          Master the Art <br className="hidden sm:inline" />
+          <span className="font-serif font-normal italic text-ink-secondary">
+            of
+          </span>{" "}
+          <span className="text-ink">Software.</span>
         </h1>
 
-        <p className="text-lg md:text-xl text-neutral-300 max-w-2xl mx-auto mb-12 leading-relaxed">
-          The ultimate platform to learn languages, data structures, algorithms,
-          and system design. Build real-world projects and ace your technical
-          interviews.
+        {/* Supporting Copy */}
+        <p className="text-base sm:text-lg lg:text-[19px] text-ink-secondary font-serif leading-[1.7] max-w-2xl mx-auto mb-10">
+          Deep, carefully structured guides on computer science, software
+          engineering, systems, and the ideas behind the tools we build with.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+        {/* Action CTAs */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 mb-16 sm:mb-20">
           <Link
-            to="/languages"
-            className="flex items-center gap-2 px-3  py-2 bg-white hover:bg-neutral-200 text-neutral-950 rounded-lg text-md transition-transform hover:scale-101 font-sans"
+            to="/fundamentals"
+            className="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-ink hover:bg-ink-secondary text-paper-50 text-sm font-medium transition-all shadow-sm hover:shadow font-sans group w-full sm:w-auto"
           >
-            Start Learning
-            <ChevronRight size={20} />
+            <BookOpen size={16} />
+            <span>Start Reading</span>
+            <ArrowRight
+              size={15}
+              className="group-hover:translate-x-0.5 transition-transform"
+            />
           </Link>
-          <Link
-            to="/sys-design"
-            className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white rounded-lg font-semibold text-sm italic transition-colors lobster-two-bold"
+
+          <a
+            href="#curriculum"
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-transparent hover:bg-paper-200 text-ink-secondary hover:text-ink border border-paper-300 text-sm font-medium transition-colors font-sans w-full sm:w-auto"
           >
-            <Terminal size={20} />
-            <span>Explore Curriculum</span>
-          </Link>
+            <Layers size={15} className="text-ink-muted" />
+            <span>Browse Volumes</span>
+          </a>
+        </div>
+
+        {/* Editorial Pillars Footnote */}
+        <div className="grid sm:grid-cols-3 gap-8 sm:gap-10 pt-10 border-t border-paper-300 text-left max-w-3xl mx-auto">
+          <div className="space-y-1.5">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-ink-muted font-semibold">
+              01 / Foundations
+            </div>
+            <p className="text-xs sm:text-[13px] text-ink-secondary font-serif leading-relaxed">
+              First-principles explanations of data structures, algorithms, and
+              computing models.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-ink-muted font-semibold">
+              02 / Architecture
+            </div>
+            <p className="text-xs sm:text-[13px] text-ink-secondary font-serif leading-relaxed">
+              Production distributed systems, concurrency paradigms, and storage
+              internals.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-ink-muted font-semibold">
+              03 / Craft
+            </div>
+            <p className="text-xs sm:text-[13px] text-ink-secondary font-serif leading-relaxed">
+              Calm, distraction-free reading designed for sustained engineering
+              focus.
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
