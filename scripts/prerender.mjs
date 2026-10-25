@@ -102,9 +102,14 @@ function applyHead(html, { title, description, canonical, ogType, jsonLd }) {
 }
 
 function injectRoot(html, inner) {
+  // Keep the static content in the HTML for crawlers and no-JS clients, but
+  // mark it so the inline CSS in index.html can hide it as soon as JS is
+  // available. React replaces the whole container on mount, so this markup
+  // must never be visible to JS-enabled visitors (it would flash the raw,
+  // unstyled SEO text until the SPA bundle finishes loading).
   return html.replace(
     /<div id="root"><\/div>/,
-    `<div id="root">${inner}</div>`,
+    `<div id="root"><div data-prerender>${inner}</div></div>`,
   );
 }
 
