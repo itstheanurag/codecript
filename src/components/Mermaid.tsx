@@ -15,6 +15,10 @@ const getMermaid = () => {
         startOnLoad: false,
         theme: "neutral",
         securityLevel: "loose",
+        // Without this, Mermaid appends its error diagram to document.body on
+        // failure. That element survives client-side navigation and shows up as
+        // a floating "Syntax error in text" card on unrelated pages.
+        suppressErrorRendering: true,
         fontFamily: "Inter, sans-serif",
         themeVariables: {
           background: "#f4eedf",

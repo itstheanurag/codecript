@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://codecript.pages.dev/</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/algo</loc>
@@ -174,7 +174,7 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/007-websockets-and-scaling</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/008-webhooks-and-events</loc>
@@ -182,7 +182,7 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/009-api-security-and-oauth</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/010-versioning-and-pagination</loc>
@@ -242,7 +242,7 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/concurrency/001-processes-vs-threads</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/concurrency/002-synchronization-and-locks</loc>
@@ -254,7 +254,7 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/concurrency/004-modern-concurrency-models</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases</loc>
@@ -262,7 +262,7 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases/001-database-paradigms</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases/002-relational-databases</loc>
@@ -830,11 +830,11 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/002-latency-vs-throughput</loc>
-    <lastmod>2026-04-14</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/003-cap-theorem</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/004-consistency-models</loc>
@@ -850,7 +850,7 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/008-cdn</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/009-load-balancing</loc>
@@ -866,7 +866,7 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/016-monolith-vs-microservices</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/017-service-oriented-architecture-soa</loc>
@@ -878,7 +878,7 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/019-pub-sub-systems</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-26</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/020-message-queues</loc>

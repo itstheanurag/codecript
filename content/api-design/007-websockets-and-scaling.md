@@ -51,7 +51,7 @@ architecture-beta
     
     service ws1(disk)[Server 1] in cluster
     service ws2(disk)[Server 2] in cluster
-    service redis(database)[Redis Pub/Sub] in cluster
+    service redis(database)["Redis Pub/Sub"] in cluster
     
     alice:R -- L:ws1
     bob:L -- R:ws2

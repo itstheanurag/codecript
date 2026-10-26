@@ -9,9 +9,9 @@ When building distributed systems (where data is stored across multiple independ
 architecture-beta
     group cap(cloud)[The CAP Theorem]
     
-    service c(database)[Consistency (C)] in cap
-    service a(database)[Availability (A)] in cap
-    service p(database)[Partition Tolerance (P)] in cap
+    service c(database)["Consistency (C)"] in cap
+    service a(database)["Availability (A)"] in cap
+    service p(database)["Partition Tolerance (P)"] in cap
     
     c:R -- L:a
     a:B -- T:p

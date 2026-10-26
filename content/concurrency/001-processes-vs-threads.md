@@ -28,7 +28,7 @@ architecture-beta
     group process(cloud)[Process Memory Space]
 
     service heap(database)[Shared Heap] in process
-    service code(database)[Shared Code/Data] in process
+    service code(database)["Shared Code/Data"] in process
 
     group t1(server)[Thread 1] in process
     service s1(disk)[Private Stack] in t1
@@ -36,8 +36,8 @@ architecture-beta
     group t2(server)[Thread 2] in process
     service s2(disk)[Private Stack] in t2
 
-    t1:R --> L:heap
-    t2:L --> R:heap
+    s1:R --> L:heap
+    s2:L --> R:heap
 ```
 
 *   **Shared Memory:** All threads within a process share the same memory space (the heap, code, and data segments). However, each thread has its own **Stack** (for local variables) and **Registers**.

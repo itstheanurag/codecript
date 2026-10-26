@@ -128,7 +128,7 @@ Think of a system as a pipe:
 
 ```mermaid
 graph LR
-    A[Request Start] -->|Latency (Time)| B[Response End]
+    A[Request Start] -->|"Latency (Time)"| B[Response End]
 
     subgraph "Throughput (Parallel Requests)"
         R1[Req 1]

@@ -48,8 +48,8 @@ Popularized by the Go programming language. CSP focuses on the channels of commu
 architecture-beta
     group app(cloud)[Go Application]
 
-    group g1(server)[Goroutine 1] in app
-    group g2(server)[Goroutine 2] in app
+    service g1(server)[Goroutine 1] in app
+    service g2(server)[Goroutine 2] in app
     service chan(database)[Channel] in app
 
     g1:R --> L:chan

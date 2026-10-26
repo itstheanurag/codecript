@@ -34,7 +34,7 @@ When designing distributed databases, you must navigate the constraints defined 
 
 ```mermaid
 architecture-beta
-    group cap(cloud)[The CAP Theorem Trade-off]
+    group cap(cloud)["The CAP Theorem Trade-off"]
     
     service c(database)[Consistency] in cap
     service a(database)[Availability] in cap

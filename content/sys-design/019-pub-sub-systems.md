@@ -16,13 +16,13 @@ Pub/Sub is an asynchronous messaging pattern that completely decouples the sende
 
 ```mermaid
 architecture-beta
-    group pubsub(cloud)[Pub/Sub Broker (e.g., Apache Kafka)]
+    group pubsub(cloud)["Pub/Sub Broker (e.g., Apache Kafka)"]
     
-    service pub(server)[Publisher (Order Service)]
-    service topic(database)[Topic: 'order_created'] in pubsub
+    service pub(server)["Publisher (Order Service)"]
+    service topic(database)["Topic: 'order_created'"] in pubsub
     
-    service sub1(disk)[Subscriber (Email Service)]
-    service sub2(disk)[Subscriber (Inventory Service)]
+    service sub1(disk)["Subscriber (Email Service)"]
+    service sub2(disk)["Subscriber (Inventory Service)"]
     
     pub:R -- L:topic
     topic:B -- T:sub1

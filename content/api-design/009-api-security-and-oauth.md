@@ -21,9 +21,9 @@ A JWT is a string composed of three parts: `Header.Payload.Signature`
 architecture-beta
     group jwt(cloud)[JSON Web Token]
     
-    service header(database)[Header (Alg)] in jwt
-    service payload(database)[Payload (User Data)] in jwt
-    service sig(database)[Signature (Hash)] in jwt
+    service header(database)["Header (Alg)"] in jwt
+    service payload(database)["Payload (User Data)"] in jwt
+    service sig(database)["Signature (Hash)"] in jwt
     
     header:R -- L:payload
     payload:R -- L:sig

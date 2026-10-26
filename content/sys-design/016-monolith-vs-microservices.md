@@ -33,17 +33,16 @@ architecture-beta
     group app(cloud)[Microservice Architecture]
     
     service gateway(server)[API Gateway] in app
-    
-    group auth(disk)[Auth Service] in app
-    service authdb(database)[Auth DB] in auth
-    
-    group bill(disk)[Billing Service] in app
-    service billdb(database)[Billing DB] in bill
+    service auth(server)[Auth Service] in app
+    service authdb(database)[Auth DB] in app
+    service bill(server)[Billing Service] in app
+    service billdb(database)[Billing DB] in app
     
     gateway:B -- T:auth
     gateway:R -- L:bill
-    
     auth:R -- L:bill
+    auth:B -- T:authdb
+    bill:B -- T:billdb
 ```
 
 ### Pros
