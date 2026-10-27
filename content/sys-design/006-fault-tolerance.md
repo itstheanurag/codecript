@@ -1,82 +1,198 @@
 ---
 title: Fault Tolerance
-description: Learn how to keep serving when parts fail: redundancy, graceful degradation, timeouts, retries, and circuit breakers — versus high availability.
+description: Designing for failure instead of pretending it away — failure domains, redundancy, timeouts, retries, circuit breakers, bulkheads, and what actually happens during an AZ loss.
 order: 6
 ---
 
-**Fault tolerance** means the *system* keeps a useful promise when a *part* fails. Disks die. Zones go dark. A dependency returns 500 for three minutes. If that equals "the product is down," you did not design for failure; you hoped.
+**Fault tolerance is the ability to keep serving correctly when components fail.** Not "if" — when. Disks fail, instances are preempted, networks partition, dependencies slow down, deploys break.
 
-In a fleet of a few thousand machines, something is always broken. The design question is whether users notice.
+Availability is the outcome; fault tolerance is the mechanism.
 
-> [!TIP]
-> **ELI5: The twin-engine plane**
-> One engine failing is a **fault**. A plane that can still fly is **fault tolerant**. A plane that glides to a nearby airport with a scare is **highly available** with failover. A single-engine plane that falls out of the sky is neither. Netflix hiding "Because you watched" when the recs service dies is flying on one engine — **graceful degradation**.
+## Faults, errors, failures
 
-## 1. Fault tolerance vs high availability
+| Term | Meaning | Example |
+|---|---|---|
+| **Fault** | a defect or event | a disk dies, a packet is dropped |
+| **Error** | incorrect internal state caused by a fault | a replica misses a write |
+| **Failure** | the service stops meeting its contract | requests return 500 |
 
-| | Fault tolerance | High availability (HA) |
-| :--- | :--- | :--- |
-| Goal | Keep working **through** a failure | Keep **uptime** high; fail over if needed |
-| User sees | Little or no interruption | Maybe a blip (reconnect, retry) |
-| Typical | RAID-1, dual power, active-active, quorum writes | Active-passive DB, Kubernetes reschedule |
-| Cost | Extra copies **while healthy** | Extra copies, plus failover machinery |
+The goal is to stop faults from becoming failures — through detection, containment, and recovery.
 
-HA is "we come back fast." FT is "we did not go down." Real systems mix them: three replicas (FT for reads) plus a failover story (HA for a primary).
+## Failure domains and blast radius
 
-**Durability** (S3's 11 nines) is "we did not lose the bytes." That is not the same as "GET succeeded just now" (**availability**).
+A **failure domain** is the set of components that can fail together. Real domains are correlated:
 
-## 2. Redundancy, done on purpose
+- a process,
+- an instance,
+- a rack,
+- an availability zone,
+- a region,
+- a shared dependency (database, DNS, IAM),
+- a deployment pipeline,
+- a configuration change.
 
-Copies only help if they **fail independently**. Three containers on one node is a replica count, not a fault domain. Spread across **racks / AZs / regions** depending on the blast radius you care about.
+Blast radius questions for every design:
 
-- **Active-active:** all copies serve. Need to reason about [consistency](./004-consistency-models).
-- **Active-passive:** spare is idle until failover. Simpler consistency, wasted capacity, failover time.
+1. If this component dies, what else dies with it?
+2. Can the failure spread (retries, queue backlog, cache stampede)?
+3. Is the failure **independent** of the replicas (different AZ, different provider)?
+4. How long until detection, and how long until recovery?
 
-**Synchronous** replication: the write is on two nodes before you ack the user. Safer, slower. **Asynchronous:** fast ack, window of data loss if the primary dies. Pick in the open; do not discover it in an incident.
+Replicas in the same AZ share power, network, and often the same host failure. That is not redundancy; it is decoration.
 
-## 3. Graceful degradation
+## Redundancy and isolation
 
-Rank features. When inventory is down:
+| Technique | Protects against | Does not protect against |
+|---|---|---|
+| Multiple instances | process/instance crash | shared DB, bad deploy |
+| Multi-AZ | datacenter failure | region-wide config error |
+| Multi-region | region outage | data conflicts, split brain |
+| Read replicas | read load, primary death (with failover) | replication lag, write loss |
+| Queue + workers | bursts, worker crashes | poison messages, ordering |
+| Bulkheads (separate pools) | one dependency starving others | total dependency outage |
+| Shuffling shards | correlated hot spots | key skew |
 
-- **Must work:** cart, pay, "we received the order."
-- **Should hide:** recommendations, "people also bought."
-- **Must not do:** fail checkout because recs timed out.
+**Isolation** is as important as replication: separate connection pools, thread pools, queues, and sometimes deployments per tenant tier. One tenant's batch job must not consume the pool used by checkout.
 
-That is a **code** decision: timeouts + fallbacks, not a slogan. If every page `await`s recs with no deadline, you do not have degradation; you have a distributed monolith.
+## Timeouts: the first line of defence
 
-## 4. Timeouts, retries, circuit breakers
+Every network call needs a timeout. Without one, a slow dependency becomes an infinite queue of stuck requests.
 
-Failure handling is mostly **time**.
+Rules:
 
-- **Timeouts:** every outbound call. No timeout = a dead dependency holds your threads forever.
-- **Retries:** only on **idempotent** or explicitly safe calls. Retrying `POST /charge` without a key double-bills. Retry with **backoff and jitter** or you DDoS the recovering service (retry storm).
-- **Circuit breaker:** after N failures, **stop calling** for a cooldown; fail fast or use a fallback. Gives the dependency room to heal. Half-open probe before full traffic.
+- timeouts shorter than the caller's deadline (a service should not wait 30 s when the user's budget is 2 s);
+- propagate deadlines (gRPC deadlines / context cancellation);
+- include connection, read, and total timeouts;
+- jitter timeouts slightly to avoid synchronized retry waves.
 
-```text
-Closed (normal) → too many errors → Open (fail fast)
-Open → sleep → Half-open (let one trial through)
-Half-open success → Closed; failure → Open
+```ts
+const controller = new AbortController();
+const timer = setTimeout(() => controller.abort(), 300);
+try {
+  return await fetch(url, { signal: controller.signal });
+} finally {
+  clearTimeout(timer);
+}
 ```
 
-Bulkheads: isolate pools (checkout's HTTP client is not the same as recs'). Recs melting should not steal checkout's threads.
+## Retries: only with a budget
 
-## 5. Checkpointing
+Retries improve availability for **transient** faults and amplify outages when done blindly.
 
-Long jobs (train a model, transcode, ETL) should **save progress**. On kill, resume, do not start at 0. For user-facing request/response, the analog is **idempotency keys** and durable outbox, not a 40-minute in-memory loop.
+Requirements:
 
-## 6. What to draw in an interview
+1. **Idempotency** — retrying a non-idempotent write can double-charge.
+2. **Bounded attempts** (e.g., 3) with **exponential backoff + jitter**.
+3. **Retry budget** — e.g., retries may not exceed 10% of total requests.
+4. **Retry only safe classes** — timeouts/5xx/connection resets; not 400/401/409.
+5. **Do not retry at every layer** — three layers × three retries = 27 attempts.
 
-1. Name the **failure** (instance, AZ, dependency, poison message).
-2. Name the **domain** (does the user lose money, or a widget?).
-3. Mechanism: replica + health check, timeout + fallback, queue + retry + DLQ, multi-AZ DB.
-4. Cost: extra 2× compute, slightly higher latency, weaker consistency.
+```ts
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (!isRetryable(error)) throw error;
+      const delay = Math.min(1_000, 50 * 2 ** attempt) * (0.5 + Math.random());
+      await sleep(delay);
+    }
+  }
+  throw lastError;
+}
+```
 
-> [!WARNING]
-> Retries without idempotency and without a circuit breaker turn a 1-minute outage into a 20-minute self-DDoS. "We retry 5 times immediately" is not fault tolerance.
+## Circuit breakers, bulkheads, load shedding
 
-## What to remember
+- **Circuit breaker**: after N consecutive failures, stop calling the dependency for a cooldown. Fail fast instead of queueing.
+- **Bulkhead**: cap concurrency per dependency/tenant so one saturation does not consume all workers.
+- **Load shedding**: reject excess work early (429/503) with `Retry-After`, before queues grow unbounded.
+- **Rate limiting**: protect the system from abusive or accidental traffic (see [Rate Limiting](/sys-design/028-rate-limiting)).
 
-- FT = useful service despite a failed part. HA = we fail over and keep the SLO. Durability = we did not lose data.
-- Independent fault domains, or your replicas are theater.
-- Timeouts, jittered retries, circuit breakers, bulkheads are the request-path toolkit.
-- Degrade features on purpose; do not let a decoration sink the transaction.
+These are not library decorations; they encode the decision "it is better to fail some requests than to fail all of them".
+
+## Graceful degradation
+
+For every dependency, write the degraded mode:
+
+| Dependency | Degraded behaviour |
+|---|---|
+| Recommendations | return empty list |
+| Search | fall back to prefix index / cached results |
+| Redis | read from DB with tighter rate limits |
+| Email provider | enqueue for later, show "will be sent" |
+| Payment provider | queue intent, retry, never mark paid optimistically |
+| Primary DB | read-only mode with a clear banner; writes rejected |
+
+A degraded mode must be **tested**. An untested fallback is a hope.
+
+## Data durability
+
+Fault tolerance also covers losing data:
+
+- **Replication** (sync vs async) with a stated loss window;
+- **Backups** that are restored regularly (a backup you cannot restore is not a backup);
+- **Checksums** and scrubbing for silent corruption;
+- **Point-in-time recovery** for accidental deletes;
+- **Outbox/ledger** for events that must not be lost;
+- **Fencing** so an old primary cannot accept writes after failover.
+
+## Failure scenarios to rehearse
+
+1. **Instance crash** — LB removes it; in-flight requests fail; retries succeed.
+2. **AZ loss** — remaining AZs absorb traffic; capacity headroom must exist (N+1 or 2N).
+3. **Primary DB failover** — writes fail for 30–90 s; clients retry idempotently; reads serve stale.
+4. **Dependency slow (not down)** — timeouts and breakers trip; degraded mode activates.
+5. **Bad deploy** — canary catches it; rollback is one command; the old version stays warm.
+6. **Queue backlog** — consumers scale; producers shed or delay; poison messages go to a DLQ.
+7. **DNS/IAM outage** — control-plane dependency; pre-resolved endpoints, cached credentials, multi-provider DNS.
+
+Run **game days** and chaos experiments on the real system: kill a node, add latency, fail a dependency. The first time you discover a broken failover should not be during an incident.
+
+## A design-review template
+
+For each component:
+
+```
+Component: Payments adapter
+Failure domain: one AZ, shared with API
+Detection: 5xx rate + p99 > 1s for 2 min
+Containment: circuit breaker, bulkhead (20 conns), 800ms timeout
+Degraded mode: queue payment intents, show "processing"
+Recovery: replay queue with idempotency keys
+Data loss: none (intent persisted before call)
+```
+
+If you cannot fill this in, the component is a single point of failure.
+
+## Interview drill
+
+**1. "What happens if an AZ goes down?"**
+- **Cover:** N+1 capacity; multi-AZ load balancing; DB failover; stateful session handling; replica independence.
+- **Follow-up:** "How long until recovery, and what do users see?" (RTO + degraded mode).
+- **Common miss:** replicas that share the same AZ or dependency.
+
+**2. "A service is slow, not down. What does your system do?"**
+- **Cover:** deadline propagation; breaker; bulkhead; bounded queues; degradation; load shedding.
+- **Follow-up:** "What if the slow dependency is auth?" (cache decisions, fail closed/open per risk).
+- **Common miss:** infinite timeouts and unbounded queues.
+
+**3. "How do you avoid retry storms?"**
+- **Cover:** retry budgets; jitter; one retry layer; idempotency; 429 + `Retry-After`; circuit breakers.
+- **Follow-up:** "How do you detect one in production?" (retry rate vs request rate, pool queues).
+- **Common miss:** retries at every layer multiplying load.
+
+## Checklist
+
+- [ ] Failure domains are mapped, including shared dependencies.
+- [ ] Replicas are independent (AZ/region/provider).
+- [ ] Every network call has a timeout and a deadline.
+- [ ] Retries are bounded, jittered, idempotent, and budgeted.
+- [ ] Circuit breakers, bulkheads, and load shedding exist on critical paths.
+- [ ] Each dependency has a tested degraded mode.
+- [ ] Failover is automated, fenced, and rehearsed.
+- [ ] Backups are restored in drills; RPO/RTO are stated.
+
+Next: [CDN](/sys-design/008-cdn) — pushing correctness and latency to the edge.
