@@ -68,6 +68,27 @@ FROM users
 LEFT JOIN orders ON users.id = orders.user_id;
 ```
 
+### RIGHT JOIN and FULL OUTER JOIN
+*   **RIGHT JOIN** keeps every row from the right table (the mirror image of `LEFT JOIN`).
+*   **FULL OUTER JOIN** keeps unmatched rows from **both** sides — the tool for reconciling two datasets.
+
+```sql
+-- Products that have never been ordered
+SELECT p.name
+FROM products AS p
+LEFT JOIN order_items AS oi ON oi.product_id = p.id
+WHERE oi.id IS NULL;
+
+-- Every user and every order, including both kinds of mismatch
+SELECT u.id, o.id
+FROM users AS u
+FULL OUTER JOIN orders AS o ON o.user_id = u.id;
+```
+
+> [!WARNING]
+> With an outer join, a filter on the right table belongs in `ON`, not `WHERE`. In `WHERE`, `o.status = 'paid'` silently turns your `LEFT JOIN` back into an `INNER JOIN`.
+
+
 ## 3. Aggregation and Grouping
 
 When analyzing data, you often need to calculate summaries (count, sum, average) across groups of records.
@@ -117,4 +138,26 @@ SELECT
     salary,
     RANK() OVER (PARTITION BY department ORDER BY salary DESC) as rank
 FROM employees;
+```
+
+## 5. Going deeper
+
+This page is the map, not the territory. Each topic has a full chapter with edge cases, performance notes, and runnable examples:
+
+- **[How SQL Actually Runs](/databases/sql/001-sql-execution-model)** — logical clause order and NULL semantics.
+- **[Joins in Depth](/databases/sql/002-joins-in-depth)** — every join type, anti-joins, fan-out, join algorithms.
+- **[Aggregation & Grouping](/databases/sql/004-aggregation-and-grouping)** — `COUNT` traps, `FILTER`, `ROLLUP`, top-N per group.
+- **[Window Functions](/databases/sql/005-window-functions)** — frames, ranking, running totals, de-duplication.
+- **[CTEs & Recursive Queries](/databases/sql/007-ctes-and-recursive-queries)** — readable pipelines and hierarchies.
+- **[Indexes & Query Plans](/databases/sql/010-indexes-and-query-plans)** — why some queries ignore your index.
+
+Run any of them yourself in the [SQL Playground](/playground).
+
+```sql run
+SELECT department,
+       COUNT(*)                          AS people,
+       ROUND(AVG(salary_cents) / 100.0)  AS avg_salary
+FROM employees
+GROUP BY department
+ORDER BY avg_salary DESC;
 ```

@@ -53,6 +53,13 @@ function loadDocSection(section: string): DocItem[] {
     });
 }
 
+// Directory names that need nicer casing than simple Title Case.
+const GROUP_TITLE_OVERRIDES: Record<string, string> = {
+  sql: "SQL",
+  nosql: "NoSQL",
+  api: "API",
+};
+
 function loadGroupedDocSection(section: string): DocGroup[] {
   const items = loadDocSection(section);
   const groups: Record<string, DocItem[]> = {};
@@ -62,8 +69,9 @@ function loadGroupedDocSection(section: string): DocGroup[] {
     // Group all items that are in subdirectories
     if (parts.length > 1) {
       const groupName = parts[0];
-      // Capitalize first letter of groupName
-      const groupTitle = groupName.charAt(0).toUpperCase() + groupName.slice(1);
+      const groupTitle =
+        GROUP_TITLE_OVERRIDES[groupName.toLowerCase()] ??
+        groupName.charAt(0).toUpperCase() + groupName.slice(1);
       if (!groups[groupTitle]) {
         groups[groupTitle] = [];
       }
@@ -138,6 +146,7 @@ export function getDocSections(): Record<string, DocSection> {
       description: "Relational, NoSQL, caching, and data modeling.",
       basePath: "/databases",
       items: loadDocSection("databases"),
+      groups: loadGroupedDocSection("databases"),
     },
     "/api-design": {
       title: "API Design",
