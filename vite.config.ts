@@ -1,12 +1,31 @@
-import { defineConfig } from "vite";
+import { createLogger, defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 
+// Rolldown statically flags PGlite's Emscripten runtime (EM_ASM/EM_JS support),
+// which contains `eval` in a code path Postgres does not execute. It is
+// third-party noise, not a warning about this codebase.
+const logger = createLogger();
+const baseWarn = logger.warn.bind(logger);
+logger.warn = (message, options) => {
+  const text = typeof message === "string" ? message : "";
+  if (text.includes("[EVAL]") && text.includes("eval")) return;
+  baseWarn(message, options);
+};
+
 // https://vite.dev/config/
 export default defineConfig({
+  customLogger: logger,
   plugins: [react(), tailwindcss()],
+  // PGlite ships its own WASM loader; Vite's dep pre-bundling breaks it.
+  optimizeDeps: {
+    exclude: ["@electric-sql/pglite"],
+  },
   build: {
-    chunkSizeWarningLimit: 1000,
+    // The content store bundles every markdown page for the sidebar and search
+    // (~390 kB gzip). It is a single cacheable chunk by design; WASM is an
+    // asset and loaded on demand, not part of this budget.
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
         manualChunks(id) {

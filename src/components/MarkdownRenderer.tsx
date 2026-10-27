@@ -6,6 +6,7 @@ import { slugify } from "../lib/slugify";
 import CodeBlock from "./CodeBlock";
 import CodeTabs from "./CodeTabs";
 import Mermaid from "./Mermaid";
+import RunnableSql from "./RunnableSql";
 import {
   Info,
   Lightbulb,
@@ -128,60 +129,98 @@ const processAlertContent = (
 };
 
 const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
-  // Pre-process content to group adjacent code blocks
+  // Pre-process content: group adjacent code blocks into tabs and turn fenced
+  // blocks tagged with `run` (e.g. ```sql run) into executable blocks.
   const processedContent = React.useMemo(() => {
     const lines = content.split("\n");
     const newLines: string[] = [];
-    let i = 0;
 
-    while (i < lines.length) {
-      const line = lines[i];
-      if (line.trim().startsWith("```")) {
-        const group: { language: string; code: string; label: string }[] = [];
-        let j = i;
-
-        while (j < lines.length) {
-          if (lines[j].trim().startsWith("```")) {
-            const lang = lines[j].trim().slice(3);
-            let code = "";
-            j++;
-            while (j < lines.length && !lines[j].trim().startsWith("```")) {
-              code += lines[j] + "\n";
-              j++;
-            }
-            group.push({
-              language: lang,
-              code: code.trim(),
-              label: lang || "Code",
-            });
-            j++; // skip closing ```
-
-            // Peek ahead: is the next non-empty line another code block?
-            let tempJ = j;
-            while (tempJ < lines.length && lines[tempJ].trim() === "") tempJ++;
-            if (tempJ < lines.length && lines[tempJ].trim().startsWith("```")) {
-              j = tempJ;
-              continue;
-            } else {
-              break;
-            }
-          } else {
-            break;
-          }
-        }
-
-        if (group.length > 1) {
-          // Wrap the group in a single block that we can intercept
-          newLines.push("```code-tabs");
-          newLines.push(JSON.stringify(group));
-          newLines.push("```");
-          i = j;
-          continue;
-        }
-      }
-      newLines.push(line);
-      i++;
+    interface Fence {
+      info: string;
+      language: string;
+      meta: string;
+      code: string;
+      end: number;
     }
+
+    const readFence = (start: number): Fence | null => {
+      if (!lines[start]?.trim().startsWith("```")) return null;
+      const info = lines[start].trim().slice(3).trim();
+      const [language = "", ...metaParts] = info.split(/\s+/);
+      let cursor = start + 1;
+      let code = "";
+      while (cursor < lines.length && !lines[cursor].trim().startsWith("```")) {
+        code += lines[cursor] + "\n";
+        cursor++;
+      }
+      if (cursor >= lines.length) return null;
+      return {
+        info,
+        language,
+        meta: metaParts.join(" "),
+        code: code.replace(/\n$/, ""),
+        end: cursor + 1,
+      };
+    };
+
+    let i = 0;
+    while (i < lines.length) {
+      const fence = readFence(i);
+      if (!fence) {
+        newLines.push(lines[i]);
+        i++;
+        continue;
+      }
+
+      // ```sql run -> an interactive block with a Run button.
+      if (fence.meta.split(/\s+/).includes("run")) {
+        newLines.push("```sql-playground");
+        newLines.push(
+          JSON.stringify({
+            code: fence.code.trim(),
+            language: fence.language || "sql",
+          }),
+        );
+        newLines.push("```");
+        i = fence.end;
+        continue;
+      }
+
+      // Collect a run of adjacent fences so they can render as tabs.
+      const group: { language: string; code: string; label: string }[] = [
+        {
+          language: fence.language,
+          code: fence.code.trim(),
+          label: fence.language || "Code",
+        },
+      ];
+      let cursor = fence.end;
+
+      while (true) {
+        let probe = cursor;
+        while (probe < lines.length && lines[probe].trim() === "") probe++;
+        const next = probe < lines.length ? readFence(probe) : null;
+        if (!next || next.meta.split(/\s+/).includes("run")) break;
+        group.push({
+          language: next.language,
+          code: next.code.trim(),
+          label: next.language || "Code",
+        });
+        cursor = next.end;
+      }
+
+      if (group.length > 1) {
+        newLines.push("```code-tabs");
+        newLines.push(JSON.stringify(group));
+        newLines.push("```");
+      } else {
+        newLines.push("```" + fence.info);
+        newLines.push(fence.code);
+        newLines.push("```");
+      }
+      i = cursor;
+    }
+
     return newLines.join("\n");
   }, [content]);
 
@@ -254,6 +293,22 @@ const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
                 return <CodeTabs tabs={tabs} />;
               } catch (err) {
                 console.error("Failed to parse code-tabs", err);
+                return null;
+              }
+            }
+
+            const isPlayground = className?.includes("language-sql-playground");
+            if (isPlayground) {
+              try {
+                const block = JSON.parse(String(children)) as {
+                  code: string;
+                  language: string;
+                };
+                return (
+                  <RunnableSql code={block.code} language={block.language} />
+                );
+              } catch (err) {
+                console.error("Failed to parse runnable sql block", err);
                 return null;
               }
             }

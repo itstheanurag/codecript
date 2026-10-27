@@ -5,13 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/generate-sitemap.mjs",
+    "prebuild": "node scripts/generate-sitemap.mjs && node scripts/check-practice-questions.mjs",
     "build": "tsc -b && vite build && node scripts/prerender.mjs",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check:questions": "node scripts/check-practice-questions.mjs"
   },
   "dependencies": {
+    "@codemirror/lang-sql": "^6.10.0",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
+    "@electric-sql/pglite": "^0.5.12",
     "@tailwindcss/vite": "^4.2.1",
+    "codemirror": "^6.0.2",
     "fuse.js": "^7.3.0",
     "lucide-react": "^0.575.0",
     "mermaid": "^11.14.0",
@@ -43,5 +49,8 @@
     "overrides": {
       "vite": "^8.0.0-beta.13"
     }
+  },
+  "engines": {
+    "node": ">=22.18.0"
   }
 }
