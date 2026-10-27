@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://codecript.pages.dev/</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/algo</loc>
@@ -146,47 +146,47 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/001-http-fundamentals</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/002-rest-fundamentals</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/003-graphql</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/004-soap-apis</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/005-grpc-and-trpc</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/006-real-time-polling-sse</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/007-websockets-and-scaling</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/008-webhooks-and-events</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/009-api-security-and-oauth</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/api-design/010-versioning-and-pagination</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/behavioral</loc>
@@ -210,55 +210,55 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/building</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/building/001-url-shortener</loc>
-    <lastmod>2026-04-14</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/building/002-chat-system</loc>
-    <lastmod>2026-04-14</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/building/003-news-feed</loc>
-    <lastmod>2026-04-14</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/building/004-video-streaming</loc>
-    <lastmod>2026-04-14</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/building/005-todo-cli</loc>
-    <lastmod>2026-04-14</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/building/006-web-server</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/concurrency</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/concurrency/001-processes-vs-threads</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/concurrency/002-synchronization-and-locks</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/concurrency/003-deadlocks-and-race-conditions</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/concurrency/004-modern-concurrency-models</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases/001-database-paradigms</loc>
@@ -270,31 +270,83 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases/003-sql-fundamentals</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases/004-sql-query-optimization</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases/005-nosql-document-and-key-value</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases/006-nosql-wide-column-and-graph</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases/007-in-memory-and-caching</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases/008-search-and-time-series</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/databases/009-choosing-the-right-database</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/001-sql-execution-model</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/002-joins-in-depth</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/003-set-operations-and-subqueries</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/004-aggregation-and-grouping</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/005-window-functions</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/006-sql-functions-and-expressions</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/007-ctes-and-recursive-queries</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/008-dml-ddl-and-constraints</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/009-transactions-and-isolation</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/010-indexes-and-query-plans</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/011-schema-design-and-modeling</loc>
+    <lastmod>2026-10-27</lastmod>
+  </url>
+  <url>
+    <loc>https://codecript.pages.dev/databases/sql/012-sql-anti-patterns-and-checklist</loc>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/devops</loc>
@@ -774,87 +826,87 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld/001-solid-introduction</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld/002-single-responsibility</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld/003-open-closed</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld/004-liskov-substitution</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld/005-interface-segregation</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld/006-dependency-inversion</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld/007-design-patterns-intro</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld/008-factory-pattern</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld/009-singleton-pattern</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld/010-strategy-pattern</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/lld/011-observer-pattern</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/001-scalability</loc>
-    <lastmod>2026-04-14</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/002-latency-vs-throughput</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/003-cap-theorem</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/004-consistency-models</loc>
-    <lastmod>2026-04-14</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/005-availability</loc>
-    <lastmod>2026-04-14</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/006-fault-tolerance</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/008-cdn</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/009-load-balancing</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/014-blob-storage</loc>
@@ -894,11 +946,11 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/027-idempotency</loc>
-    <lastmod>2026-04-14</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/028-rate-limiting</loc>
-    <lastmod>2026-05-18</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/029-distributed-locking</loc>
@@ -938,7 +990,7 @@
   </url>
   <url>
     <loc>https://codecript.pages.dev/sys-design/044-interview-strategy</loc>
-    <lastmod>2026-04-14</lastmod>
+    <lastmod>2026-10-27</lastmod>
   </url>
   <url>
     <loc>https://codecript.pages.dev/testing</loc>
