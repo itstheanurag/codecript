@@ -75,3 +75,16 @@ export const SECTION_META = {
     description: "TDD, mocking, load testing, and modern runners.",
   },
 };
+
+/**
+ * Routes that are part of the SPA but not backed by a markdown file.
+ * They still need a prerendered shell for crawlers and the sitemap.
+ */
+export const STATIC_PAGES = [
+  {
+    path: "/playground",
+    title: "SQL Playground — Practice PostgreSQL Online",
+    description:
+      "Practice 64 SQL exercises with instant feedback on a real PostgreSQL 17 database running in your browser. No signup, no server, nothing leaves your tab.",
+  },
+];

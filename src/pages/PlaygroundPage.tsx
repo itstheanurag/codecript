@@ -3,14 +3,36 @@ import { ArrowLeft, BookOpen, Github } from "lucide-react";
 import SEO from "../components/SEO";
 import PracticeView from "../components/practice/PracticeView";
 import { PRACTICE_QUESTIONS } from "../lib/playground/questions";
+import { absoluteUrl, buildBreadcrumbJsonLd } from "../lib/seo";
 
 const PlaygroundPage = () => {
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-paper-100 text-ink">
       <SEO
-        title="SQL Playground"
-        description={`Practice ${PRACTICE_QUESTIONS.length} SQL exercises with instant feedback. A real PostgreSQL 17 database compiled to WebAssembly runs entirely in your browser — no server, no signup.`}
+        title="SQL Playground — Practice PostgreSQL Online"
+        description={`Practice ${PRACTICE_QUESTIONS.length} SQL exercises with instant feedback on a real PostgreSQL 17 database running in your browser. No signup, no server, nothing leaves your tab.`}
         canonical="/playground"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: "SQL Playground",
+            applicationCategory: "EducationalApplication",
+            operatingSystem: "Any",
+            url: absoluteUrl("/playground"),
+            description: `Practice ${PRACTICE_QUESTIONS.length} SQL exercises with instant feedback in the browser.`,
+            offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+            isPartOf: {
+              "@type": "WebSite",
+              name: "codecript",
+              url: absoluteUrl("/"),
+            },
+          },
+          buildBreadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "SQL Playground", path: "/playground" },
+          ]),
+        ]}
       />
 
       {/* Standalone app bar: the playground is a tool, not a content page. */}

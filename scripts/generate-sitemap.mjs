@@ -1,7 +1,7 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { getContentRoutes } from "./content-routes.mjs";
-import { SITE_URL } from "./site.mjs";
+import { SITE_URL, STATIC_PAGES } from "./site.mjs";
 
 const OUTPUT_PATH = join(process.cwd(), "public", "sitemap.xml");
 
@@ -11,8 +11,14 @@ const homeLastmod = routes.reduce(
   "1970-01-01",
 );
 
+const today = new Date().toISOString().slice(0, 10);
+
 const urls = [
   { loc: `${SITE_URL}/`, lastmod: homeLastmod },
+  ...STATIC_PAGES.map((page) => ({
+    loc: `${SITE_URL}${page.path}`,
+    lastmod: today,
+  })),
   ...routes.map((route) => ({
     loc: `${SITE_URL}${route.path}`,
     lastmod: route.lastmod,
