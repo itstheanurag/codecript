@@ -1,77 +1,196 @@
 ---
 title: Modern RPC (gRPC & tRPC)
+description: Typed, code-generated remote calls with gRPC and end-to-end TypeScript with tRPC — streaming, deadlines, errors, versioning, and when not to use RPC at all.
 order: 5
 ---
 
-**RPC (Remote Procedure Call)** is a design paradigm where a client executes a function on a remote server as if it were a local function call in the client's own codebase.
+REST treats the network as a set of resources. **RPC treats it as function calls.** Both are valid; the trade-off is coupling versus ergonomics.
 
-While REST forces you to think about *Resources* (Nouns), RPC allows you to think purely in *Actions* (Verbs).
+Two modern flavours dominate:
 
-## 1. gRPC (Google RPC)
+- **gRPC**: language-neutral, schema-first, HTTP/2, streaming.
+- **tRPC**: TypeScript-only, no schema file, inferred types end to end.
 
-Created by Google, gRPC is the undisputed king of backend-to-backend microservice communication. It is designed for raw performance and strict contracts.
+## gRPC
 
-### The Protobuf Contract
-Unlike REST which relies on loose JSON and OpenAPI specs, gRPC relies on **Protocol Buffers (Protobuf)**. You define your API contract in a `.proto` file.
+### The contract
 
-```protobuf
+```proto
 syntax = "proto3";
 
-service PaymentService {
-  rpc ProcessPayment (PaymentRequest) returns (PaymentResponse) {}
+package orders.v1;
+
+service OrderService {
+  rpc GetOrder(GetOrderRequest) returns (Order);
+  rpc WatchOrders(WatchRequest) returns (stream OrderEvent);
+  rpc UploadItems(stream Item) returns (UploadSummary);
 }
 
-message PaymentRequest {
-  string credit_card = 1;
-  int32 amount_cents = 2;
-}
+message GetOrderRequest { string id = 1; }
 
-message PaymentResponse {
-  bool success = 1;
+message Order {
+  string id = 1;
+  string status = 2;
+  int64 total_cents = 3;
+  string currency = 4;
 }
 ```
 
-### Why gRPC is incredibly fast
-1.  **Binary Payload:** Protobuf compiles down to a dense binary format. It is significantly smaller and much faster to serialize/deserialize than plain-text JSON.
-2.  **HTTP/2:** gRPC mandates HTTP/2 under the hood. This allows for multiplexing (sending multiple requests over a single TCP connection simultaneously) and native bi-directional streaming.
+- **proto3** is the schema; code is generated for every language.
+- Field numbers are the wire contract — never reuse or renumber them.
+- Add fields freely; remove/rename only after all clients migrate (use `reserved`).
 
-### Code Generation
-Just like SOAP, you run a compiler (`protoc`) against your `.proto` file, and it automatically generates the client and server stubs in Go, Python, Java, or Node.js. 
+### Transports
 
-*   **The Catch:** gRPC is fantastic for microservices, but terrible for web browsers. Browsers cannot natively speak HTTP/2 framing required for gRPC, forcing you to use clunky proxies (like `gRPC-Web`) if you want your React app to talk directly to a gRPC server.
+gRPC runs over **HTTP/2**, giving:
 
-## 2. tRPC (TypeScript RPC)
+- multiplexed streams over one connection,
+- binary framing and header compression,
+- four call types: unary, server-streaming, client-streaming, bidirectional.
 
-While gRPC solves backend communication, **tRPC** was created to solve Full-Stack web communication. 
+That makes it a good fit for service-to-service calls, large payloads, and streaming telemetry.
 
-If you are building a modern web application where both your backend (Node.js) and frontend (React) are written in TypeScript, and they live in the same Git Monorepo, tRPC is a game-changer.
+### Deadlines and cancellation
 
-### End-to-End Type Safety (Without Code Gen)
-With REST or gRPC, you have to run a compiler or a Swagger generator to share types between backend and frontend.
+Every call should carry a deadline:
 
-With tRPC, you simply define your router on the backend using TypeScript and Zod (for validation). Because it's a monorepo, your React frontend simply *imports the type definition* directly from the backend folder.
+```ts
+const client = new OrderServiceClient(addr);
+const order = await client.getOrder(
+  { id: "ord_1" },
+  { deadline: Date.now() + 500 },
+);
+```
 
-**Backend (Node):**
-```typescript
+Deadlines propagate: when the caller's budget expires, the server is cancelled. Without deadlines, a slow dependency holds connections indefinitely.
+
+### Errors
+
+gRPC has its own status codes:
+
+| Code | HTTP analogue | Retry? |
+|---|---|---|
+| `OK` | 200 | — |
+| `INVALID_ARGUMENT` | 400 | no |
+| `UNAUTHENTICATED` | 401 | after refresh |
+| `PERMISSION_DENIED` | 403 | no |
+| `NOT_FOUND` | 404 | no |
+| `ALREADY_EXISTS` / `ABORTED` | 409 | re-read/retry |
+| `RESOURCE_EXHAUSTED` | 429 | backoff |
+| `FAILED_PRECONDITION` | 412 | no |
+| `UNAVAILABLE` | 503 | yes, with backoff |
+| `DEADLINE_EXCEEDED` | 504 | idempotent only |
+| `INTERNAL` | 500 | not blindly |
+
+Return `google.rpc.Status` details for structured errors; map to your domain codes at the boundary.
+
+### Interceptors
+
+Cross-cutting behaviour lives in interceptors (the middleware equivalent):
+
+```ts
+const auth: Interceptor = (options, nextCall) =>
+  new InterceptingCall(nextCall(options), {
+    start(metadata, listener, next) {
+      metadata.set("authorization", `Bearer ${token()}`);
+      next(metadata, listener);
+    },
+  });
+```
+
+Use them for auth, tracing, metrics, retries, and deadlines. Keep business logic out.
+
+### Load balancing and health
+
+- Client-side LB (round robin/least request) needs service discovery.
+- Server-side LB via proxies (Envoy) is common.
+- Health checking: `grpc.health.v1.Health/Check`.
+- Long-lived connections need keepalive pings and reconnect/backoff.
+
+### Browsers
+
+Browsers cannot speak raw HTTP/2 gRPC. Options:
+
+- **grpc-web** via a proxy (Envoy) — limited streaming.
+- **Connect** protocol (gRPC-compatible over HTTP/1.1/JSON or binary).
+- REST/JSON at the edge for public clients.
+
+### Versioning
+
+- Package name carries the version (`orders.v1`).
+- Add fields, never repurpose numbers.
+- Reserve removed numbers/names.
+- Run old and new services side by side during migration.
+
+## tRPC
+
+tRPC removes the schema file by using TypeScript types directly:
+
+```ts
 export const appRouter = router({
-  getUser: publicProcedure
-    .input(z.string())
-    .query(async (opts) => {
-      return await db.user.findById(opts.input);
-    }),
+  order: router({
+    byId: publicProcedure
+      .input(z.object({ id: z.string() }))
+      .query(({ input, ctx }) => ctx.orders.findById(input.id)),
+    cancel: protectedProcedure
+      .input(z.object({ id: z.string(), reason: z.string().max(200) }))
+      .mutation(({ input, ctx }) => ctx.orders.cancel(input.id, input.reason)),
+  }),
 });
-// Export ONLY the type, not the actual backend code!
+
 export type AppRouter = typeof appRouter;
 ```
 
-**Frontend (React):**
-```tsx
-// This hook is instantly fully typed, with autocomplete for 'getUser'!
-const userQuery = trpc.getUser.useQuery("123");
+Client:
 
-if (userQuery.data) {
-  console.log(userQuery.data.name); // 100% type safe
-}
+```ts
+const order = await trpc.order.byId.query({ id: "ord_1" });
 ```
 
-If a backend engineer renames `name` to `firstName` in the database, the frontend React code will instantly show a red squiggly error in the IDE before you even run the code. No building, no code generation, just pure TypeScript inference.
+Benefits:
+
+- end-to-end type safety with zero codegen;
+- input validation with Zod (runtime + types);
+- excellent DX in a TypeScript monorepo;
+- works over HTTP (queries/mutations) and WebSockets (subscriptions).
+
+Constraints:
+
+- **TypeScript only** — no Python/Go/Java clients.
+- The client is coupled to the server implementation package; not suitable for public APIs.
+- Versioning is a shared-package/versioning problem, not a wire contract.
+- Large routers can slow type-checking; split them.
+
+Use tRPC for internal full-stack TypeScript products; use REST/gRPC where other languages or third parties are involved.
+
+## Choosing
+
+| Need | Choose |
+|---|---|
+| Public API, broad clients, caching | REST |
+| Service-to-service, streaming, polyglot | gRPC |
+| Internal TS full-stack, fastest DX | tRPC |
+| Legacy enterprise contract | SOAP |
+| Browser push/live | SSE/WebSockets (or gRPC-web) |
+
+## Failure modes
+
+- **No deadlines** → connection exhaustion and cascading timeouts.
+- **Retrying non-idempotent calls** → duplicate writes; add idempotency keys.
+- **Field-number reuse** → silent data corruption across versions.
+- **Blocking the event loop** in Node gRPC servers → all calls stall.
+- **tRPC types drift** between client/server versions → runtime shape mismatches; deploy together.
+- **Unbounded streaming** without backpressure → memory growth.
+
+## Checklist
+
+- [ ] Every call has a deadline/timeout and cancellation.
+- [ ] Errors map to a documented status taxonomy.
+- [ ] Field numbers are never reused; removed fields are reserved.
+- [ ] Retries are limited to idempotent calls with backoff.
+- [ ] Auth/tracing/metrics live in interceptors/middleware.
+- [ ] Streaming has backpressure and size limits.
+- [ ] Browser access uses grpc-web/Connect or a REST edge.
+- [ ] The choice matches clients and team topology, not fashion.
+
+Next: [Real-Time APIs](/api-design/006-real-time-polling-sse) — polling, SSE, and when push is worth the complexity.

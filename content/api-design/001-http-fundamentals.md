@@ -1,81 +1,175 @@
 ---
 title: HTTP Fundamentals
+description: Methods, status codes, headers, caching, and connection behaviour — the parts of HTTP that decide whether your API is predictable, cacheable, and safe to retry.
 order: 1
 ---
 
-Before discussing advanced API architectures like GraphQL or REST, you must deeply understand the underlying transport layer: **HTTP (Hypertext Transfer Protocol)**. 
+HTTP is a **request/response protocol** with semantics layered on top of a simple message format. The semantics — safety, idempotency, caching, status meaning — are the contract your clients rely on.
 
-Every time a frontend application (like a React web app or an iOS mobile app) wants data from a backend server, it constructs and sends an HTTP Request.
+## The message
 
-> [!TIP]
-> **ELI5: The Mail System**
-> Think of an HTTP Request as sending a physical letter through the mail.
-> *   **The URL:** The destination address on the envelope.
-> *   **The Method (Verb):** A sticker on the envelope saying what you want (e.g., "GET: Please send me a package" or "POST: Here is a package to keep").
-> *   **The Headers:** The metadata (e.g., Return address, "Fragile", "Overnight Delivery").
-> *   **The Body:** The actual contents inside the envelope (the payload).
-
-## 1. The Structure of an HTTP Request
-
-When your browser or a tool like `fetch()` makes a request, it generates a raw text string that looks like this:
-
-```http
-POST /users/123/profile?theme=dark HTTP/1.1
+```
+POST /v1/orders HTTP/1.1
 Host: api.example.com
-Authorization: Bearer my_secret_token
 Content-Type: application/json
+Authorization: Bearer <token>
+Idempotency-Key: 7c1f...
 
-{
-  "username": "coder123",
-  "bio": "I love distributed systems"
-}
+{"items":[{"sku":"sku_1","qty":2}]}
 ```
 
-Let's break down exactly how this request is formed.
+```
+HTTP/1.1 201 Created
+Content-Type: application/json
+Location: /v1/orders/ord_123
+Cache-Control: no-store
 
-### The Endpoint (URL / URI)
-The URL defines *where* the request is going and *what* it is targeting. It is composed of the base domain, path parameters, and query parameters.
+{"id":"ord_123","status":"pending"}
+```
 
-### Path Parameters
-Variables embedded directly into the URL path, used to identify a specific resource.
-*   **Example:** `/users/123/profile` (where `123` is the Path Parameter identifying a specific user).
-*   **When to use:** When you need to retrieve or modify one specific item by its ID.
+Every part matters: method semantics, status meaning, headers for caching/auth/retries, and the body schema.
 
-### Query Parameters
-Key-value pairs appended to the end of the URL after a `?`.
-*   **Example:** `/users?role=admin&sort=desc`
-*   **When to use:** When you are filtering, sorting, or paginating a list of resources. They are optional modifiers, not primary identifiers.
+## Versions
 
-## 2. HTTP Methods (Verbs)
+| Version | What changed | Practical impact |
+|---|---|---|
+| HTTP/1.1 | text protocol, keep-alive, pipelining (rarely used) | one request at a time per connection; head-of-line blocking |
+| HTTP/2 | binary framing, multiplexing, header compression, server push (deprecated) | many streams per connection; still TCP head-of-line at packet loss |
+| HTTP/3 | runs over QUIC/UDP, per-stream loss recovery | better on lossy/mobile networks; TLS 1.3 built in |
 
-The Method tells the server *what action* you want to perform on the URL.
+For APIs, the version is mostly invisible: clients care about **connection reuse**, **multiplexing**, and **timeouts**. Keep-alive and HTTP/2 reduce handshake cost; HTTP/3 helps mobile tails.
 
-*   `GET`: Retrieve data. (Should be Idempotent—calling it 10 times doesn't change anything).
-*   `POST`: Create new data or submit a payload. (Not Idempotent).
-*   `PUT`: Replace an existing resource entirely.
-*   `PATCH`: Partially update an existing resource (e.g., just updating the "bio" field).
-*   `DELETE`: Remove a resource.
+## Methods and semantics
 
-## 3. HTTP Headers
+| Method | Safe | Idempotent | Body | Typical meaning |
+|---|---|---|---|---|
+| `GET` | yes | yes | no | read a resource |
+| `HEAD` | yes | yes | no | metadata only |
+| `POST` | no | **no** | yes | create / non-idempotent action |
+| `PUT` | no | yes | yes | replace a resource at a known URI |
+| `PATCH` | no | **not guaranteed** | yes | partial update |
+| `DELETE` | no | yes | optional | remove a resource |
+| `OPTIONS` | yes | yes | no | capabilities/CORS preflight |
 
-Headers are key-value pairs sent alongside the request (or response) that provide critical metadata.
+**Safe** = no intended state change. **Idempotent** = repeating has the same effect. These are promises clients and infrastructure rely on:
 
-*   **`Authorization`**: The most important header for security. It usually contains a JWT or an API Key (e.g., `Authorization: Bearer <token>`).
-*   **`Content-Type`**: Tells the server how to parse the Body. Usually `application/json`, but could be `multipart/form-data` for file uploads.
-*   **`Accept`**: Tells the server what format the frontend *wants* to receive back (e.g., `Accept: text/html` vs `Accept: application/json`).
+- caches may serve `GET` without contacting you;
+- proxies/load balancers may retry idempotent requests;
+- clients may safely retry `PUT`/`DELETE` after a timeout.
 
-## 4. The Request Body
+If your `POST /orders` is not idempotent, retries create duplicate orders — unless you add an idempotency key.
 
-The Body contains the actual data payload.
-*   It is typically formatted as JSON in modern APIs.
-*   `GET` and `DELETE` requests generally **do not** have a body, as they only use the URL to identify what to fetch or delete.
-*   `POST`, `PUT`, and `PATCH` requests use the body to send the massive chunks of data (like a user's entire profile data, or a base64 encoded image).
+`PATCH` is not idempotent in general (e.g., `{"op":"increment"}`); JSON Merge Patch (`application/merge-patch+json`) is.
 
-## 5. The Response (Status Codes)
+## Status codes that matter
 
-When the server replies, it sends back a Status Code indicating what happened. You must memorize these categories:
+| Code | Meaning | Common mistake |
+|---|---|---|
+| `200` | OK | returning 200 for errors |
+| `201` | Created (+ `Location`) | missing `Location` |
+| `202` | Accepted (async) | using 200 for queued work |
+| `204` | No content | sending a body anyway |
+| `301/308` | Permanent redirect | changing method semantics accidentally (308 preserves) |
+| `304` | Not modified | ignoring conditional requests |
+| `400` | Bad request | using it for validation vs malformed |
+| `401` | Unauthenticated | missing `WWW-Authenticate` |
+| `403` | Authenticated but forbidden | leaking existence of resources |
+| `404` | Not found | using 403 to hide, inconsistently |
+| `409` | Conflict | using 400 for concurrency conflicts |
+| `412` | Precondition failed | ignoring `If-Match` |
+| `422` | Semantically invalid | mixing with 400 arbitrarily |
+| `429` | Rate limited | no `Retry-After` |
+| `500` | Server bug | leaking stack traces |
+| `502/503/504` | Upstream/unavailable/timeout | retrying non-idempotent calls |
 
-*   **`2xx` (Success):** Everything worked! (`200 OK`, `201 Created`).
-*   **`3xx` (Redirection):** Go look somewhere else. (`301 Moved Permanently`).
-*   **`4xx` (Client Error):** The frontend messed up. (`400 Bad Request`, `401 Unauthorized`, `404 Not Found`, `429 Too Many Requests`).
-*   **`5xx` (Server Error):** The backend crashed. (`500 Internal Server Error`, `503 Service Unavailable`).
+Clients branch on status families first (`2xx`, `4xx`, `5xx`), then on the error code in the body. Be consistent.
+
+## Headers you will actually use
+
+| Header | Purpose |
+|---|---|
+| `Content-Type` | body format (`application/json; charset=utf-8`) |
+| `Accept` / `Accept-Encoding` | content negotiation (`gzip`, `br`) |
+| `Authorization` | bearer token / basic / signature |
+| `Cache-Control` | caching policy (`no-store`, `max-age`, `s-maxage`) |
+| `ETag` / `If-None-Match` | conditional GET, optimistic concurrency |
+| `If-Match` | optimistic locking (`412` on mismatch) |
+| `Location` | created resource / redirect |
+| `Retry-After` | backoff hint on 429/503 |
+| `Idempotency-Key` | deduplicate retried writes (convention) |
+| `X-Request-Id` | correlation across services |
+| `Vary` | which request headers change the cache key |
+
+## Caching
+
+Two mechanisms:
+
+**Freshness** (`Cache-Control`):
+
+```http
+Cache-Control: public, max-age=60, s-maxage=300, stale-while-revalidate=30
+```
+
+**Validation** (ETag):
+
+```http
+ETag: "v42"
+If-None-Match: "v42"      ->  304 Not Modified (no body)
+```
+
+Use validation for user-specific or frequently changing data; use freshness for static/public data. Never cache authenticated responses publicly. Handle `Vary` carefully (`Accept-Encoding`, `Accept-Language`), or caches will serve the wrong variant.
+
+## Content negotiation and compression
+
+- Support JSON first; add others only with a real consumer.
+- Compress large bodies (`gzip`/`br`) and set `Vary: Accept-Encoding`.
+- Respect `Accept`; return `406` if you cannot satisfy it, or fall back explicitly.
+- Avoid compression for tiny payloads and secrets where BREACH-style attacks matter.
+
+## Connections, timeouts, and retries
+
+HTTP is built on TCP (or QUIC). Consequences:
+
+- **Handshakes are expensive**: reuse connections (keep-alive), pool them, and set idle timeouts above the upstream's.
+- **Timeouts are mandatory**: connect, read, and total. A client without a timeout can hang forever.
+- **Retries need idempotency**: retry `GET`/`PUT`/`DELETE` and idempotency-keyed `POST`; do not blindly retry `POST`.
+- **Backoff with jitter** avoids synchronized retry storms.
+
+```ts
+const res = await fetch(url, {
+  method: "POST",
+  headers: { "Content-Type": "application/json", "Idempotency-Key": key },
+  body: JSON.stringify(payload),
+  signal: AbortSignal.timeout(2_000),
+});
+```
+
+## Cookies vs tokens
+
+- **Cookies** are automatically attached by browsers; require `Secure`, `HttpOnly`, `SameSite`, and CSRF protection for state-changing requests.
+- **Bearer tokens** are explicit; must be protected from XSS, scoped, short-lived, and rotatable.
+- Never put secrets in URLs (they leak in logs/referrers).
+
+## Common mistakes
+
+- Returning `200` with `{"error": ...}` — breaks every generic client, cache, and monitor.
+- Using `GET` for state changes — caches and prefetchers will execute them.
+- No `Idempotency-Key` on a retryable `POST`.
+- Unbounded lists and no pagination.
+- Caching personalised responses publicly.
+- Inconsistent error shapes across endpoints.
+- Missing `Vary` and serving gzip to clients that cannot decode it.
+- No timeout on outbound calls.
+
+## Checklist
+
+- [ ] Methods match safety/idempotency semantics.
+- [ ] Status codes are correct and consistent; errors have stable codes.
+- [ ] `Content-Type`, `Accept`, and compression are handled.
+- [ ] Mutations define retry/idempotency behaviour.
+- [ ] Caching policy is explicit (`no-store` for authenticated data).
+- [ ] Timeouts and backoff are configured on clients.
+- [ ] Cookies/tokens set `Secure`/`HttpOnly`/`SameSite` where applicable.
+- [ ] Request ids propagate for debugging.
+
+Next: [REST Fundamentals](/api-design/002-rest-fundamentals) — resources, representations, and the parts of REST worth keeping.
