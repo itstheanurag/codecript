@@ -1,78 +1,164 @@
 ---
 title: URL Shortener (Scale & Build)
+description: Designing and building a URL shortener — ID generation without collisions, redirect latency, caching, abuse prevention, analytics, and the capacity math.
 order: 1
 ---
 
-Designing and building a URL shortener is a classic exercise that covers everything from simple data encoding to high-scale data partitioning.
+A URL shortener looks simple: store a long URL, return a short code, redirect. At scale, the hard parts are **ID generation**, **redirect latency**, and **abuse**.
 
----
+## Scope
 
-## 1. The Blueprint (Requirements)
+**In scope**
 
-To build a production-grade URL shortener (like Bitly), we need to handle:
-- **Shortening**: Long URL → Short unique string (e.g., `bitly.com/xY7z`).
-- **Redirection**: Instant redirect from short link to the original.
-- **Scale**: Handling 100M+ new links per month and billions of redirects.
+- `POST /links` with a long URL → short code.
+- `GET /{code}` → `301/302` redirect.
+- Custom aliases (optional).
+- Expiry.
+- Click analytics (aggregate, not per-click real-time).
 
----
+**Out of scope for v1**
 
-## 2. Step-by-Step Implementation
+- Full analytics dashboards.
+- Per-user teams/permissions.
+- Malware scanning at scale (use a provider).
+- Internationalised domains.
 
-### Step 1: The Encoding Logic
-We need a way to turn a unique numeric ID into a short string. We use **Base62** (a-z, A-Z, 0-9) because it's URL-friendly and provides many combinations in just 7 characters ($62^7 \approx 3.5$ Trillion).
+## Estimates
 
-**Conceptual Logic:**
-```python
-def encode_id_to_base62(id):
-    chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    result = ""
-    while id > 0:
-        result = chars[id % 62] + result
-        id //= 62
-    return result
+Assume 100M new links/day and 10B redirects/day (100:1 read/write? adjust):
+
+```
+writes: 100M/day ≈ 1,160 RPS avg, ~3,500 peak
+reads:  10B/day  ≈ 115,000 RPS avg, ~350,000 peak
+storage: 100M × (500 B URL + 100 B metadata) ≈ 60 GB/day + indexes
+code space: 62^7 ≈ 3.5 trillion → 7 base62 chars is enough for decades
 ```
 
-### Step 2: Hashing vs. Key Generation (KGS)
-In a high-scale system, you can't just hash the URL and hope there are no collisions.
-- **The Pro Approach**: Build a separate **Key Generation Service (KGS)**. 
-- The KGS pre-generates unique 7-character strings and stores them in a database.
-- When you need a new short link, you just "take" one from the table. This eliminates collision logic entirely.
+Reads dominate by ~100×. Cache aggressively; the database is the backing store, not the hot path.
 
----
+## ID generation
 
-## 3. High-Level Architecture
+| Approach | Pros | Cons |
+|---|---|---|
+| Random 7-char base62 | simple, unguessable | collision check on insert |
+| Counter + base62 | compact, ordered | predictable, single point of coordination |
+| Snowflake-style (time+node+seq) | distributed, roughly ordered | longer codes, clock sensitivity |
+| Hash of URL | deterministic (no duplicate links) | collisions, leaks URL patterns |
 
-```mermaid
-graph TD
-    User[User/Client] --> LB[Load Balancer]
-    LB --> App[Shortener Service]
-    App --> Redis[Redis: Hot Links]
-    App --> KGS[KGS: Key Provider]
-    App --> DB[(NoSQL: Mapping Store)]
-    
-    KGS --> KeyDB[(Key Table)]
+Recommended: **random 7-char base62 with a unique constraint**, retry on conflict (collision probability is negligible at this length). Use a CSPRNG, not `Math.random`, if enumeration is a concern.
+
+```ts
+const ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+function code(length = 7): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(length));
+  return Array.from(bytes, (b) => ALPHABET[b % ALPHABET.length]).join("");
+}
 ```
 
----
+For custom aliases, validate format, reserve profanity/trademark lists, and enforce uniqueness.
 
-## 4. Handling Scale (The "System Design" Part)
+## Data model
 
-### Database Choice: Read vs. Write
-- A URL shortener is **Read-Heavy** (100:1 ratio).
-- Use a **NoSQL Key-Value Store** (like DynamoDB or Cassandra). 
-- Performance: Point lookups (`GET url WHERE id = X`) are extremely fast in NoSQL.
+```sql
+CREATE TABLE links (
+  code        text PRIMARY KEY,
+  long_url    text NOT NULL,
+  owner_id    uuid,
+  created_at  timestamptz NOT NULL DEFAULT now(),
+  expires_at  timestamptz,
+  disabled    boolean NOT NULL DEFAULT false,
+  custom      boolean NOT NULL DEFAULT false
+);
 
-### Caching Strategy
-Most clicks come from a small percentage of "Hot" links (the 80/20 rule).
-- **Redis Cache**: Store the most frequently accessed `id -> long_url` mappings in memory.
-- This reduces DB load by nearly 80-90% in most production environments.
+CREATE INDEX links_owner_created_idx ON links (owner_id, created_at DESC);
+```
 
-### Data Partitioning
-Once your database hits 10+ Terabytes, you must **Shard** it.
-- **Approach**: Partition by the `hash(short_id)`. This ensures that traffic is evenly distributed across multiple database nodes.
+Why `code` as the primary key: the redirect query is a single point lookup by code. `owner_id` index supports listing a user's links.
 
----
+For analytics, never write per click to the primary:
 
-## Key Takeaway
+```
+redirect → fire-and-forget event (queue) → batch insert/aggregate
+```
 
-Building a URL shortener isn't just about a hash function; it's about **Stateless Services**, **Pre-generated Keys**, and **Aggressive Caching** to handle massive redirection traffic.
+Use a columnar store or daily rollups; the redirect path must not wait on analytics.
+
+## Redirect path
+
+1. Edge/CDN or app receives `GET /{code}`.
+2. Check an in-process cache (LRU) → Redis → database.
+3. Validate: not expired, not disabled, not blocked.
+4. Respond `301` (permanent, cacheable) or `302` (temporary, analytics-friendly).
+5. Emit a click event asynchronously.
+
+**301 vs 302**: `301` is cached by browsers; subsequent clicks may not reach you (bad for analytics, good for load). Most shorteners use `302` (or `307`) to keep control and count clicks. State the trade-off in the product.
+
+Latency budget for the redirect:
+
+| Hop | Target |
+|---|---|
+| Edge | 5 ms |
+| Cache lookup | 1–2 ms |
+| DB on miss | 5–10 ms |
+| Response | < 50 ms p99 |
+
+## Caching
+
+- **Negative caching** for unknown codes (short TTL) to stop scanning.
+- **Hot links** in an LRU with TTL; invalidate on disable/expiry.
+- **Redis** as a shared L2; the database is L3.
+- Never cache a redirect without validating expiry/disabled state.
+
+A popular link can receive millions of redirects; it must be served from memory/edge, not the database.
+
+## Abuse and safety
+
+- Rate limit creation per IP/account.
+- Block private/internal URL targets (SSRF: `169.254.169.254`, `localhost`, RFC1918).
+- Scan long URLs against a safe-browsing provider; quarantine suspicious links.
+- CAPTCHA for anonymous creation at scale.
+- Expire anonymous links; require accounts for custom aliases.
+- Protect against enumeration if links are private (signed short codes).
+
+## Availability and failure modes
+
+| Failure | Behaviour | Mitigation |
+|---|---|---|
+| Redis down | redirects hit DB | bound DB QPS, local LRU, load shed |
+| DB primary down | new links fail; redirects cached | read replicas for redirects |
+| Analytics queue down | clicks lost | buffer locally, best-effort |
+| Hot link | one key saturates a shard | local cache/edge, per-key limits |
+| Malicious scanning | DB load | negative cache, rate limits, WAF |
+
+Redirects are more important than creation: degrade creation first.
+
+## Build order
+
+1. Schema + create/read API + collision-safe codes.
+2. Redirect with 302 and a small in-memory cache.
+3. Redis cache + negative caching.
+4. Expiry/disable + validation.
+5. Analytics event pipeline (async).
+6. Rate limits + SSRF/abuse checks.
+7. Custom aliases.
+8. Load test at 100k RPS reads.
+
+## Review questions
+
+- What happens on a code collision?
+- How do you prevent open redirects/SSRF?
+- Is the redirect path allowed to touch the database on every request?
+- What is the cache hit ratio and what happens at 0%?
+- Can a disabled/expired link still resolve from cache?
+- How do you stop enumeration/scraping?
+
+## Checklist
+
+- [ ] Codes are random, unique (constraint), and URL-safe.
+- [ ] Redirects are cached with correct invalidation.
+- [ ] 301 vs 302 is a deliberate product decision.
+- [ ] Analytics is asynchronous and bounded.
+- [ ] Creation is rate-limited and targets are validated.
+- [ ] Expired/disabled links cannot be served from cache.
+- [ ] The redirect path has a latency budget and a fallback.

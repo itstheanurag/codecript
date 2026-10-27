@@ -1,81 +1,198 @@
 ---
 title: Real-Time APIs (Polling & SSE)
+description: Short polling, long polling, and Server-Sent Events — latency, cost, reconnection semantics, proxy traps, and how to scale each without melting the origin.
 order: 6
 ---
 
-HTTP was originally designed as a request-response protocol: the client asks for data, the server responds, and the connection closes. 
+"Real-time" is a latency requirement, not a protocol. Choose the cheapest transport that meets it.
 
-But what if you are building a live sports ticker, a stock trading dashboard, or a chat application? The server needs a way to push data to the client *when it happens*. 
+| Transport | Direction | Latency | Complexity | Best for |
+|---|---|---|---|---|
+| Short polling | client → server | interval | lowest | low-frequency updates |
+| Long polling | server holds request | low | medium | compatibility fallback |
+| SSE | server → client | low | low-medium | feeds, notifications, progress |
+| WebSockets | bidirectional | lowest | high | chat, collaboration, games |
 
-Here is the evolution of how engineers hacked HTTP to achieve real-time communication.
+## Short polling
 
-## 1. Short Polling (The Naive Approach)
+The client asks every N seconds:
 
-The easiest way to get live updates is simply to ask the server over and over again.
+```ts
+useEffect(() => {
+  const id = setInterval(async () => {
+    const res = await fetch("/api/notifications?since=" + lastSeen);
+    setNotifications(await res.json());
+  }, 5_000);
+  return () => clearInterval(id);
+}, [lastSeen]);
+```
 
-> [!TIP]
-> **ELI5: Are We There Yet?**
-> Imagine driving with a kid in the back seat. 
-> *   Kid: "Are we there yet?"
-> *   Parent: "No."
-> *   (10 seconds later) Kid: "Are we there yet?"
-> *   Parent: "No."
+Pros: trivial, works everywhere, stateless servers, cacheable.
 
-The client runs a JavaScript `setInterval` loop, firing a `GET` request every 5 seconds.
+Cons:
 
-*   **Pros:** Incredibly easy to implement. Works on every device and browser.
-*   **Cons:** Terrible scalability. If you have 10,000 active users polling every 5 seconds, your server is handling 2,000 requests per second—and 99% of those requests return "No new data," wasting massive amounts of CPU, battery, and bandwidth.
+- latency up to the interval;
+- load scales with `clients / interval` even when nothing changed;
+- wasteful for large fleets.
 
-## 2. Long Polling
+Make it cheap:
 
-To fix the wasted requests of Short Polling, engineers invented Long Polling. 
+- `?since=<cursor>` and `304 Not Modified` when nothing changed;
+- jitter intervals to avoid synchronized spikes;
+- back off when idle; poll faster only during known activity;
+- cap response size and send deltas, not full state.
 
-Instead of immediately responding with "No new data," the server intentionally *holds the HTTP connection open* for up to 30 seconds. 
+## Long polling
 
-1.  Client requests data.
-2.  Server sees there is no data yet. It parks the request and waits.
-3.  (15 seconds later) A new message arrives in the database.
-4.  The Server immediately responds to the parked request with the message.
-5.  The Client receives the message and *immediately opens a new Long Poll connection*.
+The client sends a request; the server holds it open until data exists or a timeout:
 
-*   **Pros:** Data is delivered instantly when it arrives. Drastically reduces the number of empty HTTP requests compared to Short Polling.
-*   **Cons:** Requires complex server architecture. Your server must be capable of holding tens of thousands of concurrent TCP connections open in memory without crashing (Node.js and Go are great at this; traditional Apache/PHP is terrible at it).
+```ts
+async function longPoll(cursor: string) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30_000);
+  try {
+    const res = await fetch(`/api/events?since=${cursor}`, {
+      signal: controller.signal,
+    });
+    return await res.json();
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+```
 
-## 3. Server-Sent Events (SSE)
+Server side:
 
-Long polling is still a hack. If you just need the server to push text data to the client, the modern, elegant solution is **Server-Sent Events (SSE)**.
+- park the request (async, not a blocked thread);
+- wake on new events or timeout (return `204`/empty);
+- client immediately reconnects.
 
-SSE leverages a standard HTTP connection but keeps it open indefinitely. The server streams data down the pipe whenever it wants, utilizing the `text/event-stream` content type.
+Scaling concerns:
 
-*   **Unidirectional:** It only flows from Server -> Client. The client cannot send messages back up the SSE connection (they just use standard POST requests for that).
+- one parked connection per client → connection limits, memory, load-balancer idle timeouts;
+- needs a pub/sub fan-out so any instance can wake any waiter;
+- timeouts must be shorter than LB/proxy idle timeouts;
+- on deploy, connections drop and reconnect in a thundering herd → jitter.
 
-### The Implementation
-**Frontend (Native Browser API):**
-```javascript
-const eventSource = new EventSource('/api/live-scores');
+Long polling approximates push using request/response infrastructure. It is a compatibility tool, not a scaling strategy.
 
-eventSource.onmessage = function(event) {
-  const newScore = JSON.parse(event.data);
-  console.log("Goal Scored!", newScore);
+## Server-Sent Events (SSE)
+
+SSE is a one-way stream over plain HTTP:
+
+```http
+GET /api/events HTTP/1.1
+Accept: text/event-stream
+Last-Event-ID: 42
+```
+
+```http
+HTTP/1.1 200 OK
+Content-Type: text/event-stream
+Cache-Control: no-cache
+Connection: keep-alive
+
+id: 43
+event: notification
+data: {"id":"n_1","text":"Order shipped"}
+
+: keepalive
+
+id: 44
+retry: 5000
+data: {"id":"n_2","text":"Payment received"}
+```
+
+Client:
+
+```ts
+const source = new EventSource("/api/events");
+source.onmessage = (event) => handle(JSON.parse(event.data));
+source.addEventListener("notification", (event) => handleAlert(event));
+source.onerror = () => {
+  // EventSource reconnects automatically; exponential backoff is built in.
 };
 ```
 
-**Backend (Node.js):**
-```javascript
-app.get('/api/live-scores', (req, res) => {
-  // Keep the connection alive and set the correct headers
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive'
-  });
+Key properties:
 
-  // When a goal happens, write it directly to the stream!
-  sportsEngine.on('goal', (data) => {
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
-  });
-});
+- **Automatic reconnection** with `retry` hints.
+- **`Last-Event-ID`** lets the server resume from the last delivered event — implement replay or explicitly signal a gap.
+- **Plain HTTP**: works through proxies, HTTP/2 multiplexing, auth via cookies/tokens.
+- **One-way**: client → server messages need a separate `POST`.
+
+### SSE constraints and traps
+
+- **Proxy buffering**: `X-Accel-Buffering: no` (nginx) or configure the proxy; otherwise events arrive in clumps.
+- **Idle timeouts**: send a comment (`: ping`) every 15–30 s.
+- **Connection limits**: browsers allow ~6 connections per host over HTTP/1.1; use HTTP/2 (multiplexed) or separate domains.
+- **Auth expiry**: EventSource cannot set custom headers; use cookies or a short-lived token in the query string (careful with logs).
+- **Scaling**: each connection is stateful; a fan-out layer (Redis pub/sub, NATS) distributes events to the instance holding the connection.
+- **Replay**: `Last-Event-ID` requires an event log with retention; otherwise tell the client to resync fully.
+
+## Choosing
+
+- Dashboard that refreshes every 30 s → **short polling**.
+- Notifications/feed where seconds matter, server→client only → **SSE**.
+- Chat/collaboration with typing, presence, and low latency → **WebSockets**.
+- Legacy client/proxy constraints → **long polling** fallback.
+
+A common architecture: SSE for reads, normal HTTP for writes, WebSocket only where true bidirectional low latency is required.
+
+## Scaling real-time connections
+
+All push transports share the same problem: **connections are pinned to an instance**.
+
+```
+client ──SSE──> edge ──> app instance ──subscribe──> pub/sub ──> event source
 ```
 
-*   **Pros:** Native browser support (no external libraries needed). Auto-reconnects automatically if the connection drops. Extremely lightweight.
-*   **Cons:** Unidirectional only. Limited to 6 concurrent connections per domain in older HTTP/1.1 browsers.
+- Keep the edge connection alive (LB idle timeout > heartbeat interval).
+- Use a shared pub/sub or stream so any instance can deliver any event.
+- On scale-in/deploy, drain connections gracefully (send a reconnect hint, then close).
+- Cap connections per instance and shed load when saturated.
+- Monitor connection counts, event lag, reconnect rate, and error rate.
+
+> [!WARNING]
+> A push endpoint behind an autoscaler without connection draining produces reconnect storms on every deploy. Treat connection lifecycle as part of the deployment design.
+
+## Failure modes
+
+| Failure | Symptom | Fix |
+|---|---|---|
+| Proxy buffering | events arrive in bursts | disable buffering, flush headers |
+| Idle timeout | connection drops every 60 s | heartbeats below timeout |
+| Reconnect storm | origin spike after deploy | jitter, connection draining |
+| No replay | missed events after reconnect | event ids + retention, or full resync |
+| Unbounded fan-out | one event → thousands of writes | pub/sub, batching |
+| EventSource auth | 401 loops | cookie auth or token refresh flow |
+
+## Interview drill
+
+**1. "Design notifications for 10M users."**
+- **Cover:** SSE for server→client; fan-out bus; event log + resume; connection caps; auth/reauth; deploy draining.
+- **Follow-up:** "What about users who are offline?" (push notifications, sync on next open).
+- **Common miss:** storing connection state on a single node.
+
+**2. "Why not WebSockets?"**
+- **Cover:** one-way need; HTTP/proxy compatibility; auto-reconnect; simpler ops; writes over REST.
+- **Follow-up:** "When would you switch?" (bidirectional low-latency, presence/typing).
+- **Common miss:** choosing WebSockets for prestige, then paying the scaling cost.
+
+**3. "SSE reconnects every minute. Why?"**
+- **Cover:** proxy idle timeout; buffering; missing heartbeats; `Last-Event-ID`; LB timeout alignment.
+- **Follow-up:** "How do you handle missed events?" (replay log or full resync).
+- **Common miss:** client retry loops without backoff.
+
+## Checklist
+
+- [ ] The transport matches the direction and latency requirement.
+- [ ] Polling is delta-based, jittered, and backs off when idle.
+- [ ] Push endpoints send heartbeats below proxy timeouts.
+- [ ] Reconnection semantics (backoff, replay, gap handling) are defined.
+- [ ] Auth works with the chosen transport.
+- [ ] Connections are drained on deploy and capped per instance.
+- [ ] Fan-out uses a shared bus, not per-instance broadcasts.
+- [ ] Connection count, lag, and reconnect rate are monitored.
+
+Next: [WebSockets & Scaling](/api-design/007-websockets-and-scaling) — bidirectional connections without losing your mind.

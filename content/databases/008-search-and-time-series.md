@@ -1,6 +1,6 @@
 ---
 title: Search & Time-Series
-order: 8
+order: 24
 ---
 
 While relational and general-purpose NoSQL databases are versatile, certain workloads—specifically full-text search and metric ingestion—require highly specialized database architectures.

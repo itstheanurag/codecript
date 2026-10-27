@@ -1,6 +1,6 @@
 ---
 title: In-Memory & Caching
-order: 7
+order: 23
 ---
 
 Disk I/O is the primary bottleneck in most data-intensive applications. Even with fast NVMe SSDs, reading from disk takes milliseconds, whereas reading from RAM takes nanoseconds. In-memory databases store their entire dataset in RAM, trading volatility and cost for extreme performance.

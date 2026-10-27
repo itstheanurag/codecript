@@ -1,59 +1,168 @@
 ---
 title: SOAP APIs
+description: What SOAP actually is, WSDL/XSD contracts, WS-Security and reliability, why banks still use it, and how to integrate with it without inheriting its weight.
 order: 4
 ---
 
-Before REST and JSON took over the world, enterprise communication was dominated by **SOAP (Simple Object Access Protocol)**. While rarely chosen for new greenfield projects today, you will inevitably encounter SOAP if you work in finance, healthcare, or with legacy enterprise systems.
+SOAP (Simple Object Access Protocol) is an XML-based messaging protocol with a formal contract. It predates REST's dominance and survives in banking, insurance, telecom, government, and enterprise integrations where **contract formality and WS-* standards** matter.
 
-## 1. What is SOAP?
+You will not usually choose SOAP for a new product. You will integrate with one.
 
-SOAP is a highly structured, strict messaging protocol that exclusively uses XML for its payload. Unlike REST, which is a loose architectural style, SOAP is a rigid standard maintained by the W3C.
-
-It was designed to be platform and language independent. A Java server could communicate perfectly with a C# client because both adhered to the strict XML contract.
-
-## 2. The Anatomy of a SOAP Message
-
-Every SOAP message is an XML document containing specific elements:
-1.  **The Envelope:** The root element that identifies the XML document as a SOAP message.
-2.  **The Header (Optional):** Contains metadata, routing information, or security tokens (like WS-Security signatures).
-3.  **The Body:** Contains the actual payload (the method call or the response data).
-4.  **The Fault (Optional):** An error block providing status and error information if something went wrong.
+## The message
 
 ```xml
-<?xml version="1.0"?>
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:m="http://www.example.org/stock">
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Header>
-    <!-- Security tokens go here -->
+    <wsse:Security xmlns:wsse="...">
+      <wsse:UsernameToken>
+        <wsse:Username>partner</wsse:Username>
+        <wsse:Password>...</wsse:Password>
+      </wsse:UsernameToken>
+    </wsse:Security>
   </soap:Header>
   <soap:Body>
-    <m:GetStockPrice>
-      <m:StockName>AAPL</m:StockName>
-    </m:GetStockPrice>
+    <GetAccountBalance xmlns="urn:bank:accounts:v2">
+      <AccountId>acct_123</AccountId>
+    </GetAccountBalance>
   </soap:Body>
 </soap:Envelope>
 ```
 
-## 3. The Contract: WSDL
+Three parts:
 
-The defining feature of SOAP is the **WSDL (Web Services Description Language)**. 
+- **Envelope** — the message wrapper.
+- **Header** — security, routing, transaction context, correlation.
+- **Body** — the operation payload.
+- **Fault** — structured error inside the body (`soap:Fault`).
 
-A WSDL is a massive XML file hosted by the server that acts as a strict, machine-readable contract. It defines exactly what methods are available, what arguments they take, and what data types they return.
+## The contract: WSDL + XSD
 
-*   **Pros of WSDL:** Because it is machine-readable, you can point a code generator (like Java's `wsimport`) at a WSDL URL, and it will instantly generate fully typed client code for you. No guessing required.
-*   **Cons of WSDL:** It is incredibly verbose and painful for a human developer to read or write by hand.
+A **WSDL** describes operations, messages, bindings (SOAP 1.1/1.2, HTTP), and endpoints. **XSD** defines the data types. Tooling generates strongly typed clients from these files.
 
-## 4. Why did REST win?
+That formality is the main advantage:
 
-If SOAP provided automatic code generation and strict contracts, why did the industry abandon it for REST?
+- the contract is machine-readable and versioned;
+- validation can happen before business logic;
+- code generation is standard across languages;
+- enterprise partners can agree on a document rather than a wiki page.
 
-1.  **JSON vs XML:** XML is heavy, verbose, and difficult to parse in a web browser. JSON maps natively to JavaScript objects, making it the perfect fit for the explosion of Web 2.0 and Single Page Applications (SPAs).
-2.  **Complexity:** SOAP requires specialized libraries just to construct a basic request. You can't easily test a SOAP endpoint using a standard web browser or `cURL` without writing a lot of XML boilerplate.
-3.  **Performance:** Parsing massive XML envelopes is CPU and memory intensive compared to lightweight JSON.
+The cost is verbosity and tooling drift: WSDL/XSD versioning, namespace changes, and generator quirks are a real maintenance burden.
 
-## 5. When is SOAP still used?
+## Style: document/literal
 
-SOAP has built-in, standardized extensions that REST lacks:
-*   **WS-Security:** Enterprise-grade security handling message integrity, confidentiality, and authentication directly in the XML envelope.
-*   **WS-AtomicTransaction:** Standardized handling for distributed ACID transactions across multiple services.
+Use **document/literal wrapped** (WS-I compliant) for new integrations. Older `rpc/encoded` services are hard to consume and effectively legacy.
 
-If you are building an API that transfers millions of dollars between international banks, the rigid safety of SOAP and WS-Security is often preferred over the flexibility of REST.
+```
+<soap:Body>
+  <CreateTransfer xmlns="urn:bank:transfers:v1">
+    <From>acct_1</From>
+    <To>acct_2</To>
+    <Amount currency="USD">100.00</Amount>
+  </CreateTransfer>
+</soap:Body>
+```
+
+## WS-* standards you may meet
+
+| Standard | Purpose | Practical note |
+|---|---|---|
+| **WS-Security** | message-level auth/signature/encryption | UsernameToken, X.509, SAML assertions |
+| **WS-Policy** | declares required security/policy | often ignored by hand-written clients |
+| **WS-ReliableMessaging** | delivery guarantees | rare; most rely on retries/idempotency |
+| **WS-AtomicTransaction** | distributed transactions | heavy, brittle, usually avoided |
+| **WS-Addressing** | message routing/correlation headers | useful for async patterns |
+| **MTOM** | binary attachments | large files; often replaced by object storage |
+
+Use only what the partner requires. WS-AtomicTransaction across organisations is an operational hazard.
+
+## Errors
+
+SOAP errors are faults:
+
+```xml
+<soap:Fault>
+  <faultcode>soap:Client</faultcode>
+  <faultstring>Account not found</faultstring>
+  <detail>
+    <Error xmlns="urn:bank:errors:v1">
+      <Code>ACCOUNT_NOT_FOUND</Code>
+    </Error>
+  </detail>
+</soap:Fault>
+```
+
+- `Client` vs `Server` distinguishes caller vs provider faults.
+- Put a stable business code in `detail`.
+- HTTP status is often `500` even for client faults — parse the fault, not the status.
+
+## Security
+
+- **Transport**: TLS with mutual authentication (mTLS) is common.
+- **Message**: WS-Security signatures/encryption protect end-to-end through intermediaries.
+- **Identity**: SAML assertions or X.509 certificates; UsernameToken only over TLS and ideally not at all.
+- **Replay protection**: timestamps and nonces in the security header.
+- **XML attacks**: disable DTDs/external entities (XXE), limit payload size, validate against schema.
+
+## When SOAP is the right choice
+
+- A partner or regulator mandates it.
+- The contract must be formally described and versioned (WSDL/XSD).
+- WS-Security or WS-* semantics are required end to end.
+- Existing enterprise service bus (ESB) infrastructure expects it.
+
+## When it is not
+
+- New internal APIs → REST/gRPC.
+- Browser/mobile clients → JSON/HTTP.
+- High-throughput, low-latency service calls → gRPC.
+- Simple public integrations → REST + webhooks.
+
+## Integrating without inheriting the pain
+
+1. **Isolate** SOAP behind an adapter with your own domain types.
+2. **Generate the client** from WSDL; never hand-parse XML.
+3. **Map faults** to your error taxonomy.
+4. **Add timeouts, retries with idempotency, and circuit breakers** at the adapter boundary.
+5. **Log the SOAP envelope id/correlation id**, not full payloads with secrets.
+6. **Record contract versions** and test against partner sandboxes in CI where possible.
+7. **Facade for migration**: expose REST/gRPC internally; translate to SOAP at the edge until the partner moves.
+
+```ts
+interface BalancePort {
+  getBalance(accountId: AccountId): Promise<Money>;
+}
+
+class PartnerSoapAdapter implements BalancePort {
+  constructor(private readonly client: PartnerClient) {}
+
+  async getBalance(accountId: AccountId): Promise<Money> {
+    try {
+      const response = await this.client.getAccountBalance({ accountId });
+      return Money.fromDecimal(response.amount, response.currency);
+    } catch (error) {
+      throw mapSoapFault(error);
+    }
+  }
+}
+```
+
+## Testing
+
+- Contract tests against the WSDL/XSD (schema validation).
+- Fault-path tests (Client/Server, business codes).
+- Sandbox integration tests with recorded fixtures.
+- Timeout/retry tests, especially for idempotent operations.
+- XML security tests (XXE disabled, signature verification).
+
+## Checklist
+
+- [ ] The WSDL/XSD version in use is recorded and validated in CI.
+- [ ] document/literal is used; no rpc/encoded for new work.
+- [ ] Faults map to stable business codes in your domain.
+- [ ] mTLS and/or WS-Security requirements are implemented and tested.
+- [ ] XXE and DTD processing are disabled; payload size is capped.
+- [ ] Timeouts, retries, and idempotency are handled at the adapter.
+- [ ] The SOAP client is isolated behind a domain port.
+- [ ] Correlation ids are logged for partner support.
+
+Next: [Modern RPC (gRPC & tRPC)](/api-design/005-grpc-and-trpc) — typed contracts without XML.

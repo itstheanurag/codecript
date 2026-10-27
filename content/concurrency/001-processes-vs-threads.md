@@ -1,99 +1,190 @@
 ---
 title: Processes vs. Threads
+description: Memory isolation, context switching, IPC, scheduling, and how processes, threads, and event loops differ in cost and failure behaviour.
 order: 1
 ---
 
-Before diving into synchronization, you must understand the basic units of execution provided by the operating system: Processes and Threads.
+A process is an isolated address space with its own resources. A thread is an execution stream **inside** a process that shares memory with its siblings. That single difference drives isolation, cost, and bug classes.
 
-> [!TIP]
-> **ELI5 (Explain Like I'm 5): The House Analogy**
-> Imagine a **Process** is a house. It has its own address, its own locked doors (isolation), and its own kitchen (memory space). If the house burns down, the neighbor's house is fine.
-> 
-> A **Thread** is a person living inside that house. A single house can have one person, or multiple people (multithreading). All the people in the house share the same kitchen and living room (Shared Memory), but they each have their own private backpack for their personal items (Stack/Registers). Because they share the kitchen, they have to coordinate so they don't try to use the microwave at the exact same time!
+## Process
 
-## 1. Processes
+- Own virtual address space, file descriptors, heap, globals.
+- Crash usually kills only that process.
+- Communication via IPC: pipes, sockets, shared memory, files.
+- Creation is relatively expensive (page tables, address space).
+- Scheduling unit for the OS; can use multiple cores.
 
-A process is an instance of a computer program that is being executed.
+```ts
+import { fork } from "node:child_process";
 
-*   **Isolation:** Each process has its own isolated memory space (heap, stack, data, text segments). A crash in one process generally does not affect others.
-*   **Overhead:** Creating and destroying processes is expensive (heavyweight). It requires the OS to allocate brand new memory space.
-*   **Inter-Process Communication (IPC):** Because memory is isolated, processes must use complex IPC mechanisms (pipes, sockets, shared memory segments) to talk to each other.
-
-## 2. Threads
-
-A thread is the smallest sequence of programmed instructions that can be managed independently by a scheduler. Threads exist *within* a process.
-
-```mermaid
-architecture-beta
-    group process(cloud)[Process Memory Space]
-
-    service heap(database)[Shared Heap] in process
-    service code(database)["Shared Code/Data"] in process
-
-    group t1(server)[Thread 1] in process
-    service s1(disk)[Private Stack] in t1
-
-    group t2(server)[Thread 2] in process
-    service s2(disk)[Private Stack] in t2
-
-    s1:R --> L:heap
-    s2:L --> R:heap
+const child = fork("./worker.js");
+child.send({ job: "resize", id: 42 });
+child.on("message", (result) => console.log(result));
 ```
 
-*   **Shared Memory:** All threads within a process share the same memory space (the heap, code, and data segments). However, each thread has its own **Stack** (for local variables) and **Registers**.
-*   **Overhead:** Creating and destroying threads is much faster (lightweight) than processes.
-*   **Communication:** Threads communicate easily by reading and writing to shared variables in the heap.
-*   **Risk:** Because memory is shared, one misbehaving thread can crash the entire process or corrupt data for all other threads (race conditions).
+Use processes when:
 
-## 3. Concurrency vs. Parallelism
+- you need **crash isolation** (one tenant/job cannot corrupt another);
+- you want to use multiple cores in a runtime with a GIL or single-threaded loop;
+- memory leaks should be reclaimable by killing the process;
+- security boundaries matter (`seccomp`, separate users, containers).
 
-These terms are often used interchangeably, but they are fundamentally different.
+Cost: IPC serialisation, duplicated memory, slower startup, more operational overhead.
 
-*   **Concurrency (The Illusion of Simultaneous):** The ability to *manage* multiple tasks at once. Imagine a single chef cooking a 3-course meal. They chop onions, then put the soup on the stove, then while the soup boils, they go back to chopping. They are switching tasks rapidly, managing them all. A single-core CPU does this by rapidly switching between threads (context switching).
-*   **Parallelism (Actually Simultaneous):** The ability to *execute* multiple tasks at the exact same instant. Imagine 3 chefs in the kitchen, each cooking one course at the exact same time. This requires hardware with multiple cores.
+## Thread
 
-> [!NOTE]
-> You can have concurrency without parallelism (multitasking on a single-core CPU), and parallelism without concurrency (running a single large mathematical computation distributed across multiple cores).
+- Shares heap and globals with other threads in the process.
+- Has its own stack, registers, and program counter.
+- Context switches are cheaper than process switches, but not free.
+- A crash/segfault can take down the entire process.
+- Needs synchronisation for shared mutable state.
 
-## 4. Context Switching
+```ts
+import { Worker, isMainThread, parentPort } from "node:worker_threads";
 
-When the CPU stops executing one thread (or process) and switches to another, it performs a context switch.
+if (isMainThread) {
+  const worker = new Worker(new URL(import.meta.url));
+  worker.on("message", (msg) => console.log("result", msg));
+  worker.postMessage({ n: 40 });
+} else {
+  parentPort!.on("message", ({ n }) => {
+    parentPort!.postMessage(fib(n)); // CPU-bound work off the main loop
+  });
+}
+```
 
-1.  Save the state (registers, program counter, stack pointer) of the current thread.
-2.  Load the state of the next thread.
-3.  Resume execution.
+Threads are ideal for **CPU-bound** work that must not block the event loop, or for languages whose concurrency model is thread-per-request with blocking I/O.
 
-Context switching is pure overhead. While it happens in microseconds, thousands of context switches per second can severely degrade application performance (a phenomenon known as thrashing). This is why modern frameworks (like Go) use lightweight "user-space" threads to avoid OS-level context switching.
+Danger: shared mutable state. Without a lock or ownership discipline, you get data races that are timing-dependent and hard to reproduce.
 
-### Code Example: Lightweight Concurrency in Go
+## Context switching
 
-Here is how easily you can spin up thousands of concurrent tasks in Go using "Goroutines" (Go's version of lightweight threads).
+The OS saves/restores registers and switches stacks; the CPU cache may be invalidated. Costs:
+
+| Switch | Approx. cost | Notes |
+|---|---|---|
+| Same-core thread switch | ~1–5 µs | cache effects dominate |
+| Cross-core thread switch | higher | cache migration, TLB |
+| Process switch | higher still | address space switch (TLB flush) |
+| Async task switch (event loop) | ~100s ns | no kernel involvement |
+
+At 100,000 switches/s, even 2 µs each is 20% of a core. This is why thread-per-connection collapses at high concurrency and why async runtimes exist.
+
+## Scheduling
+
+The OS scheduler preempts threads based on priority and fairness. You cannot rely on execution order across threads. Implications:
+
+- "Thread A usually runs first" is not a guarantee;
+- busy-waiting starves others;
+- priority inversion can occur with locks;
+- CPU affinity can help latency-sensitive workloads but narrows scheduling options.
+
+## IPC
+
+| Mechanism | Direction | Notes |
+|---|---|---|
+| Pipe | one-way byte stream | simple, local |
+| Unix domain socket | bidirectional | fast, permissioned via filesystem |
+| TCP socket | bidirectional | works across hosts |
+| Shared memory | bidirectional | fastest, requires synchronisation |
+| Message queue | async | decouples producers/consumers |
+| RPC | request/response | adds stubs/serialisation |
+
+Prefer copying messages over shared memory unless profiling proves the copy is the bottleneck. Shared memory reintroduces every race condition processes were meant to avoid.
+
+## Event loop (single-threaded concurrency)
+
+Node.js and browsers run JavaScript on one thread. Concurrency comes from non-blocking I/O and the event loop:
+
+```ts
+async function handle(req: Request): Promise<Response> {
+  const [user, orders] = await Promise.all([
+    users.find(req.userId),      // I/O
+    orders.list(req.userId),     // I/O
+  ]);
+  return json({ user, orders });
+}
+```
+
+Rules:
+
+- **Never block the loop** with CPU-heavy work (hashing, image processing, large JSON) — move it to a worker/process.
+- Async/await does not create threads; it interleaves tasks on one thread.
+- All callbacks share one thread: a slow handler delays everyone.
+
+## Green threads and goroutines
+
+Runtimes can multiplex many lightweight tasks onto few OS threads (Go goroutines, Java virtual threads, Erlang processes). Benefits:
+
+- cheap creation (KB-scale stacks),
+- blocking-style code without one OS thread per task,
+- runtime scheduler handles I/O readiness.
+
+Costs:
+
+- still shared memory in Go/Java → races remain;
+- goroutine leaks (blocked forever) are a real failure mode;
+- debugging stack traces across thousands of tasks is harder.
 
 ```go
-package main
-
-import (
-	"fmt"
-	"time"
-)
-
-// A simple function we want to run concurrently
-func printMessage(id int) {
-	fmt.Printf("Worker %d started\n", id)
-	time.Sleep(time.Millisecond * 500) // Simulate work
-	fmt.Printf("Worker %d finished\n", id)
-}
-
 func main() {
-	// We spin up 3 concurrent workers
-	// The 'go' keyword tells the runtime to execute this in a new goroutine
-	for i := 1; i <= 3; i++ {
-		go printMessage(i)
-	}
-
-	// Wait for a moment to let the concurrent workers finish
-	// (In a real app, you'd use a WaitGroup instead of Sleep)
-	time.Sleep(time.Second * 1)
-	fmt.Println("All workers done. Main thread exiting.")
+    var wg sync.WaitGroup
+    for i := 0; i < 1000; i++ {
+        wg.Add(1)
+        go func(n int) {
+            defer wg.Done()
+            process(n)
+        }(i)
+    }
+    wg.Wait()
 }
 ```
+
+## Choosing
+
+| Workload | Choice |
+|---|---|
+| I/O-heavy API server (Node/Python) | event loop + worker threads for CPU |
+| CPU-bound batch jobs | process pool / worker threads |
+| Crash-isolated plugins/tenants | processes or containers |
+| Massive concurrent connections | event loop, goroutines, or virtual threads |
+| Shared cache/graph in memory | threads with locks, or actors |
+| Untrusted code | separate process/container |
+
+## Failure modes
+
+- **Goroutine/thread leak**: tasks block forever (missing timeout/cancel).
+- **Unbounded spawning**: one task per request without a pool → memory/FD exhaustion.
+- **Blocking the event loop**: p99 spikes for all requests.
+- **Process-per-request**: startup cost dominates.
+- **Shared memory without locks**: silent corruption.
+- **Copying large payloads over IPC**: throughput collapse.
+
+## Interview drill
+
+**1. "Why is Node single-threaded, and how does it handle 10k connections?"**
+- **Cover:** event loop + non-blocking I/O; one thread for JS; worker threads/processes for CPU; backpressure; connection caps.
+- **Follow-up:** "What happens with a CPU-heavy request?" (blocks everyone; offload it).
+- **Common miss:** confusing non-blocking I/O with multithreading.
+
+**2. "Threads or processes for untrusted plugins?"**
+- **Cover:** process/container isolation; crash containment; resource limits; IPC cost; shared cache implications.
+- **Follow-up:** "How do you pass data between them?" (serialised IPC, not shared memory).
+- **Common miss:** running untrusted code in threads of the main process.
+
+**3. "What is a context switch and why does it matter at scale?"**
+- **Cover:** register/stack switch, cache/TLB effects; cost × rate; async tasks cheaper; measure switches and latency.
+- **Follow-up:** "How would you detect switch overhead?" (perf/scheduler stats, throughput vs concurrency).
+- **Common miss:** assuming more threads always mean more throughput.
+
+## Checklist
+
+- [ ] The unit (process/thread/task) matches isolation and CPU needs.
+- [ ] CPU-heavy work is off the event loop.
+- [ ] Concurrency is bounded by pools/limits.
+- [ ] Shared memory is protected or avoided.
+- [ ] IPC payloads are sized and serialised deliberately.
+- [ ] Tasks have timeouts/cancellation and cannot leak.
+- [ ] Shutdown drains in-flight work.
+
+Next: [Synchronization & Locks](/concurrency/002-synchronization-and-locks) — the primitives and their costs.

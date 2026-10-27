@@ -6,6 +6,7 @@ import {
   Menu,
   X,
   BookOpen,
+  Terminal,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { getDocSections } from "../lib/content";
@@ -175,6 +176,20 @@ const Navbar = React.memo(() => {
                 </li>
               );
             })}
+
+            <li>
+              <Link
+                to="/playground"
+                className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[13px] font-semibold transition-colors ${
+                  location.pathname.startsWith("/playground")
+                    ? "border-accent bg-paper-200 text-ink"
+                    : "border-paper-300 text-ink-secondary hover:border-accent hover:text-ink"
+                }`}
+              >
+                <Terminal size={13} />
+                <span className="hidden lg:inline">SQL </span>Playground
+              </Link>
+            </li>
           </ul>
         </div>
 
@@ -280,6 +295,24 @@ const Navbar = React.memo(() => {
                 </li>
               );
             })}
+
+            <li className="pt-1">
+              <Link
+                to="/playground"
+                className={`inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold transition-colors ${
+                  location.pathname.startsWith("/playground")
+                    ? "border-accent bg-paper-200 text-ink"
+                    : "border-paper-300 text-ink-secondary hover:border-accent hover:text-ink"
+                }`}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setOpenMobileGroups({});
+                }}
+              >
+                <Terminal size={15} />
+                SQL Playground
+              </Link>
+            </li>
           </ul>
         </div>
       )}

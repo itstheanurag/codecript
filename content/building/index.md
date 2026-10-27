@@ -1,43 +1,49 @@
 ---
 title: Building Projects
-description: Build real systems like a URL shortener, chat app, news feed, and video streaming service using system design concepts.
+description: End-to-end builds that connect requirements, data models, scaling, and failure handling — plus the engineering habits that make a project reviewable.
 order: 0
 ---
 
-**Building Projects** is where theory meets reality. In this section, we take the Data Structures, Algorithms, and System Design concepts you've learned and apply them to build real-world, production-ready applications.
+Reading about system design is not the same as building. These chapters take a product from requirements to a working design, with the decisions and failure modes made explicit.
 
----
+Each build covers:
 
-## The Project Portfolio
+1. **Scope** — what is in and out for v1.
+2. **Estimates** — load, storage, bandwidth.
+3. **Data model and API** — keys, indexes, critical paths.
+4. **Architecture** — components, sync vs async, caching.
+5. **Scale and failure** — what breaks first, degraded modes.
+6. **Build order** — what to implement in which milestone.
+7. **Review checklist** — the questions a senior reviewer would ask.
 
-Each guide in this section is a step-by-step case study on architectural decision-making and implementation:
+## The builds
 
-### URL Shortener
-Design a system like Bitly. Learn about Hashing, Key-Value storage, and high-performance redirection.
-- [Design a URL Shortener](/building/001-url-shortener)
+| Build | Core challenge |
+|---|---|
+| [URL Shortener](/building/001-url-shortener) | ID generation, redirect latency, abuse |
+| [Chat System](/building/002-chat-system) | ordering, delivery, presence, fan-out |
+| [News Feed](/building/003-news-feed) | fan-out on write vs read, ranking |
+| [Video Streaming](/building/004-video-streaming) | ingestion, transcoding, CDN economics |
+| [Todo CLI](/building/005-todo-cli) | small scope done rigorously |
+| [Web Server from Scratch](/building/006-web-server) | protocol parsing, concurrency, limits |
 
-### Scalable Chat System
-Build a real-time system like Discord or Slack. Focus on WebSockets, Message Queues, and managing state across multiple servers.
-- [Build a Chat System](/building/002-chat-system)
+## A build is not finished until…
 
-### News Feed Architecture
-How does Facebook or Instagram scale to billions of posts? Learn about fan-out patterns, caching, and feed generation.
-- [Architect a News Feed](/building/003-news-feed)
+- [ ] The **critical path** is implemented end to end (not just diagrammed).
+- [ ] The data model has keys and indexes matching the queries.
+- [ ] There is a **load test** at the target scale, or a documented reason it is infeasible.
+- [ ] Failures are simulated: dependency down, slow, duplicate delivery, restart.
+- [ ] Inputs are validated; outputs are bounded.
+- [ ] Logs, metrics, and traces answer "what happened to request X?".
+- [ ] A runbook exists for the top three failure modes.
+- [ ] The README explains how to run it and what was intentionally left out.
 
-### Video Streaming
-Master the complexities of data ingestion and delivery for high-bandwidth systems like YouTube or Netflix.
-- [Building Video Streaming](/building/004-video-streaming)
+## How to use these chapters
 
-### Web Server from Scratch
-Demystify the magic of standard libraries. Build a raw HTTP server over TCP sockets from the ground up.
-- [Build a Web Server](/building/006-web-server)
+Do not copy the design. Use it as a checklist:
 
----
-
-## Beyond the Code
-Each project walkthrough focuses on:
-- **Requirement Gathering**: Defining scope and scale.
-- **Component Design**: Choosing the right DB and Cache.
-- **Scaling Bottlenecks**: Identifying what breaks when you hit 1M users.
-
-Select a project from the **sidebar** to start building!
+1. Write your own requirements and estimates.
+2. Sketch the data model and API before the architecture.
+3. Build the smallest vertical slice.
+4. Add the failure handling you would page on.
+5. Compare your decisions with the chapter and note the differences.

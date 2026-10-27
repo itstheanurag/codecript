@@ -1,95 +1,213 @@
 ---
 title: Dependency Inversion Principle (DIP)
+description: Which direction dependencies should point, who owns the abstraction, DI vs containers vs service locators, and how to test policy without infrastructure.
 order: 6
 ---
 
-The "D" in SOLID. It states:
-1. **High-level modules should not depend on low-level modules. Both should depend on abstractions.**
+DIP has two parts, and most explanations stop after the first:
+
+1. **High-level policy should not depend on low-level details. Both should depend on abstractions.**
 2. **Abstractions should not depend on details. Details should depend on abstractions.**
 
-This is the principle that enables decoupled architectures and makes unit testing possible.
+The second part is the important one in practice: **the business rule owns the interface**, and the database/web framework/adapter implements it. The arrow of *source code* dependency points inward, toward the policy.
 
-> [!TIP]
-> **ELI5: The Lamp and the Wall Socket**
-> Imagine you buy a lamp. 
-> *   **Violating DIP (Hardwired):** The lamp's power cord is soldered directly into the electrical wiring inside the wall (The high-level lamp depends on the low-level house wiring). If you want to move the lamp to another room, you have to tear down the wall.
-> *   **Following DIP (The Socket):** The wall has a standard 3-prong socket (The Abstraction/Interface). The lamp has a standard 3-prong plug. The lamp doesn't care if the house is powered by a coal plant, solar panels, or a generator. It just expects electricity from the socket. You can unplug the lamp and move it anywhere instantly.
+## The problem
 
-## The Problem (Violating DIP)
+```ts
+import { Client } from "pg";
 
-Imagine a high-level `OrderService` that saves orders to a MySQL database.
+export class CancelOrder {
+  async execute(orderId: string): Promise<void> {
+    const client = new Client({ connectionString: process.env.DATABASE_URL });
+    await client.connect();
 
-```typescript
-// LOW-LEVEL MODULE (The concrete detail)
-class MySQLDatabase {
-    insert(data: string) {
-        console.log(`Saving ${data} to MySQL Database...`);
-    }
-}
-
-// HIGH-LEVEL MODULE (The core business logic)
-class OrderService {
-    private db: MySQLDatabase;
-
-    constructor() {
-        // BAD: The high-level module is creating and hard-depending on the low-level detail.
-        this.db = new MySQLDatabase(); 
+    const result = await client.query(
+      "SELECT status FROM orders WHERE id = $1 FOR UPDATE",
+      [orderId],
+    );
+    if (result.rows[0]?.status !== "placed") {
+      throw new Error("only placed orders can be cancelled");
     }
 
-    createOrder(item: string) {
-        this.db.insert(`Order for ${item}`);
-    }
+    await client.query("UPDATE orders SET status = 'cancelled' WHERE id = $1", [orderId]);
+    await client.end();
+  }
 }
 ```
 
-If we want to switch from MySQL to MongoDB, we have to rewrite the `OrderService`. Furthermore, we cannot easily mock the database to write a Unit Test for the `OrderService`.
+The **business rule** ("only placed orders can be cancelled") is tangled with:
 
-## The Solution (Dependency Injection)
+- connection configuration,
+- SQL dialect,
+- transaction and locking semantics,
+- lifecycle (`connect`/`end`),
+- test infrastructure.
 
-We introduce an Interface (The Socket) that both the high-level and low-level modules adhere to. Then, we "inject" the dependency.
+A change to the ORM or connection pool reopens the use case. A unit test needs Postgres.
 
-```typescript
-// 1. THE ABSTRACTION (The Interface / The Socket)
-interface IDatabase {
-    save(data: string): void;
+## Inverting it
+
+The policy declares what it needs:
+
+```ts
+export interface OrderStore {
+  findForUpdate(id: OrderId): Promise<Order | null>;
+  save(order: Order): Promise<void>;
 }
 
-// 2. LOW-LEVEL MODULES (Implementing the abstraction)
-class MySQLDatabase implements IDatabase {
-    save(data: string) {
-        console.log(`Saving ${data} to MySQL Database...`);
-    }
+export class CancelOrder {
+  constructor(private readonly orders: OrderStore) {}
+
+  async execute(orderId: OrderId): Promise<void> {
+    const order = await this.orders.findForUpdate(orderId);
+    if (!order) throw new OrderNotFound(orderId);
+    order.cancel();                 // domain rule lives here
+    await this.orders.save(order);
+  }
 }
-
-class MongoDatabase implements IDatabase {
-    save(data: string) {
-        console.log(`Saving ${data} to MongoDB Database...`);
-    }
-}
-
-// 3. HIGH-LEVEL MODULE (Depends ONLY on the abstraction)
-class OrderService {
-    private db: IDatabase;
-
-    // GOOD: We inject the dependency via the constructor. 
-    // The OrderService has no idea what specific database it's using!
-    constructor(database: IDatabase) {
-        this.db = database;
-    }
-
-    createOrder(item: string) {
-        this.db.save(`Order for ${item}`);
-    }
-}
-
-// --- USAGE ---
-const sqlService = new OrderService(new MySQLDatabase());
-sqlService.createOrder("Laptop");
-
-// Instantly swap to Mongo without changing the OrderService!
-const mongoService = new OrderService(new MongoDatabase());
-mongoService.createOrder("Phone");
 ```
 
-## Why does this matter?
-DIP is the foundation of Clean Architecture. It isolates your core business logic from frameworks, databases, and external APIs. If an external service shuts down or you want to migrate databases, you only have to write a new low-level implementation class; your core application logic remains completely untouched.
+The adapter depends on the policy's interface:
+
+```ts
+import { Pool } from "pg";
+
+export class PostgresOrderStore implements OrderStore {
+  constructor(private readonly pool: Pool) {}
+
+  async findForUpdate(id: OrderId): Promise<Order | null> {
+    const { rows } = await this.pool.query(
+      "SELECT * FROM orders WHERE id = $1 FOR UPDATE",
+      [id],
+    );
+    return rows[0] ? mapRowToOrder(rows[0]) : null;
+  }
+
+  async save(order: Order): Promise<void> {
+    await this.pool.query(
+      "UPDATE orders SET status = $2 WHERE id = $1",
+      [order.id, order.status],
+    );
+  }
+}
+```
+
+Dependency arrows:
+
+```mermaid
+flowchart LR
+    A[CancelOrder<br/>policy] --> B[OrderStore<br/>abstraction]
+    C[PostgresOrderStore<br/>detail] --> B
+    D[InMemoryOrderStore<br/>test detail] --> B
+```
+
+`CancelOrder` does not import `pg`. `PostgresOrderStore` imports the abstraction (or its package) and implements it. The **policy owns the contract**, which is why this is *inversion* rather than mere injection.
+
+## Where should the interface live?
+
+In the module that **uses** it (the policy), not next to the database code.
+
+- `domain/orders/ports.ts` → `OrderStore`, `Clock`, `PaymentGateway`
+- `adapters/postgres/PostgresOrderStore.ts` → implements the port
+- `app/composition.ts` → wires concrete adapters into use cases
+
+If the interface lives in the adapter package, the domain still depends on the adapter's package to import it — the arrow has not inverted.
+
+## Dependency injection vs. DIP
+
+These are related but not the same:
+
+| Concept | What it is | What it does **not** guarantee |
+|---|---|---|
+| **Dependency injection** | passing collaborators in instead of constructing them | that the dependency is an abstraction |
+| **DIP** | the policy owns abstractions; details implement them | that a container is used |
+| **DI container** | a framework for wiring object graphs | good design; can hide dependencies |
+| **Service locator** | objects pull dependencies from a global registry | explicit dependencies; testability |
+
+You can do DIP with plain constructor parameters:
+
+```ts
+const cancelOrder = new CancelOrder(new PostgresOrderStore(pool));
+```
+
+A container is useful when the graph is large; it is not the principle.
+
+> [!WARNING]
+> Service locators (`container.resolve(OrderStore)`) hide dependencies: a class's signature no longer tells you what it needs, and tests must configure global state. Prefer explicit constructor injection; keep the container at the composition root.
+
+## Testing the policy
+
+```ts
+class InMemoryOrderStore implements OrderStore {
+  constructor(private readonly orders = new Map<string, Order>()) {}
+
+  async findForUpdate(id: OrderId): Promise<Order | null> {
+    return this.orders.get(id) ?? null;
+  }
+
+  async save(order: Order): Promise<void> {
+    this.orders.set(order.id, order);
+  }
+}
+
+test("does not cancel a shipped order", async () => {
+  const orders = new InMemoryOrderStore();
+  orders.save(Order.shipped("o1"));
+  const useCase = new CancelOrder(orders);
+
+  await expect(useCase.execute("o1")).rejects.toBeInstanceOf(OrderNotCancellable);
+});
+```
+
+No database, no network, no sleep. The rule is tested directly.
+
+Test the adapter separately, with a real Postgres in a container — for locking and SQL correctness, which the fake cannot prove.
+
+## The composition root
+
+Wiring belongs in **one place**, at the edge of the application:
+
+```ts
+// app.ts
+const pool = new Pool({ connectionString: env.DATABASE_URL });
+
+const cancelOrder = new CancelOrder(new PostgresOrderStore(pool));
+const http = new HttpServer({ cancelOrder });
+
+http.listen(8080);
+```
+
+Only this file knows about `pg`, environment variables, and the HTTP framework. Everything inside is testable and replaceable.
+
+## Clean/hexagonal architecture in one sentence
+
+The domain in the middle; use cases around it; adapters at the edge. Dependencies point inward. The database, the web framework, and third-party APIs are **details** that the domain describes through ports.
+
+You do not need the full ceremony to benefit: **one port per external effect** (storage, payments, email, clock, filesystem) is enough for most services.
+
+## Pitfalls
+
+- **Leaky abstractions.** If `OrderStore` exposes `query(sql)`, it is a database, not a port. The abstraction must speak the domain's language (`findForUpdate`), not the driver's.
+- **Over-abstraction.** A `UserFormatter` interface with one trivial implementation adds a hop for nothing. Invert where there is an external effect, a real second implementation, or a test seam you need.
+- **Dependency on a vendor type.** `charge(card: StripeCard)` leaks the vendor into the policy. Map to your own types at the boundary.
+- **Circular dependencies.** Two modules importing each other's interfaces usually means the boundary is wrong (or the entities belong together).
+- **Container magic.** Constructor injection is explicit; property injection and decorators hide requirements from the type system.
+
+## Exercises
+
+1. Find a use case that imports a database driver, HTTP client, or framework. Extract one port and inject it.
+2. Write an in-memory adapter for that port and a unit test for the business rule.
+3. Draw the source-dependency graph of one service. Mark every arrow pointing at a framework.
+4. Refactor a service-locator call (`container.resolve(...)`) into constructor injection.
+5. Decide which abstractions to delete: those with one implementation, no external effect, and no test seam.
+
+## Checklist
+
+- [ ] Business rules import no framework, driver, or transport code.
+- [ ] Ports are defined by the policy and speak domain types.
+- [ ] Adapters implement ports and are wired only at the composition root.
+- [ ] Tests for rules run with in-memory fakes; adapters have their own integration tests.
+- [ ] Dependencies flow inward; no vendor type crosses the boundary.
+- [ ] Abstractions exist for external effects, real variants, or test seams — not for ceremony.
+
+Next: [Introduction to Design Patterns](/lld/007-design-patterns-intro) — the vocabulary built on top of these principles.

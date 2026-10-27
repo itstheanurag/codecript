@@ -1,76 +1,180 @@
 ---
 title: News Feed (Scaling & Ranking)
+description: Fan-out on write vs read, hybrid feeds, ranking, cursor stability, hot users, caching, and the failure modes that appear when the feed is slower than the tweet.
 order: 3
 ---
 
-A News Feed (like Twitter, Facebook, or Instagram) is one of the most complex scaling challenges in system design due to the "Fan-out" problem.
+A news feed aggregates content from the people/entities you follow, orders it, and returns a page fast. The design question is **when the aggregation happens**.
 
----
+## Scope
 
-## 1. The Blueprint (Requirements)
+In scope:
 
-A production-ready feed must handle:
-- **Feed Generation**: Collecting posts from all the people you follow.
-- **High Performance**: The feed must load in milliseconds.
-- **Ranking**: Showing the "most interesting" posts first.
-- **Scale**: Handling celebrities with millions of followers.
+- Create posts (text + media references).
+- Follow/unfollow users.
+- Home feed: posts from followees, newest/ranked first, cursor paginated.
+- Profile feed.
+- Like/reply counts (eventually consistent).
 
----
+Out of scope v1:
 
-## 2. Step-by-Step Implementation
+- Ads, recommendations, trending.
+- Full-text search.
+- Edit history.
+- Moderation tooling (but plan hooks).
 
-### Step 1: Feed Data Model
-A feed item is basically a list of `post_ids` associated with a `user_id`.
-- **Query**: `SELECT * FROM posts WHERE user_id IN (following_list) ORDER BY created_at DESC LIMIT 20`.
-- **Problem**: This query is extremely slow when you follow 1,000+ people.
+## Estimates
 
-### Step 2: Pre-calculation (The Fan-out)
-To make it fast, we don't calculate the feed when you log in. We calculate it **when people post**.
-
----
-
-## 3. High-Level Architecture
-
-```mermaid
-graph TD
-    UserA[Creator] --> LB1[Load Balancer]
-    LB1 --> PostService[Post Service]
-    PostService --> FanOut[Fan-out Worker]
-    FanOut --> Cache[Redis: User Feeds]
-    
-    UserB[Viewer] --> LB2[Load Balancer]
-    LB2 --> FeedService[Feed Service]
-    FeedService --> Cache
+```
+50M DAU, 5 sessions/day, 10 feed pages/session → 2.5B feed reads/day ≈ 29k RPS avg, ~90k peak
+posts: 5M/day ≈ 58 RPS avg
+average followees: 200
+fan-out writes if write-time: 5M × 200 = 1B entries/day
 ```
 
----
+Reads dominate; the fan-out strategy decides whether you pay on writes or reads.
 
-## 4. Handling Scale (The "System Design" Part)
+## The three fan-out strategies
 
-### The Fan-out Problem
-How do you deliver a post to 100 million people?
+| Strategy | How | Pros | Cons |
+|---|---|---|---|
+| **Fan-out on write** | on post, insert into every follower's feed | fast reads | expensive for celebrities; backfill/repair |
+| **Fan-out on read** | query followees' posts at read time | cheap writes, always fresh | slow reads, merge many sources, hard ranking |
+| **Hybrid** | write-fan-out for normal users; pull for celebrities | balanced | more code/complexity |
 
-1.  **Push Model (Fan-out on Write)**:
-    -   When User A posts, the system pushes that post to the "Home Feed" caches of all their followers.
-    -   **Pro**: Near-instant for the viewer.
-    -   **Con**: If User A is a celebrity (e.g., Cristiano Ronaldo), pushing to 500M followers takes too long and crashes the system.
+Practical default: **hybrid**. Precompute feeds for typical accounts; merge in a small number of high-fan-out accounts at read time.
 
-2.  **Pull Model (Fan-out on Load)**:
-    -   Feeds are generated only when a user logs in.
-    -   **Pro**: No write-time pressure.
-    -   **Con**: Very slow for the viewer if they follow many people.
+## Data model
 
-### The "Hybrid" Approach (Used by Twitter/Facebook)
-- **Normal Users**: Use the **Push Model**. It's fast and efficient.
-- **Celebrities/Influencers**: Use the **Pull Model**. Followers of a celebrity "pull" the celebrity's latest posts and merge them into their pre-calculated feed at runtime.
+```sql
+CREATE TABLE posts (
+  id         uuid PRIMARY KEY,
+  author_id  uuid NOT NULL,
+  body       text,
+  created_at timestamptz NOT NULL,
+  like_count bigint NOT NULL DEFAULT 0
+);
+CREATE INDEX posts_author_created_idx ON posts (author_id, created_at DESC, id DESC);
 
-### Feed Ranking
-In reality, you don't just see the newest posts.
-- Use a **Ranking Service** that looks at signals like: "Is the user friends with the poster?", "Is the post trending?", "Has the user looked at this type of content before?".
-- This is usually a Machine Learning model that re-ranks a candidate list of 100-200 posts.
+CREATE TABLE follows (
+  follower_id uuid,
+  followee_id uuid,
+  created_at  timestamptz,
+  PRIMARY KEY (follower_id, followee_id)
+);
+CREATE INDEX follows_followee_idx ON follows (followee_id);
+```
 
----
+Feed store (fan-out on write) as a cache, not the source of truth:
 
-## Key Takeaway
+```
+feed:{userId} → sorted set of (score, postId)   // Redis
+```
 
-Scaling a News Feed is a trade-off between **Write latency** and **Read speed**. A hybrid approach using **Pre-computed Caches** for normal users and **On-demand Pulling** for celebrities is the standard solution for massive scale.
+or a table:
+
+```sql
+CREATE TABLE feed_entries (
+  user_id  uuid,
+  post_id  uuid,
+  score    bigint,
+  PRIMARY KEY (user_id, post_id)
+);
+CREATE INDEX feed_user_score_idx ON feed_entries (user_id, score DESC);
+```
+
+Feed entries are **derived**; deleting/rebuilding them must be possible without touching posts.
+
+## Ranking
+
+Start with reverse chronological. If ranking:
+
+- score = f(recency, affinity, engagement, content type);
+- compute at fan-out time (cheap, stale) or read time (expensive, fresh);
+- keep a deterministic tiebreaker (`post_id`) for cursors;
+- store the score used for ordering if it must be stable across pages.
+
+A ranked feed with non-deterministic scores cannot paginate reliably. Freeze the ordering for a session/page window.
+
+## Cursors
+
+- Cursor = `(score, post_id)` of the last item.
+- Query `WHERE (score, post_id) < (?, ?) ORDER BY score DESC, post_id DESC`.
+- Never use offset on a live feed: new posts shift pages.
+- Cap page size (e.g., 50).
+
+## Hot users and fan-out
+
+A celebrity with 100M followers cannot be write-fanned-out.
+
+- Keep celebrity posts out of precomputed feeds.
+- At read time, merge their recent posts into the page.
+- Cache their recent posts separately.
+- Bound the merge: "last 20 celebrity posts within 7 days".
+
+Detect hot authors by follower count and fan-out cost, not by fame lists only.
+
+## Caching
+
+- Cache the first page per active user (short TTL, e.g., 30–60 s).
+- Cache celebrity posts and profile feeds.
+- Invalidate or patch on new posts; otherwise accept bounded staleness.
+- Do not cache the whole feed history; cache pages/cursors.
+
+## Backfill and repair
+
+New follower → their feed needs recent posts from the followee.
+
+- Backfill asynchronously with a cap (last N posts / last M days).
+- Repair jobs rebuild feeds when entries are missing or stale.
+- Make feed generation idempotent (`user_id, post_id` upsert).
+- Rate-limit backfills for users following thousands of accounts.
+
+## Consistency and deletes
+
+- A deleted post must disappear from feeds: filter at read time (tombstone or deleted flag) and remove asynchronously.
+- Follower changes apply to new posts; historical backfill is a product decision.
+- Counts (likes/replies) are eventually consistent; do not block rendering on exact counts.
+
+## Failure modes
+
+| Failure | Impact | Mitigation |
+|---|---|---|
+| Slow fan-out | stale feeds for followees | async workers, prioritise active users |
+| Celebrity post | fan-out queue explosion | hybrid read-time merge |
+| Cache stampede | DB meltdown | jittered TTL, single-flight |
+| Missing feed entries | empty feed | backfill/repair, fallback to pull |
+| Offset pagination | duplicates/skips | keyset cursor |
+| Deleted posts in cache | policy violation | tombstones + short TTL |
+| Hot key per user | shard imbalance | shard by user id, bound page size |
+
+## Build order
+
+1. Posts + follows + profile feed (pull model).
+2. Home feed via pull merge (simple, correct).
+3. Cache first pages.
+4. Hybrid fan-out for normal accounts.
+5. Ranking + stable cursors.
+6. Backfill/repair jobs.
+7. Deletes/tombstones.
+8. Load test at peak read RPS.
+
+## Review questions
+
+- Why did you choose write vs read fan-out?
+- How does a user with 50M followers publish?
+- How do you paginate a ranked feed without duplicates?
+- What happens when a post is deleted?
+- What is the cache hit ratio and the fallback?
+- How fresh is a new post for a follower?
+
+## Checklist
+
+- [ ] Fan-out strategy is explicit and justified by follower distribution.
+- [ ] Feed entries are derived and rebuildable.
+- [ ] Cursors are stable `(score, id)` pairs with a total order.
+- [ ] Celebrity/hot authors are handled at read time.
+- [ ] Cache TTLs and stampede protection exist.
+- [ ] Backfill and repair are idempotent and rate-limited.
+- [ ] Deletes propagate with tombstones or read-time filtering.
+- [ ] Peak read load is tested.

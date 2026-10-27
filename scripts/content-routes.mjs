@@ -160,6 +160,7 @@ export function getContentRoutes() {
           const { data, content } = parseFrontmatter(raw);
           const lastmod = statSync(file).mtime.toISOString().split("T")[0];
           const groupTitle =
+            { sql: "SQL", nosql: "NoSQL", api: "API" }[groupSlug] ??
             groupSlug.charAt(0).toUpperCase() + groupSlug.slice(1);
           const title = data.title || `${groupTitle} - ${sectionMeta.title}`;
           const description =

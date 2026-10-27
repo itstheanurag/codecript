@@ -1,6 +1,6 @@
 ---
 title: Choosing the Right Database
-order: 9
+order: 25
 ---
 
 Selecting a database is one of the most critical and permanent decisions in system design. Migrating application logic is hard; migrating petabytes of live, mission-critical data with zero downtime is a monumental engineering effort.

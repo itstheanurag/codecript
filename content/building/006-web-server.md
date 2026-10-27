@@ -1,287 +1,181 @@
 ---
 title: Web Server from Scratch
+description: Build an HTTP/1.1 server — sockets, parsing, keep-alive, concurrency models, limits, path safety, TLS, and how to benchmark it honestly.
 order: 6
 ---
 
-To truly master backend engineering, you must understand the abstractions you use every day. In Go, the `net/http` package is incredibly powerful, but to appreciate *why*, we are going to build a web server without it. 
+Writing a small HTTP server is the fastest way to understand the failures you normally only see in incident reports: slowloris, header bombs, request smuggling, connection exhaustion, and broken keep-alive.
 
-We will start with raw TCP sockets, parse HTTP text manually, and eventually see how the standard library saves us from boilerplate.
+## Scope
 
----
+v1:
 
-## 1. The Core Mental Model
+- TCP listener, HTTP/1.1 request parsing.
+- `GET`/`HEAD` static files, `POST` echo.
+- Keep-alive, timeouts, size limits.
+- One process, many connections (event loop or thread pool).
 
-You can think of a backend web server as a continuous pipeline that does exactly four things:
-1. **Receive/Collect**: It accepts an incoming stream of raw bytes over a TCP socket.
-2. **Read/Parse**: It interprets those bytes according to a protocol (like HTTP) to figure out what the client wants.
-3. **Transform**: It executes your business logic (routing, fetching data) to generate a result.
-4. **Write**: It formats that result back into a raw byte stream and sends it back.
+Out of scope: HTTP/2, TLS termination (use a proxy), compression, ranges.
 
-Without Go's `net/http` package, we must use the `net` package to open a raw socket and handle this entire pipeline manually.
+## Accept loop
 
-```go
-package main
+```ts
+const server = net.createServer({ pauseOnConnect: true }, (socket) => {
+  handleConnection(socket);
+});
 
-import (
-	"fmt"
-	"net"
-	"os"
-)
+server.listen(8080, "127.0.0.1");
+```
 
-func main() {
-	// 1. Listen on a TCP port
-	listener, err := net.Listen("tcp", ":8080")
-	if err != nil {
-		fmt.Println("Error listening:", err.Error())
-		os.Exit(1)
-	}
-	defer listener.Close()
-	fmt.Println("Listening on localhost:8080")
+Every accepted socket needs:
 
-	// 2. Accept incoming connections in an infinite loop
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			fmt.Println("Error accepting connection:", err.Error())
-			continue
-		}
+- **idle timeout** (close slow clients),
+- **header/body size limits**,
+- **a maximum number of concurrent connections** (backpressure),
+- error handling for resets.
 
-		// 3. Handle each connection in a new goroutine
-		go handleConnection(conn)
-	}
+## Parsing HTTP/1.1
+
+Request line:
+
+```
+GET /path?q=1 HTTP/1.1\r\n
+Host: example.com\r\n
+Content-Length: 5\r\n
+\r\n
+hello
+```
+
+Rules:
+
+- read until `\r\n\r\n` with a hard cap (e.g., 16 KB) — otherwise a header bomb consumes memory;
+- validate the method token and version;
+- require `Host` in HTTP/1.1;
+- parse `Content-Length`; if `Transfer-Encoding: chunked`, handle chunks and **reject requests with both** (request smuggling risk);
+- cap body size (and stream large uploads to disk);
+- reject control characters in the path/headers.
+
+```ts
+function parseRequest(buf: Buffer): Request | null {
+  const end = buf.indexOf("\r\n\r\n");
+  if (end === -1) return null;               // need more data
+  if (end > MAX_HEADERS) throw new HttpError(431);
+
+  const [requestLine, ...headerLines] = buf.subarray(0, end).toString("latin1").split("\r\n");
+  const [method, target, version] = requestLine.split(" ");
+  if (!method || !target || version !== "HTTP/1.1") throw new HttpError(400);
+
+  const headers = new Map<string, string>();
+  for (const line of headerLines) {
+    const idx = line.indexOf(":");
+    if (idx <= 0) throw new HttpError(400);
+    headers.set(line.slice(0, idx).toLowerCase(), line.slice(idx + 1).trim());
+  }
+  return { method, target, headers };
 }
 ```
 
----
-
-## 2. Manual HTTP Parsing
-
-HTTP is a text-based protocol. When your browser requests a page, it sends a block of text that looks like this:
+## Responses and keep-alive
 
 ```http
-GET /hello HTTP/1.1
-Host: localhost:8080
-User-Agent: curl/7.81.0
-Accept: */*
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+Content-Length: 5
+Connection: keep-alive
+
+hello
 ```
 
-To understand this request, we have to read the bytes from the TCP connection and manually parse the text. Let's implement `handleConnection`.
+- Always send `Content-Length` or `Transfer-Encoding`, not both.
+- For `HEAD`, send headers but no body.
+- Keep-alive requires exact body framing; a wrong length desynchronises the connection.
+- Support `Connection: close` and close after the response.
+- Idle keep-alive timeout should be below the proxy/LB timeout.
 
-```go
-import (
-	"bufio"
-	"strconv"
-	"strings"
-)
+## Concurrency models
 
-// A custom struct to hold our parsed request
-type Request struct {
-	Method  string
-	Path    string
-	Headers map[string]string
-	Body    string
-}
+| Model | How | Trade-off |
+|---|---|---|
+| Thread per connection | blocking reads/writes | simple; expensive at 10k+ connections |
+| Event loop + non-blocking | state machine per socket | efficient; complex parsing |
+| Goroutines/virtual threads | blocking style, runtime multiplexing | simpler code; runtime overhead |
+| Process per core + SO_REUSEPORT | kernel distributes accepts | isolation; coordination |
 
-func handleConnection(conn net.Conn) {
-	defer conn.Close()
-	reader := bufio.NewReader(conn)
+For a learning build, start with **one thread/task per connection** and limits. Then measure; move to an event loop only if you need the concurrency.
 
-	// 1. Read the Request Line (e.g., "GET /hello HTTP/1.1")
-	requestLine, err := reader.ReadString('\n')
-	if err != nil {
-		return
-	}
+## Routing and static files
 
-	parts := strings.Split(strings.TrimSpace(requestLine), " ")
-	if len(parts) < 3 {
-		return
-	}
+- Normalise the path before lookup.
+- **Reject `..` traversal** after URL-decoding (and again after resolving).
+- Serve only from a configured root; use `realpath` and verify containment.
+- Set `Content-Type` from a small allowlist; default to `application/octet-stream`.
+- Support conditional requests (`ETag`/`If-None-Match`) and `Cache-Control`.
+- Never list directories by default.
 
-	req := Request{
-		Method:  parts[0],
-		Path:    parts[1],
-		Headers: make(map[string]string),
-	}
-
-	// 2. Read the Headers
-	for {
-		line, err := reader.ReadString('\n')
-		if err != nil || line == "\r\n" {
-			break // Empty line means end of headers
-		}
-		
-		headerParts := strings.SplitN(line, ":", 2)
-		if len(headerParts) == 2 {
-			key := strings.TrimSpace(headerParts[0])
-			val := strings.TrimSpace(headerParts[1])
-			req.Headers[key] = val
-		}
-	}
-
-	// 3. Parse the Request Body
-	if contentLengthStr, ok := req.Headers["Content-Length"]; ok {
-		contentLength, _ := strconv.Atoi(contentLengthStr)
-		if contentLength > 0 {
-			bodyBuf := make([]byte, contentLength)
-			// Read exactly 'contentLength' bytes
-			reader.Read(bodyBuf)
-			req.Body = string(bodyBuf)
-		}
-	}
-
-	// At this point, `req` contains our completely parsed HTTP request!
-	routeRequest(conn, req)
-}
+```ts
+const root = realpathSync("./public");
+const resolved = realpathSync(join(root, decodeURIComponent(pathname)));
+if (!resolved.startsWith(root + sep)) return send(403);
 ```
 
-*(Note: We successfully parsed the body by reading bytes up to the `Content-Length` header! We are still ignoring edge cases like chunked encoding for simplicity).*
+## Security and robustness
 
----
+| Threat | Defence |
+|---|---|
+| Slowloris | read timeouts, header size caps |
+| Header bomb | max header bytes/count |
+| Request smuggling | reject `Content-Length` + `Transfer-Encoding`, normalise |
+| Path traversal | decode, resolve, containment check |
+| Memory exhaustion | body limits, streaming, backpressure |
+| Connection exhaustion | `server.maxConnections`, accept backpressure |
+| Log injection | escape control chars before logging |
+| TLS issues | terminate at a proxy (nginx/Envoy) for v1 |
 
-## 3. The Custom Router
+Add a request id and structured access logs: method, path, status, bytes, duration, remote addr.
 
-Now that we have parsed the request text into a `Request` struct, we need to route it. A router is simply a mechanism that matches a URL path to a specific function.
+## TLS
 
-Let's build a basic router using a Go map.
+Do not hand-roll TLS for production. Put the server behind a reverse proxy that terminates TLS, or use the runtime's TLS support with sane ciphers and certificate rotation. For learning, understand the handshake; for shipping, use the platform.
 
-```go
-// Our custom Handler function signature
-type HandlerFunc func(conn net.Conn, req Request)
+## Benchmarking honestly
 
-var router = map[string]HandlerFunc{
-	"/ping":  handlePing,
-	"/hello": handleHello,
-}
+- Use `wrk`/`hey`/`oha` with keep-alive and realistic payloads.
+- Measure p50/p95/p99, not just RPS.
+- Run against a release build, with the same CPU count.
+- Watch for **coordinated omission** (closed-loop generators hide queueing).
+- Compare concurrency levels (1, 10, 100, 1,000 connections).
+- Measure the cost of TLS/proxy separately.
 
-func routeRequest(conn net.Conn, req Request) {
-	handler, exists := router[req.Path]
-	if exists {
-		handler(conn, req)
-	} else {
-		handleNotFound(conn, req)
-	}
-}
+```
+wrk -t4 -c200 -d30s --latency http://127.0.0.1:8080/hello
 ```
 
----
+## Tests
 
-## 4. The Manual Response
+- Parser unit tests: valid/invalid request lines, duplicate headers, chunked bodies, oversized headers.
+- Fuzz the parser (truncated input, control characters).
+- Integration: raw socket tests for keep-alive, pipelining, `HEAD`, `Connection: close`.
+- Security: traversal, smuggling, slow client timeout.
+- Load test with assertions on error rate and p99.
 
-To send a response back to the client, we can't just send "Hello World". We must format our response exactly according to the HTTP protocol spec: Status Line, Headers, a blank line, and then the Body.
+## Failure modes
 
-```go
-func handlePing(conn net.Conn, req Request) {
-	// A classic ping-pong route
-	response := "HTTP/1.1 200 OK\r\n" +
-		"Content-Type: text/plain\r\n" +
-		"Content-Length: 4\r\n" +
-		"\r\n" +
-		"pong"
-	
-	conn.Write([]byte(response))
-}
+| Failure | Symptom | Fix |
+|---|---|---|
+| No header cap | memory blowup | max header bytes |
+| Wrong framing | hung/desynced connections | exact `Content-Length` |
+| No idle timeout | FD exhaustion | timeouts + max connections |
+| Blocking handler | stalled event loop | offload work |
+| Path traversal | data leak | decode + containment |
+| Unbounded body | OOM | streaming + size limit |
 
-func handleHello(conn net.Conn, req Request) {
-	body := `{"message": "Hello from raw TCP!"}`
+## Checklist
 
-	// Manually construct the exact HTTP string
-	response := "HTTP/1.1 200 OK\r\n" +
-		"Content-Type: application/json\r\n" +
-		fmt.Sprintf("Content-Length: %d\r\n", len(body)) +
-		"Connection: close\r\n" +
-		"\r\n" + // The blank line separating headers from body
-		body
-
-	// Write the raw bytes back to the socket
-	conn.Write([]byte(response))
-}
-
-func handleNotFound(conn net.Conn, req Request) {
-	response := "HTTP/1.1 404 Not Found\r\n\r\n404 - Page Not Found"
-	conn.Write([]byte(response))
-}
-```
-
-### Reviewing our work
-If you run this code and navigate to `http://localhost:8080/hello`, you will see your JSON response! You've just built a web server from absolute scratch. You handled the socket, parsed the strings, routed the traffic, and formatted the HTTP protocol output.
-
----
-
-## 5. The Standard Library Refactor
-
-Parsing text strings manually is dangerous. What if the client sends a malicious header? What if the connection drops halfway through? Handling every edge case of HTTP/1.1 (and HTTP/2) is extremely complex.
-
-This is exactly what Go's `net/http` package solves. It handles the TCP sockets, parses the text safely, manages connection pools, and exposes a clean interface.
-
-Let's rewrite our entire custom server using `net/http`.
-
-```go
-package main
-
-import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-)
-
-func main() {
-	// The http.ServeMux replaces our custom map[string]HandlerFunc
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK) // Automatically writes the HTTP/1.1 200 OK
-		
-		// The ResponseWriter handles writing the bytes to the socket
-		json.NewEncoder(w).Encode(map[string]string{
-			"message": "Hello from net/http!",
-		})
-	})
-
-	fmt.Println("Listening on localhost:8080")
-	// ListenAndServe abstracts away net.Listen and the accept loop
-	http.ListenAndServe(":8080", mux)
-}
-```
-
-### Conclusion
-
-By building the server over raw TCP first, the magic of `net/http` disappears. 
-- `http.ListenAndServe` is just a wrapper around `net.Listen` and an infinite `Accept()` loop.
-- `*http.Request` is just a struct populated by a robust version of our `bufio.ReadString` text parser.
-- `http.ResponseWriter` is just a safe wrapper around `conn.Write()`, ensuring headers are formatted correctly before the body is sent.
-
-You now understand the actual mechanics of web servers beneath the framework layer.
-
----
-
-## 6. Middlewares (The Onion Model)
-
-Now that we are using `net/http`, how do we handle things like logging or authentication for *every* route? We use Middleware.
-
-A middleware is simply a function that takes an `http.Handler` and returns a new `http.Handler`. It intercepts the request before passing it to the next layer (like layers of an onion).
-
-```go
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do something BEFORE the main handler runs
-		fmt.Printf("Received %s request for %s\n", r.Method, r.URL.Path)
-		
-		// Pass control to the next handler
-		next.ServeHTTP(w, r)
-		
-		// Do something AFTER the main handler runs
-		fmt.Println("Finished processing request")
-	})
-}
-```
-
-To use it, you just wrap your multiplexer before starting the server:
-```go
-	// Wrap the mux with our logging middleware
-	loggedMux := loggingMiddleware(mux)
-	
-	http.ListenAndServe(":8080", loggedMux)
-```
-
-With this pattern, you can build modular, reusable authentication, logging, and panic-recovery layers without modifying your core business logic!
+- [ ] Header/body limits and timeouts are enforced.
+- [ ] Framing (`Content-Length`/chunked) is strict.
+- [ ] Keep-alive and `Connection: close` work.
+- [ ] Path traversal and header injection are blocked.
+- [ ] Concurrency is bounded; backpressure exists.
+- [ ] Access logs include request id, status, latency.
+- [ ] Benchmarks report percentiles with realistic concurrency.
+- [ ] TLS is delegated to a proxy or a maintained library.

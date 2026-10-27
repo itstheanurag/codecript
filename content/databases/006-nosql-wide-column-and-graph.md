@@ -1,6 +1,6 @@
 ---
 title: Wide-Column & Graph Databases
-order: 6
+order: 22
 ---
 
 While Document and Key-Value stores handle a large percentage of NoSQL use cases, specialized applications require different architectures. 

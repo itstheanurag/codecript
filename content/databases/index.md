@@ -8,11 +8,30 @@ Data is the lifeblood of modern applications. A professional engineer must not o
 
 In this section, we cover everything from the internal mechanics of relational systems to advanced SQL query optimization, NoSQL architectures, and specialized data stores.
 
-## What's Inside?
+## The SQL track
+
+SQL is the skill that outlives frameworks. If you want to go from "I can write a `SELECT`" to "I can design a schema, debug a plan, and reason about concurrency", start here:
+
+- **[SQL Fundamentals](./003-sql-fundamentals)**: a compact primer — DML, joins, grouping, CTEs, windows.
+- **[SQL Deep Dive](/databases/sql)**: the full curriculum — execution model, every join type, subqueries, aggregation, window functions, CTEs and recursion, DML/DDL, transactions and isolation, indexes and query plans, schema design, and anti-patterns.
+  - [How SQL Actually Runs](/databases/sql/001-sql-execution-model)
+  - [Joins in Depth](/databases/sql/002-joins-in-depth)
+  - [Set Operations & Subqueries](/databases/sql/003-set-operations-and-subqueries)
+  - [Aggregation & Grouping](/databases/sql/004-aggregation-and-grouping)
+  - [Window Functions](/databases/sql/005-window-functions)
+  - [Functions & Expressions](/databases/sql/006-sql-functions-and-expressions)
+  - [CTEs & Recursive Queries](/databases/sql/007-ctes-and-recursive-queries)
+  - [DML, DDL & Constraints](/databases/sql/008-dml-ddl-and-constraints)
+  - [Transactions & Isolation](/databases/sql/009-transactions-and-isolation)
+  - [Indexes & Query Plans](/databases/sql/010-indexes-and-query-plans)
+  - [Schema Design in Practice](/databases/sql/011-schema-design-and-modeling)
+  - [Anti-Patterns & Readiness Checklist](/databases/sql/012-sql-anti-patterns-and-checklist)
+- **[SQL Playground](/playground)**: 64 practice exercises on the Northwind dataset, graded row-by-row with instant feedback — all in your browser, no server.
+
+## The storage track
 
 - **[Database Paradigms](./001-database-paradigms)**: OLTP vs. OLAP and the CAP Theorem.
 - **[Relational Databases](./002-relational-databases)**: RDBMS architecture, normalization, and ACID guarantees.
-- **[SQL Fundamentals](./003-sql-fundamentals)**: Core statements, joins, aggregations, and window functions.
 - **[SQL Query Optimization](./004-sql-query-optimization)**: EXPLAIN plans, index strategies, and performance pitfalls.
 - **[Document & Key-Value Stores](./005-nosql-document-and-key-value)**: Schema flexibility and horizontal scaling.
 - **[Wide-Column & Graph Databases](./006-nosql-wide-column-and-graph)**: Massive throughput and complex relationship modeling.
