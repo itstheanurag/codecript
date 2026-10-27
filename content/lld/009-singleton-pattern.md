@@ -1,67 +1,151 @@
 ---
 title: Singleton Pattern
+description: What a singleton really buys you, why global state breaks tests, legitimate uses like config and pools, and the dependency-injection alternative.
 order: 9
 ---
 
-Singleton is a creational design pattern that lets you ensure that a class has only one instance, while providing a global access point to this instance.
+Singleton promises two things:
 
-## The Problem
-Sometimes we need exactly one instance of a class to coordinate actions across the system. 
-- Example: A **Database Connection Pool**, a **File System** manager, or a **Global State** (like Redux store).
+1. exactly one instance of a type exists in a process;
+2. it is reachable through a global access point.
 
-If you create multiple instances of these, you might end up with inconsistent data, resource leaks, or unexpected behavior.
+The first is sometimes a real constraint. The second is where most of the trouble starts.
 
-## The Solution: Singleton
-The Singleton pattern hides the constructor and provides a static method that returns the same instance every time it's called.
+## The classic implementation
 
-###  Diagram
+```ts
+class AppConfig {
+  private static instance: AppConfig | null = null;
 
-```mermaid
-classDiagram
-    class Singleton {
-        -instance Singleton$
-        -Singleton()
-        +getInstance() Singleton$
+  private constructor(readonly databaseUrl: string, readonly stripeKey: string) {}
+
+  static getInstance(): AppConfig {
+    if (!this.instance) {
+      this.instance = new AppConfig(
+        requireEnv("DATABASE_URL"),
+        requireEnv("STRIPE_KEY"),
+      );
     }
-```
-
-###  Implementation in TypeScript
-
-```typescript
-class Database {
-  private static instance: Database | null = null;
-
-  // Private constructor prevents direct instantiation
-  private constructor() {
-    console.log("Connecting to the database...");
-  }
-
-  public static getInstance(): Database {
-    if (!Database.instance) {
-      Database.instance = new Database();
-    }
-    return Database.instance;
-  }
-
-  public query(sql: string) {
-    console.log(`Executing: ${sql}`);
+    return this.instance;
   }
 }
-
-// Client Code
-const db1 = Database.getInstance();
-const db2 = Database.getInstance();
-
-console.log(db1 === db2); // true - both are the same instance!
 ```
 
-## Why it matters
-1. **Resource Control**: Ensures that heavy resources (like DB connections) are not duplicated unnecessarily.
-2. **Global Access**: Provides a safe way to access a shared resource from anywhere in the application.
-3. **Lazy Initialization**: The instance is only created when it's first needed.
+In JavaScript/TypeScript the **module system already gives you a singleton**:
 
-## The "Caution"
-Singletons are often considered an **Anti-pattern** in modern development if overused.
-- They introduce **Global State**, which makes unit testing difficult (states can leak between tests).
-- They can hide dependencies in your code.
-- In multi-threaded environments (like Java/C++), you need to be careful with thread safety (though JS is single-threaded, it's a good interview point).
+```ts
+// config.ts
+export const config = {
+  databaseUrl: requireEnv("DATABASE_URL"),
+  stripeKey: requireEnv("STRIPE_KEY"),
+} as const;
+```
+
+Every import returns the same object, there is no lazy-init race in a single-threaded runtime, and it is easy to read. If the value must be initialized asynchronously, export a promise or an explicit `init()` at the composition root.
+
+## Why global access is the problem
+
+The global access point is the actual design decision:
+
+```ts
+function chargeCustomer(customerId: string, amount: Money): Promise<void> {
+  const stripe = new Stripe(AppConfig.getInstance().stripeKey);
+  // ...
+}
+```
+
+Consequences:
+
+- **Hidden dependencies.** The function signature says nothing about needing config, a network client, or credentials.
+- **Test coupling.** Tests must set environment variables or reset the singleton between cases; parallel tests interfere.
+- **Lifecycle surprises.** The instance caches values from startup; a rotated secret or changed tenant is ignored.
+- **Concurrency/lifecycle at boundaries.** In serverless or multi-tenant processes, "one per process" may be the wrong scope entirely.
+- **Ordering.** `getInstance()` can throw deep inside a request if the environment is missing, instead of failing at boot.
+
+A function that calls `getInstance()` is impossible to unit test without global setup. That is the price.
+
+## Legitimate uses
+
+A process-wide singleton is reasonable when **one per process is a physical or economic fact**, not a convenience:
+
+| Use | Why one instance | Safer shape |
+|---|---|---|
+| Configuration | env is read once at boot | exported constant / validated config object |
+| Logger | one sink/pipeline per process | inject `Logger` into components |
+| Connection pool | pools are expensive and bounded | create at composition root, pass the pool |
+| Feature-flag client | one cache/listener per process | inject a narrow `Flags` interface |
+| Metrics registry | one registry per process | module export or injected registry |
+
+Even in those cases, prefer **one construction + explicit injection** over a global lookup:
+
+```ts
+// composition.ts
+const pool = new Pool({ connectionString: config.databaseUrl });
+const orders = new PostgresOrderStore(pool);
+const service = new OrderService(orders, logger, flags);
+```
+
+The instance count is still one. The dependency is visible in constructors, and tests can pass a fake.
+
+## Scoping
+
+Ask "one per what?":
+
+- one per **process** (pool, logger)
+- one per **request** (unit of work, transaction, tenant context)
+- one per **tenant** (config, feature flags)
+- one per **test** (fresh fake)
+
+A common bug is using a process-wide singleton for request-scoped data (current user, tenant, correlation id). Under concurrency, requests overwrite each other. Use request context (AsyncLocalStorage in Node) or pass the context explicitly.
+
+## Testing
+
+Avoid calling `getInstance()` in tests. If you inherit code that does:
+
+```ts
+beforeEach(() => {
+  AppConfig.resetForTests();   // explicit, named for tests
+  process.env.DATABASE_URL = "postgres://test";
+});
+```
+
+Better: refactor the consumer to take `AppConfig` as a constructor/function parameter. The test then constructs a config literal with no globals.
+
+> [!WARNING]
+> A `reset()` method that exists only for tests is a strong signal the singleton should be an injected dependency.
+
+## Module-cache pitfalls
+
+- In dev with hot reload, modules can be re-evaluated, creating a second "singleton" (two WebSocket servers, two listeners).
+- In bundlers, the same module can be duplicated across chunks (dual-package hazard), producing two instances.
+- Worker threads and clustered processes each get their own copy — which may be correct, but must be intentional.
+- Tests that import the module once share mutable state across test files.
+
+## When a singleton is the right answer
+
+Use it only when **all** of these hold:
+
+1. The resource is genuinely one per process.
+2. It must be initialized after environment/config is known.
+3. Passing it explicitly would add noise to every call site (it truly is ambient).
+4. You can still test the policy by substituting an interface at the boundary.
+
+Otherwise, construct once and inject. The object count is the same; the coupling is not.
+
+## Exercises
+
+1. Find a `getInstance()` call. Replace it with constructor injection and run the tests.
+2. Identify one process-wide resource in your service and decide its correct scope (process/request/tenant).
+3. Convert a lazy singleton config into a validated, exported config object initialized at boot.
+4. Write a test that fails because a previous test mutated the singleton. Fix it without `reset()`.
+
+## Checklist
+
+- [ ] "One instance" is a real constraint, not convenience.
+- [ ] The scope is explicit: process, request, tenant, or test.
+- [ ] Consumers receive the instance via injection, not a global lookup.
+- [ ] Initialization fails at boot, not mid-request.
+- [ ] Tests never depend on mutation order or global reset.
+- [ ] Request-scoped data is not stored in a process-wide singleton.
+
+Next: [Strategy](/lld/010-strategy-pattern) — replace growing conditionals with named policies.
