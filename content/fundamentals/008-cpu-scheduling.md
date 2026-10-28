@@ -1,74 +1,122 @@
 ---
 title: CPU Scheduling
-description: Learn how an OS shares CPU cores among processes: preemption, time slices, context switches, and why Linux uses CFS.
+description: How the OS decides what runs next — run queues, time slices, CFS/EEVDF, priorities, affinity, cgroup throttling, CPU steal, and the scheduling causes of p99 latency.
 order: 8
 ---
 
-A core executes **one instruction stream at a time**. Your laptop has hundreds of processes "running." The **scheduler** picks who gets the core next, for how long, and who gets interrupted.
+CPU scheduling decides **which runnable thread gets a core, and for how long**. It is the source of many "the code is fine but latency is not" incidents.
 
-If the scheduler is unfair, the UI stutters while a compile hogs the machine. If it switches too often, the machine spends its life saving registers instead of doing work.
+## Thread states
 
-> [!TIP]
-> **ELI5: One cashier, many carts**
-> The CPU is a cashier. **FCFS** is a single line — a full cart blocks gum. **SJF** serves the smallest cart first — gum wins, the turkey shopper starves. **Round robin** scans five items then rotates. **Linux CFS** tries to give everyone a fair share of cashier-time, with a boost for the person who just clicked a mouse (interactive).
+| State | Meaning |
+|---|---|
+| Running | on a CPU |
+| Runnable | waiting for a CPU (run queue) |
+| Sleeping | waiting on I/O, lock, timer |
+| Stopped/zombie | suspended/exited but not reaped |
 
-## 1. Preemption and the time slice
+Only **runnable** threads compete for CPU. A service with low CPU utilization but long run-queue waits is still CPU-scheduled poorly (few cores, cgroup quota, steal).
 
-**Non-preemptive:** once a process has the CPU, it keeps it until it blocks (I/O) or exits. One infinite loop freezes the machine. Old batch systems could live with this. Your phone cannot.
+## Context switching
 
-**Preemptive:** the kernel can interrupt after a **quantum** (time slice) or when a more important thread wakes. Modern desktops, servers, and phones are preemptive.
+The scheduler saves registers/stack and switches to another thread:
 
-A process also **blocks** on purpose: waiting on disk, a lock, a network packet. That is not a failure; it is how the scheduler finds someone else to run.
+- direct cost ~1–5 µs,
+- indirect cost: cache/TLB pollution,
+- too many runnable threads → thrashing.
 
-## 2. Context switch (the tax)
+Async/event-loop runtimes reduce switches by multiplexing many tasks on one thread, but a single blocking call stalls everything.
 
-When the kernel switches from process A to B it must:
+## Scheduling policies
 
-- Save A's registers and program counter.
-- Load B's.
-- Switch address space (page tables / TLB) if they are different processes.
+### Linux CFS / EEVDF
 
-That costs microseconds and cache warmth. A 1ms quantum with 50µs switches wastes 5% of the core. A 100ms quantum feels laggy for typing. Scheduling is this trade-off.
+Modern Linux uses **EEVDF** (since 6.6) derived from fair scheduling: tasks get a virtual runtime and are picked to keep CPU time fair, weighted by `nice` and cgroup shares.
 
-Threads in the **same process** still context-switch CPU state but share the address space — cheaper than switching processes, not free.
+- `nice -20..19`: higher priority gets more CPU weight.
+- No hard time slices; the scheduler preempts based on latency targets.
+- **Real-time** policies (`SCHED_FIFO`, `SCHED_RR`) can starve everything else; use only for small, bounded work.
 
-## 3. Textbook algorithms (and their failure mode)
+### Multicore and affinity
 
-**FCFS (first-come, first-served).** Simple. **Convoy effect:** a long CPU hog at the head of the queue delays everyone.
+- The scheduler load-balances across cores.
+- **Affinity** pins threads to cores (latency-sensitive, NUMA).
+- **NUMA**: accessing another socket's memory costs more; pinning + local allocation helps.
+- **SMT/hyperthreads** share execution units; CPU-bound siblings halve each other's throughput.
 
-**SJF (shortest job first).** Ideal average wait if you magically know burst lengths. You do not. **Starvation:** a long job waits forever if short jobs keep arriving.
+## cgroups: quotas vs shares
 
-**Round robin.** Ready queue is a ring. Each thread runs for a quantum. Fair-ish. Quantum too short → switch storm. Too long → interactive lag.
+Containers are scheduled by the kernel through cgroups:
 
-**Priority.** High priority runs first. Without **aging** (priority slowly rises while waiting), low priority **starves**. Priority inversion (low holds a lock high needs) is a real bug; priority inheritance is the usual fix.
+| Control | Meaning | Behaviour |
+|---|---|---|
+| `cpu.max` (quota/period) | hard cap (e.g., 1 CPU per 100 ms) | **throttling** when exceeded |
+| `cpu.weight` (shares) | relative share under contention | no cap when idle |
+| `cpuset` | allowed cores | isolation/affinity |
 
-## 4. What Linux actually does (enough to be useful)
+Kubernetes `limits.cpu` maps to quota → throttling; `requests.cpu` maps to weight. A container can be throttled while the node has idle CPUs if the quota is exhausted within a period. That shows up as p99 spikes and `nr_throttled`.
 
-Linux's default is **CFS** (Completely Fair Scheduler): it tracks how much CPU time each runnable task has gotten and runs the one that is most "behind," using a red-black tree, not a simple queue. Interactive tasks that sleep a lot look "behind" when they wake, so they get the core quickly — that is why typing stays snappy during a compile.
+## Latency vs throughput
 
-You will also meet:
+- **Throughput** wants long timeslices, batching, fewer switches.
+- **Latency** wants immediate preemption and short queues.
 
-- **`nice`** values: a hint, not a hard real-time guarantee.
-- **cgroups / containers:** a container's CPU limit is the scheduler's fairness applied to a group. This is how Kubernetes `cpu: 100m` is enforced.
-- **Real-time policies** (`SCHED_FIFO`) on specialized systems. Do not put your Node app there.
+At high utilization, a runnable thread waits in the run queue; wait time is part of response latency. Little's law applies to CPU queues too: more concurrency does not create cores.
+
+## Measuring
 
 ```bash
-top          # STAT: R running, S sleeping, D uninterruptible I/O
-ps -eo pid,ni,pri,cmd | head
+uptime                      # load average (runnable + uninterruptible)
+vmstat 1                    # r, b, us, sy, id, wa, st
+mpstat -P ALL 1             # per-core utilization
+pidstat -u -w 1             # per-process CPU + switches
+cat /proc/pressure/cpu      # PSI: some/full stall time
+perf sched latency          # scheduler latency
+cat /sys/fs/cgroup/cpu.stat # nr_throttled, throttled_usec
 ```
 
-If a process is always `D`, you do not have a scheduling problem — you have disk or lock I/O.
+Signals:
 
-## 5. Why application engineers care
+- **high `r`** → run-queue contention,
+- **high `st`** → CPU steal (noisy hypervisor),
+- **high `wa`** → I/O wait (not CPU),
+- **PSI full** → real stalls, not just utilization.
 
-- **Busy loops** steal the fair share from everyone on the core (and burn cloud money).
-- **Too many threads** (10,000 blocked in the kernel) explode context-switch and memory costs. Thread pools exist for this.
-- **Latency vs throughput:** a huge quantum is great for a batch job, terrible for p99 API latency on a shared host.
-- **Noisy neighbor** on a VM: another tenant's steal time. You will see it in metrics as `steal` / `ready` time, not as "our code got slower."
+## Failure modes
 
-## What to remember
+| Failure | Symptom | Cause |
+|---|---|---|
+| CPU throttling | periodic p99 spikes | cgroup quota too low |
+| Noisy neighbour | variable latency | shared host, steal, SMT |
+| Run-queue wait | high latency at high CPU | too few cores / too many threads |
+| Priority inversion | high-priority task blocked | lock held by low-priority thread |
+| Real-time starvation | system hangs | SCHED_FIFO busy loop |
+| Excessive switching | low throughput | too many runnable threads |
+| NUMA miss | bandwidth/latency loss | remote memory access |
+| Thundering herd | CPU spike on wake | many threads wake at once |
 
-- Cores are multiplexed by preemption and blocking; the scheduler picks the next runnable thread.
-- Context switches are not free; quantum size is a latency/overhead trade.
-- FCFS, SJF, RR are interview models. Linux CFS is "fair share + interactive boost."
-- Starvation and priority inversion are the failure modes of naive priority schemes.
+## Tuning guidance
+
+- Size CPU **requests/limits** from measured usage, not guesses.
+- Keep utilization below ~70% for latency-sensitive services.
+- Bound thread pools and async concurrency; unbounded concurrency increases queueing.
+- Pin latency-critical threads; avoid mixing batch and interactive work on the same cores.
+- Prefer fewer, longer-lived workers over per-request threads at high QPS.
+- Watch PSI and throttling, not just average CPU.
+
+## Interview prompts
+
+1. "CPU is at 40% but latency is high. How?" → throttling, run-queue waits, steal, I/O wait, lock contention.
+2. "Why does p99 spike every 100 ms?" → cgroup quota period throttling.
+3. "What is CPU steal?" → the hypervisor scheduled another VM; your vCPU was not runnable.
+
+## Checklist
+
+- [ ] CPU requests/limits match measured demand.
+- [ ] Throttling (`nr_throttled`) is monitored.
+- [ ] Run-queue and PSI are watched, not just utilization.
+- [ ] Thread/task concurrency is bounded.
+- [ ] Latency-critical work is isolated (cpuset/affinity).
+- [ ] CPU steal and noisy neighbours are visible.
+- [ ] NUMA/locality is considered for large services.
+- [ ] Batch work cannot starve interactive traffic.

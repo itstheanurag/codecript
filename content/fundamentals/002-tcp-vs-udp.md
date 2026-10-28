@@ -1,72 +1,159 @@
 ---
 title: TCP vs UDP (Layer 4)
-description: Learn how TCP's handshake, retransmission, and congestion control differ from UDP, and when HTTP/3 and games pick each one.
+description: Reliable streams versus datagrams — handshakes, retransmission, flow and congestion control, head-of-line blocking, QUIC, and what each means for latency and failure.
 order: 2
 ---
 
-When an app sends bytes, **Layer 4** decides the shipping rules. Two protocols dominate: **TCP** (a connection with receipts) and **UDP** (stamped envelopes, no tracking). HTTP, Postgres, and SSH sit on TCP. Video calls, DNS, and many games sit on UDP. HTTP/3 sits on **QUIC**, which is UDP plus reliability reinvented.
+TCP and UDP are both transport protocols. The difference is not "fast vs slow"; it is **what the protocol guarantees and where the complexity lives**.
 
-> [!TIP]
-> **ELI5: Courier vs megaphone**
-> TCP is a courier who knocks, gets a signature, and resends if the box vanished. UDP is shouting across a field: faster, no "did you hear me?", and the next shout is a new sentence anyway.
+- **TCP** provides an ordered, reliable, congestion-controlled byte stream.
+- **UDP** provides datagrams: no ordering, no retransmission, no congestion control by default.
+- **QUIC** provides streams and reliability over UDP, in userspace.
 
-## 1. TCP: connection, order, receipts
+## TCP
 
-TCP is **connection-oriented**. Before payload, both sides agree they exist (**three-way handshake**):
+### Establishing a connection
 
-1. Client → `SYN` (I want to talk; here is my sequence number).
-2. Server → `SYN-ACK`.
-3. Client → `ACK`. Then data.
+```
+client                          server
+  SYN  ------------------------>
+       <------------------ SYN-ACK
+  ACK  ------------------------>
+```
 
-Closing is a similar dance (`FIN`/`ACK`). That is why a naive "open 10,000 HTTP/1 connections" is expensive: each costs round trips and kernel state.
+Three packets, one round trip before data (unless TCP Fast Open). Then TLS adds another round trip (1-RTT in TLS 1.3, 2-RTT in 1.2) unless session resumption/0-RTT is used.
 
-**What TCP guarantees (from the app's point of view):**
+Latency floor for a new HTTPS connection over TCP + TLS 1.3:
 
-- **Delivery.** Unacked segments are retransmitted. The app sees a stream, not packets.
-- **Order.** Segment 2 waits if 1 is missing. The app never sees 2 before 1.
-- **Flow and congestion control.** A window limits in-flight data. If the network is dropping, TCP slows down (AIMD) so the path does not collapse.
+```
+1 RTT (TCP) + 1 RTT (TLS) + 1 RTT (request/response) = 3 RTT
+```
 
-**Cost:** handshake latency (one extra RTT before data on a cold connection). **Head-of-line blocking:** one lost packet stalls *everything* behind it in that stream. HTTP/2 multiplexes requests on one TCP connection — a lost packet still stalls all of them. That is a reason HTTP/3 left TCP.
+At 100 ms RTT that is 300 ms before the first byte of the response. This is why connection reuse and edge termination matter.
 
-Ports: TCP (and UDP) addresses are `ip:port`. `443` is a convention, not magic. `ss -lptn` shows who is listening.
+### Reliability
 
-## 2. UDP: no session, no apology
+Every byte is numbered. The receiver ACKs; unacknowledged data is retransmitted after a timeout (RTO) or on duplicate ACKs (fast retransmit).
 
-UDP sends a **datagram** to `ip:port` and is done. No handshake, no retry, no order, no congestion control in the protocol itself.
+Consequences:
 
-If you need those, **you build them in the application** (or use a library: QUIC, WebRTC, a game netcode).
+- **Loss becomes latency**, not data loss.
+- **Reordering** is repaired by buffering, which can cause head-of-line blocking.
+- **Retransmission timeouts** grow exponentially; a single loss on a high-RTT link hurts.
 
-DNS queries are tiny and retry-at-the-app: UDP is the default; TCP is the fallback for large responses. A VoIP packet that arrives 200ms late is trash — better to skip than to stall. A bank transfer is the opposite.
+### Flow control and congestion control
 
-**UDP still has checksums** (optional on IPv4, not a substitute for app-level integrity). It can still be firewalled, NATed, and dropped. "UDP is unreliable" means the *protocol* will not help you; the network is lossy for both.
+- **Flow control** prevents overwhelming the receiver (advertised window).
+- **Congestion control** prevents overwhelming the network: slow start, congestion avoidance, fast recovery. Algorithms (CUBIC, BBR) differ in how they infer loss vs delay.
 
-## 3. Head-of-line, QUIC, and the interview table
+Symptom mapping:
 
-| | TCP | UDP |
-| :--- | :--- | :--- |
-| Setup | Handshake, state in kernel | None |
-| Lost packet | Retransmit; stream waits | App never hears, or app retries |
-| Order | Strict | Arrival order |
-| Congestion | Built in | App or nothing |
-| Typical | HTTP/1–2, TLS, DB, SSH | DNS, video, games, QUIC |
+| Observation | Likely cause |
+|---|---|
+| High retransmit rate | lossy path, bufferbloat, MTU issue |
+| Throughput plateaus at low RTT | congestion window, receiver window, app-level limit |
+| Latency grows with load | queueing (bufferbloat), not bandwidth |
 
-**HTTP/3 / QUIC:** reliability and TLS moved *into* userspace on top of UDP, with **independent streams** so one loss does not freeze the whole connection. Know this sentence for interviews; you do not need the RFC.
+### Nagle and delayed ACK
 
-**The gaming answer:** position updates are UDP because the next packet supersedes the last. **The money answer:** ledgers are TCP (or QUIC) because a silent drop is corruption, not lag.
+Classic sources of mysterious 40 ms delays:
 
-> [!IMPORTANT]
-> TCP is not "always slower to *send*." A long transfer on a healthy path is extremely fast. TCP is slower to *start* and *stalls on loss*. UDP is not "always better for realtime" if you then reinvent a worse TCP.
+- **Nagle's algorithm** coalesces small writes; combined with delayed ACKs it can stall request/response protocols.
+- **`TCP_NODELAY`** disables Nagle for latency-sensitive writes.
 
-## 4. What you debug as an engineer
+Modern HTTP stacks set `TCP_NODELAY`; custom protocols often forget.
 
-- `connection refused` — nothing listening on that TCP port (or RST).
-- `connection timed out` — packet filtered, or host dead. UDP timeouts are app-defined; there is no connection to time out.
-- TLS happens *on top of* TCP (or inside QUIC). Handshake failures are not "UDP vs TCP," they are certs and ciphers.
-- NAT hole punching is a UDP (and WebRTC) problem because there is no connection the NAT can bind as easily as TCP.
+### Connection state and exhaustion
 
-## What to remember
+- `TIME_WAIT` holds sockets after close (2×MSL) to absorb late packets; high connection churn can exhaust ephemeral ports.
+- `CLOSE_WAIT` accumulating means the application is not closing sockets — a leak.
+- Backlog overflow (SYN queue) causes connection timeouts under burst.
 
-- TCP = stream, ordered, retransmitted, congestion-controlled. Handshake + HOL blocking.
-- UDP = datagrams. Fast start, no guarantees; apps that care build their own.
-- Pick TCP when a missed byte is a bug. Pick UDP when a missed byte is already stale.
-- HTTP/3 is "reliable UDP," not "we stopped caring about loss."
+```bash
+ss -s
+ss -tan state time-wait | wc -l
+ss -tan state close-wait | head
+```
+
+## UDP
+
+UDP sends independent datagrams. No handshake, no order, no retransmit, no congestion control unless the application adds it.
+
+Why use it:
+
+- **Low latency, loss-tolerant** media (voice/video, games).
+- **Custom reliability** (QUIC, DNS, TFTP).
+- **Broadcast/multicast** (not supported by TCP).
+- **Connectionless** request/response where a handshake costs more than the data (DNS).
+
+Risks:
+
+- amplification/reflection attacks (DNS, NTP, memcached) if responses are larger than requests;
+- no fairness: an unthrottled UDP flow can starve TCP;
+- application must handle loss, ordering, duplication, and MTU.
+
+## QUIC (HTTP/3)
+
+QUIC runs over UDP and moves reliability into userspace:
+
+- **Per-stream ordering** — a lost packet blocks only its stream, not all streams (no TCP head-of-line blocking).
+- **1-RTT handshake**, 0-RTT resumption (with replay caveats).
+- **Connection migration** — survives IP changes (mobile).
+- **Encryption by default** (TLS 1.3 integrated).
+- **Userspace congestion control** — easier to iterate, but more CPU.
+
+Operational notes: UDP is sometimes blocked by corporate networks; browsers fall back to TCP/TLS. Monitor both paths.
+
+## Head-of-line blocking
+
+With one TCP stream, a lost packet stalls everything behind it, even unrelated responses. HTTP/1.1 pipelining suffers badly; HTTP/2 multiplexing helps at the application layer but **still shares one TCP connection**, so packet loss blocks all streams.
+
+QUIC solves this with independent streams. This is a major reason HTTP/3 improves tail latency on lossy mobile networks.
+
+## Choosing a transport
+
+| Need | Choose |
+|---|---|
+| Ordered, reliable bytes (HTTP/1.1, DB, SSH) | TCP |
+| Low-latency, loss-tolerant media | UDP (with app-level recovery) |
+| Modern web with tail-latency sensitivity | QUIC/HTTP/3 where available |
+| Tiny request/response, idempotent | UDP (DNS-style) with retry |
+| Broadcast/multicast | UDP |
+
+## Failure modes
+
+| Failure | Symptom | Fix/inspect |
+|---|---|---|
+| Packet loss | retransmits, p99 spikes | `netstat -s`, tcptrace, path quality |
+| Bufferbloat | latency grows with load | AQM (fq_codel), smaller buffers |
+| MTU black hole | large payloads hang | path MTU discovery, ICMP allowed |
+| Nagle + delayed ACK | ~40 ms stalls | `TCP_NODELAY` |
+| Port exhaustion | connect timeouts | connection reuse/pooling |
+| `CLOSE_WAIT` growth | FD leak | close sockets in `finally` |
+| UDP blocked | QUIC falls back or fails | monitor fallback, allow 443/UDP |
+
+## Tuning that matters
+
+- Reuse connections (keep-alive) and pool them.
+- Set connect/read/total timeouts; never rely on OS defaults.
+- Enable `TCP_NODELAY` for interactive protocols.
+- Size accept backlog and file descriptors for peak connections.
+- Monitor retransmits, RTT, and connection churn — not just throughput.
+- Prefer HTTP/2/3 where supported, but measure; multiplexing can concentrate loss.
+
+## Interview prompts
+
+1. "Why is the first request slow but subsequent ones fast?" → DNS/TCP/TLS handshakes, connection reuse.
+2. "Users on mobile see p99 spikes. Why?" → loss/HOL, QUIC, retransmits, RTT variance.
+3. "When would you build on UDP?" → real-time media, custom reliability, multicast.
+
+## Checklist
+
+- [ ] I know the RTT and loss profile of my users.
+- [ ] Handshake cost is measured separately from server time.
+- [ ] Connections are reused and pooled.
+- [ ] Timeouts and `TCP_NODELAY` are set deliberately.
+- [ ] I monitor retransmits, TIME_WAIT, and CLOSE_WAIT.
+- [ ] Large payloads respect path MTU.
+- [ ] UDP/QUIC fallback is tested.
+- [ ] I can explain head-of-line blocking to a teammate.

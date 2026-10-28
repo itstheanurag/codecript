@@ -1,81 +1,153 @@
 ---
 title: File Systems & I/O
-description: Learn inodes, directories, journaling, page cache, fsync, and why disk I/O is the bottleneck databases work around.
+description: How writes actually reach disk — the page cache, fsync and atomic rename, journaling vs COW, IOPS vs throughput, direct/async I/O, and the durability bugs that lose data.
 order: 9
 ---
 
-A disk is blocks of bits. A **file system** is the scheme that turns those blocks into files, directories, permissions, and names. Most production bugs at this layer are not "ext4 vs XFS." They are **full disks**, **forgotten `fsync`**, and **random I/O** on a spinning rust mental model that still applies to tail latency.
+"The write succeeded" is not the same as "the data is on disk". File systems, page caches, and device caches sit between your `write()` and durable storage.
 
-> [!TIP]
-> **ELI5: Library catalog**
-> The book (data blocks) lives on shelves. The **inode** is the catalog card: size, owner, where the shelves are. The **filename** is not on the card — it lives in a folder listing (a directory is a file that maps names → inode numbers). Two names can point at one card (**hard link**). A **symlink** is a card that just says "see that other name."
+## The layers
 
-## 1. Inodes, names, and links
+```
+application
+  read()/write()/mmap()/fsync()
+    -> VFS (common interface)
+      -> file system (ext4, xfs, btrfs, zfs, overlayfs)
+        -> block layer (I/O scheduler)
+          -> device (SSD/HDD/network volume)
+```
 
-On Unix, a file is an **inode** + data blocks.
+- **VFS** abstracts different file systems behind one API.
+- **Inode** stores metadata (permissions, size, block pointers); the **dentry** caches path→inode.
+- **File descriptor** is a process-local handle; leaking them is a common outage.
 
-The inode stores type, mode (`rwx`), owner, size, timestamps, and **pointers to data blocks** (and indirect pointers for large files). It does **not** store the name.
+## The page cache
 
-A **directory** is a list of `(name, inode number)`. That is why `mv` inside a filesystem is cheap: you rewrite directory entries, not the file bytes.
+Reads/writes go through the kernel page cache by default:
+
+- `write()` copies into cache and returns.
+- Dirty pages are flushed asynchronously by **writeback**.
+- A crash before flush loses the data (unless the FS journals it, which is not the same as application durability).
+
+`fsync(fd)` flushes data + metadata for that file. `fdatasync` skips non-essential metadata. `sync()` flushes everything (slow).
+
+**Durability rule**: to guarantee a file's contents survive a power loss, `fsync` the file **and** the directory entry if you created/renamed it.
+
+## Atomic writes
+
+A common pattern:
+
+```ts
+await writeFile(`${path}.tmp`, data);
+await fsync(tmpFd);              // data durable
+await rename(tmp, path);         // atomic within a filesystem
+await fsync(dirFd);              // directory entry durable
+```
+
+Without the directory fsync, the rename may be lost after a crash even though the file data is on disk. Rename is atomic only on the same filesystem.
+
+## Journaling vs copy-on-write
+
+| Type | Examples | How it protects |
+|---|---|---|
+| Journaling | ext4, xfs | logs metadata (and optionally data) before committing |
+| Copy-on-write | btrfs, zfs | writes new blocks, then switches pointers |
+| Log-structured | f2fs, some flash FS | append-only log, GC |
+
+Journaling modes in ext4:
+
+- `data=ordered` (default): data before metadata commit;
+- `data=journal`: full data journaling (slow);
+- `data=writeback`: metadata only (risk after crash).
+
+COW gives snapshots/checksums but can fragment and needs free space.
+
+## Performance: IOPS vs throughput vs latency
+
+| Workload | Dominated by |
+|---|---|
+| Many small random reads | IOPS + latency |
+| Large sequential reads | throughput |
+| Small synchronous writes | fsync latency |
+| Log append | write throughput + fsync |
+
+SSDs have high IOPS but limited write endurance; HDDs have high throughput but terrible random IOPS. Cloud volumes add network latency and burst credits.
+
+Queue depth: more in-flight I/O can increase throughput until latency explodes. Measure both.
+
+## I/O modes
+
+| Mode | Behaviour | Use |
+|---|---|---|
+| Buffered | page cache, write-back | default; best for most apps |
+| `O_DIRECT` | bypass cache, aligned | databases; avoids double caching |
+| `mmap` | map file into memory | random reads; page-fault driven |
+| `fsync` | durability barrier | transactions/commits |
+| async (`io_uring`, AIO) | submit many I/Os | high-throughput servers |
+| `sendfile`/`splice` | zero-copy file→socket | static file serving |
+
+## Object storage
+
+S3-style stores are not file systems:
+
+- eventual listing, strong read-after-write in modern S3;
+- no partial-file updates; replace whole objects;
+- latency per request is higher; parallelise;
+- durability is provider-managed;
+- use pre-signed URLs for direct client upload/download.
+
+## Failure modes
+
+| Failure | Symptom | Cause |
+|---|---|---|
+| Data loss after crash | empty/truncated file | no fsync / writeback |
+| Lost rename | file missing after power loss | missing directory fsync |
+| `ENOSPC` | writes fail | disk full, reserved blocks |
+| Inode exhaustion | cannot create files | too many small files |
+| Slow fsync | commit latency spikes | device cache/queue saturation |
+| Page cache pressure | RSS/dirty pages high | large writes, no throttling |
+| FD leak | `EMFILE` | unclosed files/sockets |
+| Disk saturation | high `iowait`, PSI full | random I/O storm, noisy neighbour |
+| Network volume stall | multi-second latency | cloud volume throttling |
+
+## Measuring
 
 ```bash
-ls -li file.txt          # left column is inode
-stat file.txt
-df -i                    # inode exhaustion: lots of tiny files can fill inodes first
+df -h; df -i              # space and inodes
+iostat -xz 1              # per-device util, await, queue
+cat /proc/pressure/io     # PSI stall time
+pidstat -d 1              # per-process I/O
+lsof -p <pid> | wc -l     # fd count
 ```
 
-**Hard link:** second name, same inode, same data. Data lives until the last link (and last open fd) is gone.
+- `await` = average latency per I/O.
+- `%util` near 100% means saturation (for HDDs; SSDs can be misleading).
+- PSI `full` is a better signal of real stalls.
 
-**Symlink:** a small file holding a path. Breaks if you move the target.
+## Practical guidance
 
-**"No space left on device"** can mean data blocks **or** inodes. `df -h` vs `df -i`.
+- Batch small writes; use append-only logs.
+- Avoid fsync per row; group commits (databases do this).
+- Stream large files; do not buffer them in memory.
+- Use atomic rename for config/state files.
+- Monitor inode usage, not just bytes.
+- Keep free space headroom (snapshots, COW, compaction).
+- Separate write-heavy workloads from latency-sensitive ones.
+- Back up; test restores.
 
-## 2. Journaling (why the disk is not soup after a crash)
+## Interview prompts
 
-A write is several steps: update data, update inode, update directory. Power loss in the middle = torn metadata.
+1. "A database commit takes 20 ms. Why?" → fsync latency, device queue, cloud volume, group commit.
+2. "We write a file and rename it, but after a crash it is missing. Why?" → directory fsync missing.
+3. "Random reads are slow but sequential is fine. What is the bottleneck?" → IOPS/latency, not bandwidth.
 
-**Journaling** file systems (ext4, NTFS, APFS) write an **intent log** first, then the real structures. On mount after a crash, the journal is replayed or rolled back. You get a **consistent tree**, not necessarily every byte of file contents (depends on journal mode: metadata-only vs data=journal).
+## Checklist
 
-This is consistency of the *file system*, not of your *database*. Postgres still has its own WAL.
-
-## 3. Sequential vs random, HDD vs SSD
-
-**Sequential:** read the next block, then the next. HDD heads barely move; NVMe is still happiest here (large reads). Logs, scans, video.
-
-**Random:** tiny reads scattered. HDD dies (milliseconds per seek). NVMe is orders of magnitude better but still not RAM; p99 spikes if the queue depth explodes.
-
-Databases and KV stores are designed around this (LSM vs B-tree, compaction, write amplification). Your API that `read()`s a 10-byte file per request on a network filesystem will feel it.
-
-## 4. Page cache and `fsync`
-
-Linux uses spare RAM as **page cache**. Reads of hot files never hit disk. Writes often go to cache (**dirty pages**) and flush later.
-
-```text
-write()  →  page cache (fast)  →  later  →  disk
-fsync()  →  "I mean it: durable now"
-```
-
-That is why `write()` returning does **not** mean the file survived a crash. Databases call `fsync` (or `fdatasync`) on WAL files. That is also why "sync every write" tanks throughput.
-
-> [!WARNING]
-> Docker and VMs lie if the hypervisor caches too. A test that `write()`s a file then "pulls the plug" in a VM may still see data that would have died on real power loss. Durability tests need `fsync` and a clear storage path.
-
-`O_DIRECT` bypasses the cache when you want to manage buffers yourself (some DBs). Most app code should not.
-
-## 5. What you debug on a box
-
-```bash
-df -h && df -i
-iostat -xz 1              # await, %util
-dmesg | grep -i error     # dying disk
-lsof | grep deleted       # process holds a deleted file; space not freed until exit
-```
-
-A classic outage: log file deleted but the process still has it open — `df` stays at 100% until restart.
-
-## What to remember
-
-- Names live in directories; identity and blocks live in inodes. Links are extra names.
-- Journaling protects file-system metadata across crashes; it is not your app's durability story.
-- `write` is to cache; `fsync` is to media. Databases pay for `fsync` on purpose.
-- Full inodes, held-deleted files, and random I/O are the boring causes of "the disk is broken."
+- [ ] Durability requirements are explicit (fsync file + dir).
+- [ ] Atomic rename is used for state files.
+- [ ] Write amplification and batch sizes are understood.
+- [ ] Inode and disk space are monitored.
+- [ ] I/O latency (not just throughput) is measured.
+- [ ] File descriptors are bounded and closed.
+- [ ] Large files are streamed, not buffered.
+- [ ] Backups are restored in drills.

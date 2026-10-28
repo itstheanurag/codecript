@@ -1,80 +1,147 @@
 ---
 title: Routing (DNS & BGP)
-description: Learn how DNS resolves a hostname to an IP, which records matter, how BGP routes packets between networks, and how to debug both.
+description: How names resolve and packets find their way — the DNS hierarchy and caching, records that matter, DNSSEC, and the BGP policies behind reachability and outages.
 order: 3
 ---
 
-To fetch `https://api.example.com` your machine needs an **IP address** (DNS) and a **path across independently owned networks** (BGP). DNS is a question you can run with `dig`. BGP is the backbone protocol you will rarely configure, but you *will* feel when it breaks.
+Two different routing problems:
 
-> [!TIP]
-> **ELI5: Phonebook and highway signs**
-> DNS is the phonebook: "example.com" → "203.0.113.10". BGP is the highway system between countries (ISPs, clouds). Each country advertises "I can reach these address blocks." Your packet hops from sign to sign. If a country lies about a shortcut, traffic goes to the wrong place (**BGP hijack**).
+- **DNS** maps names to addresses (and other records).
+- **BGP** decides which network path packets take between autonomous systems.
 
-## 1. DNS: name → record
+Most "site is down" incidents start in one of them.
 
-DNS is a distributed database of **records**, not just "the IP for a website."
+## DNS: the hierarchy
 
-| Type | Meaning |
-| :--- | :--- |
-| **A / AAAA** | IPv4 / IPv6 address |
-| **CNAME** | Alias to another name (CDN, Heroku, etc.) |
-| **MX** | Where email goes |
-| **NS** | Who is authoritative for this zone |
-| **TXT** | Arbitrary text (SPF, ACME challenges) |
-| **TTL** | How long a resolver may cache the answer |
-
-### Resolution path
-
-1. **Stub** (browser/OS) asks a **recursive resolver** (often 1.1.1.1, 8.8.8.8, or your ISP).
-2. If cached and TTL not expired, that is the answer.
-3. Else the resolver walks: **root** → **TLD** (`.com`) → **authoritative** nameservers for `example.com`.
-4. Authoritative server returns the record. Resolver caches it for the TTL.
-
-There are 13 **logical** root server identities, anycasted to hundreds of physical machines. You do not talk to "the one root in Virginia."
-
-```bash
-dig +trace api.example.com     # walk the chain
-dig A api.example.com          # what clients will use
-dig NS example.com             # who owns the zone
+```
+root (.)
+  └── TLD (com, org, dev)
+        └── authoritative nameserver for example.com
+              └── records (www, api, mail, ...)
 ```
 
-**TTL is an ops lever.** TTL 60s means a failover is visible in about a minute (plus stubborn caches). TTL 86400 means you announced an IP change yesterday and half the internet will believe the old one until tomorrow.
+Resolution:
 
-**CNAMEs at the zone apex** (`example.com` itself) are painful; that is why `ALIAS`/`ANAME` exist at some DNS hosts. You also cannot put a CNAME next to other records on the same name.
+1. A **stub resolver** (your OS/browser) asks a **recursive resolver** (ISP, 1.1.1.1, 8.8.8.8).
+2. The recursive resolver asks the root, then the TLD, then the authoritative server (iterative).
+3. The answer is cached for the record's **TTL**.
 
-> [!WARNING]
-> If you point a domain at a new load balancer but leave TTL at 24 hours, "I updated DNS" is not an incident response plan. Lower TTL *before* the maintenance window.
+`dig +trace example.com` shows the whole chain. `dig example.com @1.1.1.1` asks a specific resolver.
 
-## 2. BGP: how packets leave your ISP
+## Records that matter
 
-The internet is **Autonomous Systems** (AS): AT&T, Cloudflare, AWS, a university. Each has an **ASN** and a set of IP prefixes it owns (or is allowed to announce).
+| Type | Purpose | Notes |
+|---|---|---|
+| `A` | IPv4 address | multiple records = round robin |
+| `AAAA` | IPv6 address | dual-stack clients prefer IPv6 |
+| `CNAME` | alias to another name | not allowed at the zone apex |
+| `MX` | mail exchangers | priority ordering |
+| `TXT` | arbitrary text | SPF/DKIM/DMARC, verification |
+| `NS` | delegation | which servers are authoritative |
+| `SOA` | zone metadata | serial, refresh, negative TTL |
+| `CAA` | allowed CAs | certificate issuance control |
+| `SRV` | service location | host + port + priority |
 
-**BGP** is how ASes tell neighbors: "send me traffic for `203.0.113.0/24`." Routers pick a path (policy + AS-hop count, not "shortest fiber"). Your packet is forwarded hop by hop; no one box has the full user-to-server circuit.
+Apex problem: `example.com` needs `SOA`/`NS`, so it cannot be a `CNAME`. Use `A`/`AAAA` or provider-specific ALIAS/ANAME.
 
-You will see this as:
+## TTL and caching
 
-- `traceroute` showing routers you do not own.
-- A region going dark because a transit provider dropped a prefix.
-- Multi-homed companies advertising the same prefix from two ISPs for backup.
+TTL is a **contract with resolvers**: how long they may reuse the answer.
 
-**BGP hijack / route leak:** an AS accidentally (or maliciously) announces a more-specific prefix for someone else's IPs. Traffic follows the lie. RPKI and filtering exist because original BGP trusted announcements.
+- Low TTL (30–60 s) → faster failover, more queries.
+- High TTL (hours) → fewer queries, slower changes.
+- **TTL 0** does not mean "no cache"; some resolvers clamp it.
+- **Negative caching** (NXDOMAIN/NODATA) uses the SOA minimum; a typo can stick for minutes/hours.
 
-You do not run BGP on a typical app server. Your cloud's edge does. You *do* choose regions, anycast CDNs, and DNS failover that assume BGP path quality.
+Changing DNS is not instant. Plan for the old TTL to expire everywhere; during migration, lower TTL **before** the change, then raise it after.
 
-## 3. Debugging "the site is down" at this layer
+## Anycast and geo-routing
+
+- **Anycast**: the same IP is announced from multiple locations; BGP routes each user to the nearest/healthiest. Used by root servers, public resolvers, CDNs.
+- **GeoDNS**: the resolver returns different addresses based on the resolver's location (not the user's, which can differ).
+- **Weighted/latency routing**: provider feature, often implemented via health checks and DNS TTLs.
+
+DNS-based failover is coarse: resolvers cache, clients ignore TTLs, and health checks can flap. Treat it as a second line of defence, not a load balancer.
+
+## DNS security
+
+- **DNSSEC**: signs records so resolvers can verify authenticity. Does not encrypt queries.
+- **DoT/DoH**: encrypts DNS traffic to the resolver; does not make the answer authoritative.
+- **CAA**: restricts which CAs may issue certificates.
+- **Registrar security**: MFA, registrar lock, monitored NS changes. Domain hijacks are often registrar/account compromises.
+
+## BGP: how packets cross the Internet
+
+The Internet is a set of **autonomous systems (ASes)**. BGP announces which IP prefixes an AS can reach and via which neighbours.
+
+- **AS path**: the sequence of ASes to a prefix; shorter is usually preferred.
+- **Policies**: business relationships (customer/provider/peer) override shortest path; valleys are avoided.
+- **Local preference / MED / communities** influence selection.
+- **Anycast** relies on BGP: many locations announce the same prefix.
+
+BGP is **trust-based**. A misconfiguration can:
+
+- **Hijack** a prefix (announce someone else's space),
+- **Leak** routes (re-announce a provider's routes to peers),
+- **Blackhole** traffic (announce but drop).
+
+Mitigations: RPKI/ROA (cryptographic origin validation), prefix filters, max-prefix limits, monitoring (BGPStream, RIPE RIS).
+
+## Failure modes and symptoms
+
+| Symptom | Likely cause |
+|---|---|
+| `NXDOMAIN` for a valid host | missing record, wrong zone, expired domain |
+| `SERVFAIL` | DNSSEC failure, authoritative unreachable, resolver issue |
+| Works for some users | stale caches, split-horizon, geo-routing, anycast route |
+| Changed record not visible | TTL not expired; check multiple resolvers |
+| Email goes to spam | SPF/DKIM/DMARC TXT records |
+| Certificate issuance blocked | CAA record |
+| One region unreachable | BGP withdrawal/hijack, peering issue |
+| DNS slow but HTTP fast | resolver latency, cold cache, DoH provider |
+
+## Debugging checklist
 
 ```bash
-dig +short api.example.com
-curl -vI --resolve api.example.com:443:203.0.113.10 https://api.example.com/
+dig +short example.com
+dig +trace example.com
+dig example.com @8.8.8.8
+dig -x 203.0.113.10           # reverse
+dig example.com TXT
+dig example.com CAA
+whois example.com
+curl -v --resolve example.com:443:203.0.113.10 https://example.com
 ```
 
-- DNS points at the wrong IP → fix records, wait TTL (or lower it next time).
-- DNS is right, TCP times out → routing, firewall, or the origin is dead. `traceroute` / cloud status.
-- Some ISPs work, others do not → resolver cache, or a BGP path issue to *your* prefix.
+- Test from multiple networks/resolvers.
+- Compare authoritative vs recursive answers.
+- Check TTL and negative caching.
+- Verify DNSSEC with `dig +dnssec` (look for `ad` flag).
+- For BGP, check looking glasses and RPKI validity.
 
-## What to remember
+## Design guidance
 
-- DNS maps names to records (A, AAAA, CNAME, MX, NS) with a TTL. `dig` is the tool.
-- Recursive resolvers cache; authoritative servers are the source of truth.
-- BGP glues ASes together. Prefix announcements *are* the map; they can be wrong.
-- Change TTL before you need a fast cutover. DNS is not a load balancer by itself (round-robin A records are a blunt instrument).
+- Keep DNS simple; avoid deep CNAME chains.
+- Use a reputable anycast DNS provider with a documented SLA.
+- Lower TTLs before migrations; raise after.
+- Automate certificate issuance and monitor CAA.
+- Use health-checked failover only where TTLs are short.
+- For global traffic, combine DNS/anycast with application-level routing.
+- Monitor resolution from multiple geographies and resolvers.
+
+## Interview prompts
+
+1. "Users in one country cannot reach us; others can. How do you debug?" → DNS/geo, anycast/BGP, regional infra, certificate/SNI.
+2. "You changed an A record; some users still hit the old server. Why?" → TTL caching, resolvers, connection reuse.
+3. "What is anycast and why does it help?" → same IP, BGP nearest path, DDoS absorption.
+
+## Checklist
+
+- [ ] I know which resolver my users actually use.
+- [ ] TTLs match the change/failover strategy.
+- [ ] Negative caching is understood.
+- [ ] Apex records use ALIAS/A instead of CNAME.
+- [ ] DNSSEC/CAA are configured where needed.
+- [ ] Registrar account has MFA and lock.
+- [ ] BGP/anycast health is monitored from multiple regions.
+- [ ] I can trace a resolution end to end.
