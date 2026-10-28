@@ -46,6 +46,7 @@ type OutcomeStatus =
 interface Outcome {
   status: OutcomeStatus;
   message?: string;
+  hint?: string;
   actual?: SqlResultSet | null;
   expected?: SqlResultSet | null;
   durationMs?: number;
@@ -201,7 +202,11 @@ const PracticeView = () => {
     const response = await runSql(query, { practice: true });
 
     if (!response.ok) {
-      setOutcome({ status: "error", message: response.message });
+      setOutcome({
+        status: "error",
+        message: response.message,
+        hint: response.hint,
+      });
       setRunning(false);
       return;
     }
@@ -630,6 +635,12 @@ const PracticeView = () => {
                   <p className="whitespace-pre-wrap font-mono text-[12px] leading-relaxed text-red-800">
                     {outcome.message}
                   </p>
+                  {outcome.hint && (
+                    <p className="mt-1.5 border-t border-red-200 pt-1.5 font-sans text-[12px] leading-relaxed text-red-800">
+                      <span className="font-semibold">Hint:</span>{" "}
+                      {outcome.hint}
+                    </p>
+                  )}
                 </div>
               )}
 

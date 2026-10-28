@@ -68,19 +68,123 @@ function toResultSet(result: Results): SqlResultSet {
   };
 }
 
-function formatError(error: unknown): SqlRunFailure {
-  const err = (error ?? {}) as {
-    message?: string;
-    detail?: string;
-    hint?: string;
-    position?: string | number;
+interface PgError {
+  message?: string;
+  detail?: string;
+  hint?: string;
+  position?: string | number;
+  code?: string;
+}
+
+const VALUE_CONTEXT_KEYWORDS = new Set([
+  "and",
+  "between",
+  "else",
+  "ilike",
+  "in",
+  "is",
+  "like",
+  "not",
+  "or",
+  "then",
+  "values",
+  "when",
+]);
+
+/**
+ * Reads the identifier at a PostgreSQL error position (1-based). Returns null
+ * when the position does not point at a plain or double-quoted identifier.
+ */
+function identifierAt(sql: string, position: unknown) {
+  const start = Number(position) - 1;
+  if (!Number.isInteger(start) || start < 0 || start >= sql.length) {
+    return null;
+  }
+
+  if (sql[start] === '"') {
+    let index = start + 1;
+    let name = "";
+    while (index < sql.length) {
+      if (sql[index] === '"') {
+        if (sql[index + 1] === '"') {
+          name += '"';
+          index += 2;
+          continue;
+        }
+        return {
+          start,
+          text: sql.slice(start, index + 1),
+          name,
+          quoted: true,
+        };
+      }
+      name += sql[index];
+      index += 1;
+    }
+    return null;
+  }
+
+  const word = /^[A-Za-z_][A-Za-z0-9_$]*/.exec(sql.slice(start));
+  if (!word) return null;
+
+  return {
+    start,
+    text: word[0],
+    name: word[0],
+    quoted: false,
   };
+}
+
+/** Whether an identifier sits where a value (not a column name) is expected. */
+function isValuePosition(sql: string, offset: number): boolean {
+  const before = sql.slice(0, offset).trimEnd();
+  if (!before) return false;
+
+  const previousChar = before[before.length - 1];
+  if ("=<>!()".includes(previousChar)) return true;
+
+  const previousWord = /([A-Za-z_]+)$/.exec(before)?.[1].toLowerCase();
+  return previousWord !== undefined && VALUE_CONTEXT_KEYWORDS.has(previousWord);
+}
+
+/**
+ * PostgreSQL reports `column "Germany" does not exist` when a learner writes
+ * `WHERE country = "Germany"`. The error is technically correct — double
+ * quotes mean "identifier" — but the fix is not obvious to beginners, so
+ * translate it into an actionable hint.
+ */
+function stringLiteralHint(sql: string, error: PgError): string | undefined {
+  if (error.code !== "42703") return undefined;
+
+  const missing = /^column "((?:[^"]|"")*)" does not exist$/m
+    .exec(error.message ?? "")?.[1]
+    ?.replace(/""/g, '"');
+  if (missing === undefined) return undefined;
+
+  const token = identifierAt(sql, error.position);
+  if (!token || !isValuePosition(sql, token.start)) return undefined;
+  const sameName = token.quoted
+    ? token.name === missing
+    : token.name.toLowerCase() === missing.toLowerCase();
+  if (!sameName) return undefined;
+
+  if (token.quoted) {
+    const identifier = `"${token.name.replace(/"/g, '""')}"`;
+    const literal = `'${token.name.replace(/'/g, "''")}'`;
+    return `PostgreSQL treated ${identifier} as a column name. Double quotes are for identifiers; use single quotes for text values: ${literal}.`;
+  }
+
+  return `PostgreSQL treated ${token.text} as a column name. Text values need single quotes: '${token.name}'.`;
+}
+
+function formatError(error: unknown, sql: string): SqlRunFailure {
+  const err = (error ?? {}) as PgError;
 
   return {
     ok: false,
     message: err.message ?? "The query failed.",
     detail: err.detail,
-    hint: err.hint,
+    hint: err.hint ?? stringLiteralHint(sql, err),
     position: err.position === undefined ? undefined : String(err.position),
     durationMs: 0,
   };
@@ -129,7 +233,7 @@ export async function runSql(
     };
   } catch (error) {
     return {
-      ...formatError(error),
+      ...formatError(error, sql),
       durationMs: performance.now() - startedAt,
     };
   }
